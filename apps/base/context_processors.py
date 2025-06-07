@@ -47,6 +47,12 @@ def footer(request):
     }
 
 
+def section(request):
+    return {
+        "section_title": True,
+    }
+
+
 def overlay(request):
     return {
         "overlay_back_to_top": True,
@@ -55,10 +61,7 @@ def overlay(request):
     }
 
 
-def registry(request):
-    """Combined context processor for both navigation and auth pages."""
-
-    # Navigation items
+def navigation(request):
     nav_items = []
     for item in nav_registry.get_items():
         try:
@@ -76,7 +79,12 @@ def registry(request):
         except NoReverseMatch:
             continue
 
-    # Auth pages
+    return {
+        "nav_items": nav_items,
+    }
+
+
+def auth_pages(request):
     enabled_pages = auth_pages_registry.get_enabled_pages()
 
     # Build auth URLs dictionary
@@ -114,9 +122,6 @@ def registry(request):
     }
 
     return {
-        # Navigation context
-        "nav_items": nav_items,
-        # Auth pages context
         "auth_urls": auth_urls,
         "auth_configs": auth_configs,
         "auth_pages": auth_helpers,

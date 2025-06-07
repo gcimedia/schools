@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "django_recaptcha",
     "phonenumber_field",
     "apps.base",
-    "apps.elearning"
+    "apps.elearning",
 ]
 
 # Add django_browser_reload only in DEBUG mode
@@ -79,12 +79,14 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "apps.base.context_processors.registry",
                 "apps.base.context_processors.header",
                 "apps.base.context_processors.hero",
                 "apps.base.context_processors.auth",
                 "apps.base.context_processors.footer",
+                "apps.base.context_processors.section",
                 "apps.base.context_processors.overlay",
+                "apps.base.context_processors.navigation",
+                "apps.base.context_processors.auth_pages",
             ],
         },
     },
