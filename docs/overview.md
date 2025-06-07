@@ -13,38 +13,24 @@ Currently, most school activities are handled **manually or physically** — inc
 
 ## B. Problem Statement
 
-- **The Problem of:**  
-  Manual handling of school activities leading to errors, delays, poor tracking of student progress, and lack of centralized data.
-
-- **Which Affects:**  
-  Students, instructors, and administrators who struggle with fragmented information, poor communication, and lack of visibility into academic progress and administration.
-
-- **For Which a Capable Solution Would Be:**  
-  A centralized web-based platform to manage the activities of all schools under the department.
-
-- **Which Would:**  
-  - Digitize the enrollment and module management process.
-  - Allow students to track their progress.
-  - Empower instructors to structure and manage their modules and students.
-  - Provide administrators with tools to oversee the entire system efficiently.
+| Aspect                              | Description                                                                                                                                                                                                                                                                  |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **The Problem of:**                 | Manual handling of school activities leading to errors, delays, poor tracking of student progress, and lack of centralized data.                                                                                                                                            |
+| **Which Affects:**                  | Students, instructors, and administrators who struggle with fragmented information, poor communication, and lack of visibility into academic progress and administration.                                                                                                  |
+| **For Which a Capable Solution Would Be:** | A centralized web-based platform to manage the activities of all schools under the department.                                                                                                                                                                             |
+| **Which Would:**                   | - Digitize the enrollment and module management process.<br>- Allow students to track their progress.<br>- Empower instructors to structure and manage their modules and students.<br>- Provide administrators with tools to oversee the entire system efficiently.         |
 
 
 ## C. Project Stakeholders
 
-- **GCI Church Leadership:**  
-  Approves and oversees the overall project vision; ensures alignment with the church’s mission.
+| Stakeholder                             | Role and Responsibilities                                                                                                   |
+|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| **GCI Church Leadership**               | Approves and oversees the overall project vision; ensures alignment with the church’s mission.                              |
+| **Schools Department Head**             | Provides detailed requirements; ensures the system meets the administrative needs of the schools.                           |
+| **Schools Department Instructors / Facilitators** | Deliver content, manage modules, and track student participation and progress.                                              |
+| **Students / Church Members**           | End-users of the platform who will enroll in and participate in school modules.                                              |
+| **Media Department Developers**         | Design, develop, and maintain the web application; implement features and ensure usability.                                  |
 
-- **Schools Department Head:**  
-  Provides detailed requirements; ensures the system meets the administrative needs of the schools.
-
-- **Schools Department Instructors / Facilitators:**  
-  Deliver content, manage modules, and track student participation and progress.
-
-- **Students / Church Members:**  
-  End-users of the platform who will enroll in and participate in school modules.
-
-- **Media Department Developers:**  
-  Design, develop, and maintain the web application; implement features and ensure usability.
 
 ## D. Project Scope 
 
@@ -52,24 +38,11 @@ This project involves the development of an **online system** — a web applicat
 
 ## E. Objectives
 
-- **Functional Objectives _(The System Must...)_**
-  - Allow creation and management of multiple schools (e.g., Foundation, Ministry, Leadership)
-  - Allow each school to have multiple modules
-  - Support student registration and module enrollment
-  - Track student progress and completion status
-  - Enable instructors to manage module content and attendance
-  - Provide admin interfaces for user, school, and module management
-  - Ensure role-based access control (admin, instructor, student)
-  - Maintain audit trails of enrollment and module updates
+| Objective Type             | Details                                                                                                                                                              |
+|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Functional Objectives** <br>_The system must..._ | - Allow creation and management of multiple schools (e.g., Foundation, Ministry, Leadership)<br>- Allow each school to have multiple modules<br>- Support student registration and module enrollment<br>- Track student progress and completion status<br>- Enable instructors to manage module content and attendance<br>- Provide admin interfaces for user, school, and module management<br>- Ensure role-based access control (admin, instructor, student)<br>- Maintain audit trails of enrollment and module updates |
+| **Non-Functional Objectives** <br>_The system should..._ | - Be **secure** — use authentication and authorization (role-based)<br>- Be **scalable** — support more schools, modules, and users over time<br>- Be **reliable** — ensure minimal downtime<br>- Be **responsive** — accessible on mobile and desktop<br>- Be **user-friendly** — clean UI, intuitive navigation<br>- Be **auditable** — maintain logs of critical operations<br>- Be **portable** — deployable on most cloud or on-prem environments |
 
-- **Non-Functional Objectives _(The System Should...)_**
-  - Be secure — use authentication and authorization (role-based)
-  - Be scalable — support more schools, modules, and users over time 
-  - Be reliable — ensure minimal downtime 
-  - Be responsive — accessible on mobile and desktop 
-  - Be user-friendly — clean UI, intuitive navigation 
-  - Be auditable — maintain logs of critical operations 
-  - Be portable — deployable on most cloud or on-prem environments
 
 ## F. Tech Stack
 

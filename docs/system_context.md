@@ -2,16 +2,13 @@
 
 ## A. System Externals
 
-The **GCI Schools Management System** interacts with:
+The **GCI Schools Management System** interacts with the following user roles:
 
-- **Students:**  
-  Who enroll in schools and modules, access learning materials, track progress.
-
-- **Instructors / Facilitators:**  
-  Who manage modules, engage students, view student progress.
-
-- **Administrators:**  
-  Who oversee the system (schools, modules, users), manage content, generate reports.
+| Role                      | Responsibilities                                                                                   |
+|---------------------------|----------------------------------------------------------------------------------------------------|
+| **Student**              | Enroll in schools and modules, access learning materials, track progress.                         |
+| **Instructor** | Manage modules, engage students, view student progress.                                          |
+| **Admin**        | Oversee the system (schools, modules, users), manage content, generate reports.                   |
 
 ## B. Context Diagram
 
