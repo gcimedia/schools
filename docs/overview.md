@@ -73,11 +73,11 @@ This project involves the development of an **online system** — a web applicat
 
 ## F. Tech Stack
 
-- [Django (Backend)](https://www.djangoproject.com/)
-- [Sqlite (Development Database)](https://sqlite.org/)
-- [PostgreSQL (Production Database)](https://www.postgresql.org/)
-- [Bootstrap and other frontend vendors (Frontend enhancements)](https://getbootstrap.com/)
-- [Python Poetry (Dependency management)](https://python-poetry.org/)
+- <a href="https://www.djangoproject.com/" target="_blank">Django (Backend)</a>
+- <a href="https://sqlite.org/" target="_blank">Sqlite (Development Database)</a>
+- <a href="https://www.postgresql.org/" target="_blank">PostgreSQL (Production Database)</a>
+- <a href="https://getbootstrap.com/" target="_blank">Bootstrap and other frontend vendors (Frontend enhancements)</a>
+- <a href="https://python-poetry.org/" target="_blank">Python Poetry (Dependency management)</a>
 
 ## 📚 Guides:
 
