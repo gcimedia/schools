@@ -27,7 +27,9 @@ The **GCI Schools Management System** interacts with the following user roles:
   </tbody>
 </table>
 
-## B. Context Diagram
+## B. Context Diagrams
+
+To be added
 
 ## 📚 System Documentation:
 

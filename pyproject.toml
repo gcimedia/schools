@@ -34,7 +34,7 @@ blank_line_before_tag = ""
 blank_line_after_tag = "load,extends"
 
 [tool.djlint.css]
-indent_size = 4
+indent_size = 2
 
 [tool.djlint.js]
-indent_size = 4
+indent_size = 2
