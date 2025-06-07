@@ -84,7 +84,7 @@ Same for both development and production:
 
 ## 📚 System Documentation
 
-- 🧭 [Overview](apps/elearning/docs/overview.md)  
-- 🗺️ [System Context](apps/elearning/docs/system_context.md)  
-- 🎯 [System Use Cases](apps/elearning/docs/system_use_cases.md)  
-- 🗄️ [System Database Design](apps/elearning/docs/system_database_design.md)
+- 🧭 [Overview](apps/schools/docs/overview.md)  
+- 🗺️ [System Context](apps/schools/docs/system_context.md)  
+- 🎯 [System Use Cases](apps/schools/docs/system_use_cases.md)  
+- 🗄️ [System Database Design](apps/schools/docs/system_database_design.md)

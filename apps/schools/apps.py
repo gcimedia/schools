@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class ElearningConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "apps.elearning"
+    name = "apps.schools"
 
     def ready(self):
         try:

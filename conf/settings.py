@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "django_recaptcha",
     "phonenumber_field",
     "apps.base",
-    "apps.elearning",
+    "apps.schools",
 ]
 
 # Add django_browser_reload only in DEBUG mode
