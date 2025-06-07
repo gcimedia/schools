@@ -4,11 +4,28 @@
 
 The **GCI Schools Management System** interacts with the following user roles:
 
-| Role                      | Responsibilities                                                                                   |
-|---------------------------|----------------------------------------------------------------------------------------------------|
-| **Student**              | Enroll in schools and modules, access learning materials, track progress.                         |
-| **Instructor** | Manage modules, engage students, view student progress.                                          |
-| **Admin**        | Oversee the system (schools, modules, users), manage content, generate reports.                   |
+<table>
+  <thead>
+    <tr>
+      <th>Role</th>
+      <th>Responsibilities</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Student:</strong></td>
+      <td>Enroll in schools and modules, access learning materials, track progress.</td>
+    </tr>
+    <tr>
+      <td><strong>Instructor:</strong></td>
+      <td>Manage modules, engage students, view student progress.</td>
+    </tr>
+    <tr>
+      <td><strong>Admin:</strong></td>
+      <td>Oversee the system (schools, modules, users), manage content, generate reports.</td>
+    </tr>
+  </tbody>
+</table>
 
 ## B. Context Diagram
 
