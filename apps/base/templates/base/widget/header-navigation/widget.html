@@ -7,7 +7,7 @@
       <li>
         <a href="{% url 'base:home' %}#contact" class="header-navlink">Contact</a>
       </li>
-      {% for item in header_nav_items %}
+      {% for item in nav_items %}
         <li>
           <a href="{{ item.url }}" class="header-navlink">{{ item.name }}</a>
         </li>

@@ -1,4 +1,4 @@
-{% if auth_signup %}
+{% if auth_pages.has_signup and auth_signup %}
   <section class="registration pt-3">
     <div class="container">
       <form method="post" role="form" class="mx-auto w-75 text-start email-form">
@@ -14,8 +14,8 @@
           {% endfor %}
         {% endif %}
         {% csrf_token %}
-        {% if next_redirect %}<input type="hidden" name="next" value="{{ next_redirect }}">{% endif %}
-        {% if back_url %}<input type="hidden" name="back" value="{{ back_url }}">{% endif %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        {% if back %}<input type="hidden" name="back" value="{{ back }}">{% endif %}
         <div class="row">
           <div class="col-md-6 form-group">{{ form.username }}</div>
           <div class="col-md-6 form-group mt-3 mt-md-0">{{ form.email }}</div>
@@ -30,12 +30,14 @@
         </div>
         <div class="text-center mt-4">
           <button type="submit" class="btn btn-primary">Sign up</button>
-          {% if back_url %}<a href="{{ back_url }}" class="back-btn btn btn-secondary ms-2">Back</a>{% endif %}
+          {% if back %}<a href="{{ back }}" class="back-btn btn btn-secondary ms-2">Back</a>{% endif %}
         </div>
-        <p class="mt-5">
-          Already have an account? You can
-          <a href="{% url 'base:signin' %}?next={{ next_redirect|urlencode }}&back={{ back_url|urlencode }}">log in here</a>
-        </p>
+        {% if auth_pages.has_signin %}
+          <p class="mt-5">
+            Already have an account? You can
+            <a href="{% url 'base:signin' %}?next={{ next|urlencode }}&back={{ back|urlencode }}">log in here</a>
+          </p>
+        {% endif %}
       </form>
     </div>
   </section>

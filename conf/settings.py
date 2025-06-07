@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_recaptcha",
     "phonenumber_field",
     "apps.base",
+    "apps.elearning"
 ]
 
 # Add django_browser_reload only in DEBUG mode
@@ -78,7 +79,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "apps.base.context_processors.navigation",
+                "apps.base.context_processors.registry",
                 "apps.base.context_processors.header",
                 "apps.base.context_processors.hero",
                 "apps.base.context_processors.auth",
@@ -108,8 +109,9 @@ DATABASES = {
 }
 
 
-# Authentication
+# Authentication & Password Validation
 # https://docs.djangoproject.com/en/latest/ref/settings/#auth
+# https://docs.djangoproject.com/en/latest/ref/settings/#auth-password-validators
 
 AUTHENTICATION_BACKENDS = [
     # "app.core.authentication.backends.PhoneAuthBackend",  # Custom auth backend
@@ -117,11 +119,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGOUT_REDIRECT_URL = "base:home"
-
-LOGIN_URL = "/auth/"
-
-# Password validation
-# https://docs.djangoproject.com/en/latest/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {

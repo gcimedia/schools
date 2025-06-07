@@ -5,7 +5,9 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import CreateView
 
+from .decorators import auth_page_required, auth_page_required_class
 from .forms import AuthLoginForm, AuthSignUpForm
+
 
 def home(request):
     extra_context = {
@@ -17,20 +19,22 @@ def home(request):
     return render(request, "base/index.html", extra_context)
 
 
+@auth_page_required("signin")
 def signin(request):
     if request.user.is_authenticated:
         return redirect("/")
 
     extra_context = {
         "page_title": "Login",
+        "header_auth_btn": False,
         "show_auth": True,
         "auth_signin": True,
     }
 
-    next_redirect = request.GET.get("next", "")
-    back_url = request.GET.get("back", "")
-    extra_context["next_redirect"] = next_redirect
-    extra_context["back_url"] = back_url
+    next = request.GET.get("next", "")
+    back = request.GET.get("back", "")
+    extra_context["next"] = next
+    extra_context["back"] = back
 
     if request.method == "POST":
         form = AuthLoginForm(request, data=request.POST)
@@ -40,9 +44,9 @@ def signin(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                next_redirect = request.POST.get("next", "")
-                if next_redirect:
-                    return redirect(next_redirect)
+                next = request.POST.get("next", "")
+                if next:
+                    return redirect(next)
                 return redirect("/")
             else:
                 messages.error(
@@ -66,11 +70,13 @@ def signout(request):
     return redirect(settings.LOGOUT_REDIRECT_URL)
 
 
+@auth_page_required_class("signup")
 class SignUp(CreateView):
     form_class = AuthSignUpForm
     template_name = "base/index.html"
     extra_context = {
         "page_title": "Sign up",
+        "header_auth_btn": False,
         "show_auth": True,
         "auth_signup": True,
     }
@@ -83,8 +89,8 @@ class SignUp(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.extra_context)
-        context["next_redirect"] = self.request.GET.get("next", "")
-        context["back_url"] = self.request.GET.get("back", "")
+        context["next"] = self.request.GET.get("next", "")
+        context["back"] = self.request.GET.get("back", "")
         return context
 
     def form_invalid(self, form):
@@ -100,9 +106,9 @@ class SignUp(CreateView):
         user.backend = settings.AUTHENTICATION_BACKENDS[0]  # Optional
         login(self.request, user)
 
-        next_redirect = self.request.POST.get("next", "")
-        if next_redirect:
-            return redirect(next_redirect)
+        next = self.request.POST.get("next", "")
+        if next:
+            return redirect(next)
 
         return redirect("base:signin")
 
