@@ -1,0 +1,40 @@
+[project]
+name = "gci-schools"
+version = "0.1.0"
+description = ""
+authors = [
+  { name = "Great Commissioners International Media Department", email = "media@gcichurch.org" },
+]
+readme = "README.md"
+requires-python = ">=3.13"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.dependencies]
+python-decouple = "^3.8"
+tzdata = "^2025.2"
+pillow = "^11.2.1"
+psycopg = "^3.2.9"
+django = "^5.2.2"
+django-ckeditor-5 = "^0.2.18"
+django-recaptcha = "^4.1.0"
+django-phonenumber-field = { extras = ["phonenumberslite"], version = "^8.1.0" }
+gunicorn = "^23.0.0"
+
+[tool.poetry.group.dev.dependencies]
+django-browser-reload = "^1.18.0"
+djlint = "^1.36.4"
+
+[tool.djlint]
+format_css = true
+format_js = true
+ignore = "T002,H016,H021,H023,H030,H031"
+blank_line_before_tag = ""
+blank_line_after_tag = "load,extends"
+
+[tool.djlint.css]
+indent_size = 4
+
+[tool.djlint.js]
+indent_size = 4
