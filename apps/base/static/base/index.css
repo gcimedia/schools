@@ -17,8 +17,10 @@
 
 :root {
   --default-font: "PreloSlab", "Roboto", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --heading-font: "PreloSlab", sans-serif; /* Was using "Montserrat" */
-  --nav-font: "PreloSlab" sans-serif;  /* Was using "Poppins" */
+  --heading-font: "PreloSlab", sans-serif;
+  /* Was using "Montserrat" */
+  --nav-font: "PreloSlab", sans-serif;
+  /* Was using "Poppins" */
 }
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
@@ -75,6 +77,8 @@ body {
   color: var(--default-color);
   background-color: var(--background-color);
   font-family: var(--default-font);
+  letter-spacing: 0.01em;
+  /* Subtle spacing for readability */
 }
 
 a {
@@ -94,9 +98,23 @@ h3,
 h4,
 h5,
 h6 {
-  letter-spacing: 0.02em;
   color: var(--heading-color);
   font-family: var(--heading-font);
+}
+
+h1 {
+  letter-spacing: 0.025em;
+}
+
+h2,
+h3 {
+  letter-spacing: 0.02em;
+}
+
+h4,
+h5,
+h6 {
+  letter-spacing: 0.015em;
 }
 
 .btn-redirect {

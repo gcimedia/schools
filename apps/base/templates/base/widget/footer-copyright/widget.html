@@ -1,10 +1,14 @@
+{% load org %}
+
 {% if footer_copyright|default_if_none:True %}
   <div class="container copyright text-center mt-4">
     <p>
-      © <span>Copyright</span> <strong class="px-1 sitename">{{ ORG_NAME }}</strong> <span>All Rights Reserved</span>
+      © <span>Copyright</span> <strong class="px-1 sitename">{% org_name %}</strong> <span>All Rights Reserved</span>
     </p>
     <div class="credits">
-      Designed by <a href="https://loxinformatics.space/" target="_blank" rel="noopener">Lox Informatics</a>
+      Designed by <a href="https://github.com/christianwhocodes/"
+    target="_blank"
+    rel="noopener"><em>Christian Who Codes</em></a>
     </div>
   </div>
 {% endif %}
