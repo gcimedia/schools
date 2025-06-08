@@ -24,7 +24,7 @@ jobs:
           git pull origin main
           
           # Install/update dependencies
-          poetry install
+          poetry install --only main
           
           # Collect static files
           poetry run python manage.py collectstatic --noinput

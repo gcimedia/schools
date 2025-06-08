@@ -95,7 +95,7 @@ class SignUp(CreateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect("base:signin")
+            return redirect("signin")
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -122,7 +122,7 @@ class SignUp(CreateView):
         if next:
             return redirect(next)
 
-        return redirect("base:signin")
+        return redirect("signin")
 
 
 # class ProfileUpdate(LoginRequiredMixin, UpdateView):

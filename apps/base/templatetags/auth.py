@@ -8,9 +8,9 @@ register = template.Library()
 
 # URL mappings for auth pages
 URL_MAPPINGS = {
-    "signin": "base:signin",
-    "signup": "base:signup",
-    "logout": "base:signout",  # Note: logout maps to signout
+    "signin": "signin",
+    "signup": "signup",
+    "logout": "signout",  # Note: logout maps to signout
     "profile_update": "base:profile",
     "password_reset": "base:password_reset",
     "email_verification": "base:email_verify",

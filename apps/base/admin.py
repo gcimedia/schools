@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from .admin_site import org_admin_site
 from .forms import OrgDetailForm, OrgGraphicForm, SocialMediaLinkForm
 from .models import (
     EmailAddress,
@@ -11,7 +12,8 @@ from .models import (
 )
 
 
-@admin.register(OrgDetail)
+
+@admin.register(OrgDetail, site=org_admin_site)
 class OrgDetailAdmin(admin.ModelAdmin):
     form = OrgDetailForm
     list_display = ("name", "value")
@@ -90,7 +92,7 @@ class OrgDetailAdmin(admin.ModelAdmin):
         return True
 
 
-@admin.register(OrgGraphic)
+@admin.register(OrgGraphic, site=org_admin_site)
 class OrgGraphicAdmin(admin.ModelAdmin):
     form = OrgGraphicForm
     list_display = ("name", "image")
@@ -116,7 +118,7 @@ class OrgGraphicAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(SocialMediaLink)
+@admin.register(SocialMediaLink, site=org_admin_site)
 class SocialMediaLinkAdmin(admin.ModelAdmin):
     form = SocialMediaLinkForm
     list_display = ("name", "url", "is_active", "order")
@@ -143,7 +145,7 @@ class SocialMediaLinkAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhoneNumber)
+@admin.register(PhoneNumber, site=org_admin_site)
 class PhoneNumberAdmin(admin.ModelAdmin):
     list_display = ("number", "is_active", "is_primary", "use_for_whatsapp", "order")
     list_editable = ("order",)
@@ -167,7 +169,7 @@ class PhoneNumberAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(EmailAddress)
+@admin.register(EmailAddress, site=org_admin_site)
 class EmailAddressAdmin(admin.ModelAdmin):
     list_display = ("email", "is_active", "is_primary", "order")
     list_editable = ("order",)
@@ -188,7 +190,7 @@ class EmailAddressAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhysicalAddress)
+@admin.register(PhysicalAddress, site=org_admin_site)
 class PhysicalAddressAdmin(admin.ModelAdmin):
     list_display = ("label", "city", "country", "is_primary", "is_active", "order")
     list_editable = ("order",)
