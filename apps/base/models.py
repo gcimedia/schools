@@ -8,6 +8,8 @@ class OrgDetail(models.Model):
         ("org_description", "Organization Description"),
         ("org_url", "Organization URL"),
         ("org_theme_color", "Organization Theme Color"),
+        ("org_author", "Organization Author"),
+        ("org_author_url", "Organization Author URL"),
     ]
 
     name = models.CharField(max_length=25, choices=ORG_DETAIL_CHOICES, unique=True)

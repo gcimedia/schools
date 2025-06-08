@@ -7,7 +7,7 @@ from django.views.generic import RedirectView
 from django.views.generic.edit import CreateView
 
 from .decorators import auth_page_required, auth_page_required_class
-from .forms import AuthLoginForm, AuthSignUpForm
+from .forms import SignInForm, SignUpForm
 from .registry.home import get_home_url_name
 
 
@@ -50,7 +50,7 @@ def signin(request):
     extra_context["back"] = back
 
     if request.method == "POST":
-        form = AuthLoginForm(request, data=request.POST)
+        form = SignInForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
@@ -70,7 +70,7 @@ def signin(request):
                 request, "Invalid username or password.", extra_tags="signin"
             )
     else:
-        form = AuthLoginForm()
+        form = SignInForm()
 
     extra_context["loginform"] = form
     return render(request, "base/index.html", extra_context)
@@ -85,7 +85,7 @@ def signout(request):
 
 @auth_page_required_class("signup")
 class SignUp(CreateView):
-    form_class = AuthSignUpForm
+    form_class = SignUpForm
     template_name = "base/index.html"
     extra_context = {
         "page_title": "Sign up",

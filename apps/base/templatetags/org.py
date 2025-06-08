@@ -1,6 +1,5 @@
 from django import template
 from django.core.cache import cache
-from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 
 from ..models import OrgDetail, OrgGraphic
@@ -13,17 +12,8 @@ def get_org_config():
     org_config = cache.get("org_config")
 
     if org_config is None:
-        # Create defaults
-        defaults = {
-            "ORG_NAME": "A 'Christian Who Codes' Project",
-            "ORG_DESCRIPTION": "A 'Christian Who Codes' project built with Django.",
-            "ORG_URL": "https://christianwhocodes.space",
-            "ORG_THEME_COLOR": "green",
-            "ORG_LOGO": static("base/img/logo.png"),
-            "ORG_FAVICON": static("base/img/favicon.ico"),
-            "ORG_APPLE_TOUCH_ICON": static("base/img/apple-touch-icon.png"),
-            "ORG_COVER_IMAGE": static("base/img/cover.png"),
-        }
+        # Start with empty config
+        org_config = {}
 
         # Get database values
         org_details = {
@@ -35,11 +25,9 @@ def get_org_config():
             for graphic in OrgGraphic.objects.only("name", "image")
         }
 
-        # Merge everything
-        defaults.update(org_details)
-        defaults.update(org_graphics)
-
-        org_config = defaults
+        # Merge database values
+        org_config.update(org_details)
+        org_config.update(org_graphics)
 
         # Cache for 1 hour
         cache.set("org_config", org_config, 3600)
@@ -62,7 +50,7 @@ def org_meta():
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="theme-color" content="{get_org_detail("ORG_THEME_COLOR", "#000")}" />
-    <meta name="author" content="{get_org_detail("ORG_NAME")}" />
+    <meta name="author" content="{get_org_detail("ORG_AUTHOR")}" />
     <meta name="description" content="{get_org_detail("ORG_DESCRIPTION")}" />
     <meta name="keywords" content="{get_org_detail("ORG_NAME")}" />
     
@@ -148,3 +136,15 @@ def org_logo():
 def org_cover_image():
     """Get org logo URL"""
     return get_org_detail("ORG_COVER_IMAGE")
+
+
+@register.simple_tag
+def org_author():
+    """Get org author specifically"""
+    return get_org_detail("ORG_AUTHOR")
+
+
+@register.simple_tag
+def org_author_url():
+    """Get org author URL specifically"""
+    return get_org_detail("ORG_AUTHOR_URL")

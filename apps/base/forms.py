@@ -44,7 +44,7 @@ class UniqueChoiceFormMixin:
         self.fields["name"].choices = [(None, "")] + available_choices
 
 
-class BaseOrgDetailForm(UniqueChoiceFormMixin, forms.ModelForm):
+class OrgDetailForm(UniqueChoiceFormMixin, forms.ModelForm):
     choices_attr = "ORG_DETAIL_CHOICES"
 
     class Meta:
@@ -52,7 +52,7 @@ class BaseOrgDetailForm(UniqueChoiceFormMixin, forms.ModelForm):
         fields = "__all__"
 
 
-class BaseOrgGraphicForm(UniqueChoiceFormMixin, forms.ModelForm):
+class OrgGraphicForm(UniqueChoiceFormMixin, forms.ModelForm):
     choices_attr = "ORG_GRAPHIC_CHOICES"
 
     class Meta:
@@ -60,7 +60,7 @@ class BaseOrgGraphicForm(UniqueChoiceFormMixin, forms.ModelForm):
         fields = "__all__"
 
 
-class BaseSocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
+class SocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
     choices_attr = "SOCIAL_MEDIA_CHOICES"
 
     class Meta:
@@ -69,7 +69,7 @@ class BaseSocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
         exclude = ("icon",)
 
 
-class AuthLoginForm(AuthenticationForm):
+class SignInForm(AuthenticationForm):
     # override the variables in BaseUserCreationform
     username = UsernameField(
         widget=forms.TextInput(
@@ -104,7 +104,7 @@ class AuthLoginForm(AuthenticationForm):
     # )
 
 
-class AuthSignUpForm(UserCreationForm):
+class SignUpForm(UserCreationForm):
     # override the variables in BaseUserCreationform
     password1 = forms.CharField(
         strip=False,

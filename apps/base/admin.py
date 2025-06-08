@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .forms import BaseOrgDetailForm, BaseOrgGraphicForm, BaseSocialMediaLinkForm
+from .forms import OrgDetailForm, OrgGraphicForm, SocialMediaLinkForm
 from .models import (
     EmailAddress,
     OrgDetail,
@@ -12,8 +12,8 @@ from .models import (
 
 
 @admin.register(OrgDetail)
-class SiteDetailAdmin(admin.ModelAdmin):
-    form = BaseOrgDetailForm
+class OrgDetailAdmin(admin.ModelAdmin):
+    form = OrgDetailForm
     list_display = ("name", "value")
     list_editable = ("value",)
     list_filter = ("name",)
@@ -31,15 +31,68 @@ class SiteDetailAdmin(admin.ModelAdmin):
         ),
     )
 
+    superuser_only_choices = ["org_author", "org_author_url"]
+
     def get_readonly_fields(self, request, obj=None):
         if obj:  # editing an existing object
             return ("name",)
         return ()
 
+    def get_form(self, request, obj=None, **kwargs):
+        """Override form to filter superuser-only fields"""
+        form = super().get_form(request, obj, **kwargs)
+
+        if not request.user.is_superuser:
+            if hasattr(form.base_fields.get("name"), "choices"):
+                original_choices = form.base_fields["name"].choices
+                # Filter out superuser-only choices
+                filtered_choices = [
+                    choice
+                    for choice in original_choices
+                    if choice[0] not in self.superuser_only_choices
+                ]
+                form.base_fields["name"].choices = filtered_choices
+
+        return form
+
+    def get_queryset(self, request):
+        """Filter queryset to hide superuser-only fields from non-superusers"""
+        qs = super().get_queryset(request)
+
+        if not request.user.is_superuser:
+            # Hide superuser-only records from non-superusers
+            qs = qs.exclude(name__in=self.superuser_only_choices)
+
+        return qs
+
+    def has_change_permission(self, request, obj=None):
+        """Check if user can change specific org detail"""
+        if not super().has_change_permission(request, obj):
+            return False
+
+        # If obj exists and user is not superuser, check if it's a restricted field
+        if obj and not request.user.is_superuser:
+            if obj.name in self.superuser_only_choices:
+                return False
+
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        """Check if user can delete specific org detail"""
+        if not super().has_delete_permission(request, obj):
+            return False
+
+        # If obj exists and user is not superuser, check if it's a restricted field
+        if obj and not request.user.is_superuser:
+            if obj.name in self.superuser_only_choices:
+                return False
+
+        return True
+
 
 @admin.register(OrgGraphic)
-class SiteGraphicAdmin(admin.ModelAdmin):
-    form = BaseOrgGraphicForm
+class OrgGraphicAdmin(admin.ModelAdmin):
+    form = OrgGraphicForm
     list_display = ("name", "image")
     list_editable = ("image",)
     list_filter = ("name",)
@@ -65,7 +118,7 @@ class SiteGraphicAdmin(admin.ModelAdmin):
 
 @admin.register(SocialMediaLink)
 class SocialMediaLinkAdmin(admin.ModelAdmin):
-    form = BaseSocialMediaLinkForm
+    form = SocialMediaLinkForm
     list_display = ("name", "url", "is_active", "order")
     list_editable = ("url", "order")
     list_filter = ("is_active", "name")
