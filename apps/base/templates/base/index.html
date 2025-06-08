@@ -11,16 +11,20 @@
     {% vendor_bootstrap %}
     {% vendor_bootstrap_icons %}
     {% vendor_aos %}
+
     {% block vendor %}
     {% endblock vendor %}
+
     <link href="{% static 'base/index.css' %}" rel="stylesheet" />
     <script defer src="{% static 'base/index.js' %}"></script>
     {% include 'base/layout/header/static.html' %}
     {% include 'base/layout/hero/static.html' %}
     {% include 'base/layout/signin/static.html' %}
     {% include 'base/layout/signup/static.html' %}
+
     {% block sections_static %}
     {% endblock sections_static %}
+
     {% include 'base/layout/footer/static.html' %}
     {% include 'base/overlay/back-to-top/static.html' %}
     {% include 'base/overlay/whatsapp-call-us/static.html' %}
@@ -32,8 +36,10 @@
     {% include 'base/layout/signin/layout.html' %}
     {% include 'base/layout/signup/layout.html' %}
     <main>
+
       {% block sections %}
       {% endblock sections %}
+
     </main>
     {% include 'base/layout/footer/layout.html' %}
     {% include 'base/overlay/back-to-top/overlay.html' %}

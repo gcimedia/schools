@@ -3,12 +3,19 @@
 {% if header_navigation|default_if_none:True %}
   <nav id="navmenu" class="navmenu">
     <ul>
-      <li>
-        <a href="{% url 'base:home' %}#hero" class="header-navlink">Home</a>
-      </li>
-      <li>
-        <a href="{% url 'base:home' %}#contact" class="header-navlink">Contact</a>
-      </li>
+
+      {% if show_hero %}
+        <li>
+          <a href="{% url 'base:home' %}#hero" class="header-navlink">Home</a>
+        </li>
+      {% endif %}
+
+      {% if show_contact %}
+        <li>
+          <a href="{% url 'base:home' %}#contact" class="header-navlink">Contact</a>
+        </li>
+      {% endif %}
+
       {% navigation link_class="header-navlink" %}
     </ul>
     <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>

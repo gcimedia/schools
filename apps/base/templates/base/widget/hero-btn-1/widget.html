@@ -1,3 +1,5 @@
-{% if hero_btn_1|default_if_none:False %}
-  <a href="{{ hero_btn_1_url_path }}" class="btn-get-started">{{ hero_btn_1_name }}</a>
+{% if hero_btn_1|default_if_none:True %}
+  <a href="{{ hero_btn_1_url_path|default:'#' }}" class="btn-get-started">
+    {{ hero_btn_1_name|default:"Coming Soon!" }}
+  </a>
 {% endif %}

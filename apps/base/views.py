@@ -13,7 +13,6 @@ def home(request):
     extra_context = {
         "page_title": "Welcome",
         "show_hero": True,
-        # "hero_btn_2": True,
     }
 
     return render(request, "base/index.html", extra_context)
