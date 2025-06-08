@@ -1,0 +1,25 @@
+name: Auto Deploy to Server
+
+on:
+  push:
+    branches: [ main ]  # Change if your default branch is different
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH Remote Commands
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: |
+            cd /repos/schools
+            git pull origin main
+            poetry install --only main
+            poetry run python manage.py collectstatic --noinput
+            poetry run python manage.py migrate --noinput
+            sudo systemctl restart gunicorn_gcischools
