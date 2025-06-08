@@ -1,6 +1,6 @@
 {% load org %}
 
-{% if header_logo %}
+{% if header_navigation|default_if_none:True %}
   <a href="{% url 'base:home' %}" class="logo d-flex align-items-center">
     <!-- Uncomment the line below if you also wish to use an image logo -->
     <img src="{% org_logo %}" class="img-fluid" alt="logo" width="" height="" />

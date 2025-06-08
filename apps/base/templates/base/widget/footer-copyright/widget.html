@@ -1,4 +1,4 @@
-{% if footer_copyright %}
+{% if footer_copyright|default_if_none:True %}
   <div class="container copyright text-center mt-4">
     <p>
       © <span>Copyright</span> <strong class="px-1 sitename">{{ ORG_NAME }}</strong> <span>All Rights Reserved</span>

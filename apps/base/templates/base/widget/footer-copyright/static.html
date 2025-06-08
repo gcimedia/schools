@@ -1,6 +1,6 @@
 {% load static %}
 
-{% if footer_copyright %}
+{% if footer_copyright|default_if_none:True %}
   <link href="{% static 'base/widget/footer-copyright/widget.css' %}"
         rel="stylesheet" />
 {% endif %}

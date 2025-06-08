@@ -22,13 +22,12 @@ def home(request):
 @auth_page_required("signin")
 def signin(request):
     if request.user.is_authenticated:
-        return redirect("/")
+        return redirect("base:home")
 
     extra_context = {
         "page_title": "Login",
         "header_auth_btn": False,
-        "show_auth": True,
-        "auth_signin": True,
+        "show_auth": "signin",
     }
 
     next = request.GET.get("next", "")
@@ -47,7 +46,7 @@ def signin(request):
                 next = request.POST.get("next", "")
                 if next:
                     return redirect(next)
-                return redirect("/")
+                return redirect("base:home")
             else:
                 messages.error(
                     request, "Invalid username or password.", extra_tags="signin"
@@ -77,8 +76,7 @@ class SignUp(CreateView):
     extra_context = {
         "page_title": "Sign up",
         "header_auth_btn": False,
-        "show_auth": True,
-        "auth_signup": True,
+        "show_auth": "signup",
     }
 
     def get(self, request, *args, **kwargs):

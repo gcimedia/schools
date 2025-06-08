@@ -1,4 +1,4 @@
-{% if overlay_whatsapp_call_us %}
+{% if overlay_whatsapp_call_us|default_if_none:True %}
   {% if org.whatsapp %}
     <a href="{{ org.whatsapp }}"
        class="whatsapp-button d-flex align-items-center justify-content-center position-fixed start-0 bottom-0 mb-3 ms-3">

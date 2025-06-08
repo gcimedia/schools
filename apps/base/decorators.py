@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 
-from .registry import auth_pages_registry
+from .registry.auth import auth_registry
 
 
 def auth_page_required(page_name):
@@ -11,7 +11,7 @@ def auth_page_required(page_name):
 
     def decorator(view_func):
         def wrapper(request, *args, **kwargs):
-            if not auth_pages_registry.is_enabled(page_name):
+            if not auth_registry.is_enabled(page_name):
                 # For API requests
                 if (
                     request.headers.get("Content-Type") == "application/json"

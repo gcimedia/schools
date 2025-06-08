@@ -17,21 +17,28 @@
     <script defer src="{% static 'base/index.js' %}"></script>
     {% include 'base/layout/header/static.html' %}
     {% include 'base/layout/hero/static.html' %}
-    {% include 'base/layout/auth/static.html' %}
-    {% block staticfiles %}
-    {% endblock staticfiles %}
+    {% include 'base/layout/signin/static.html' %}
+    {% include 'base/layout/signup/static.html' %}
+    {% block sections_static %}
+    {% endblock sections_static %}
     {% include 'base/layout/footer/static.html' %}
-    {% include 'base/layout/overlay/static.html' %}
+    {% include 'base/overlay/back-to-top/static.html' %}
+    {% include 'base/overlay/whatsapp-call-us/static.html' %}
+    {% include 'base/overlay/preloader/static.html' %}
   </head>
   <body>
     {% include 'base/layout/header/layout.html' %}
+    {% include 'base/layout/hero/layout.html' %}
+    {% include 'base/layout/signin/layout.html' %}
+    {% include 'base/layout/signup/layout.html' %}
     <main>
-      {% include 'base/layout/hero/layout.html' %}
-      {% include 'base/layout/auth/layout.html' %}
-      {% block main %}
-      {% endblock main %}
+      {% block sections %}
+      {% endblock sections %}
     </main>
     {% include 'base/layout/footer/layout.html' %}
-    {% include 'base/layout/overlay/layout.html' %}
+    {% include 'base/overlay/back-to-top/overlay.html' %}
+    {% include 'base/overlay/whatsapp-call-us/overlay.html' %}
+    {% include 'base/overlay/preloader/overlay.html' %}
+    {% include 'base/overlay/login-signup-modal/overlay.html' %}
   </body>
 </html>

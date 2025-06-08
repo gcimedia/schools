@@ -1,6 +1,6 @@
 {% load org %}
 
-{% if show_hero %}
+{% if show_hero|default_if_none:False %}
   <section id="hero"
            class="hero section dark-background"
            style="background-image: url('{% org_cover_image %}')">

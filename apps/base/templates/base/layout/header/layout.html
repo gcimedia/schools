@@ -1,6 +1,6 @@
-{% if show_header %}
+{% if show_header|default_if_none:True %}
   <header id="header"
-          class="header {% if show_hero %}fixed-top{% else %}sticky-top bg-black{% endif %}">
+          class="header {% if show_hero|default_if_none:False %}fixed-top{% else %}sticky-top bg-black{% endif %}">
     <div class="main-header d-flex align-items-center">
       <div class="container-fluid">
         <div class="row align-items-center">

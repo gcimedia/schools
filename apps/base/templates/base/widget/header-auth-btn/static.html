@@ -1,6 +1,11 @@
 {% load static %}
+{% load auth %}
 
-{% if header_cta_btn %}
-    <link href="{% static 'base/widget/header-auth-button/widget.css' %}"
-          rel="stylesheet" />
+{% has_signin as signin_enabled %}
+{% has_signup as signup_enabled %}
+{% if signin_enabled or signup_enabled %}
+    {% if header_auth_btn|default_if_none:True %}
+        <link href="{% static 'base/widget/header-auth-button/widget.css' %}"
+              rel="stylesheet" />
+    {% endif %}
 {% endif %}

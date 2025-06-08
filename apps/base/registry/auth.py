@@ -1,26 +1,4 @@
-# Base registry.py
-
-class NavigationRegistry:
-    def __init__(self):
-        self._items = []
-
-    def register(self, name, url_name, order=0, fragment=None, type="", **kwargs):
-        self._items.append(
-            {
-                "name": name,
-                "url_name": url_name,
-                "order": order,
-                "fragment": fragment,
-                "type": type,
-                **kwargs,
-            }
-        )
-
-    def get_items(self):
-        return sorted(self._items, key=lambda x: x["order"])
-
-
-class AuthPagesRegistry:
+class AuthRegistry:
     def __init__(self):
         self._enabled_pages = {
             "signin": True,
@@ -95,58 +73,23 @@ class AuthPagesRegistry:
 
 
 # Global registry instances
-nav_registry = NavigationRegistry()
-auth_pages_registry = AuthPagesRegistry()
+auth_registry = AuthRegistry()
 
 # Example usage:
 if __name__ == "__main__":
-    # NavigationRegistry examples
-    print("=== NavigationRegistry Examples ===")
-
-    # Register navigation items
-    nav_registry.register("Home", "home", order=1, icon="house")
-    nav_registry.register("About", "about", order=3, type="page")
-    nav_registry.register(
-        "Dashboard", "dashboard", order=2, fragment="overview", requires_auth=True
-    )
-    nav_registry.register("Contact", "contact", order=4, type="page", external=True)
-    nav_registry.register(
-        "Admin", "admin", order=10, type="admin", permissions=["admin"]
-    )
-
-    # Get sorted navigation items
-    nav_items = nav_registry.get_items()
-    print("Navigation items (sorted by order):")
-    for item in nav_items:
-        print(f"  - {item['name']} ({item['url_name']}) - Order: {item['order']}")
-
-    print("\nNavigation items with extra attributes:")
-    for item in nav_items:
-        extras = {
-            k: v for k, v in item.items() if k not in ["name", "url_name", "order"]
-        }
-        if extras:
-            print(f"  - {item['name']}: {extras}")
-
-    print("\n" + "=" * 50 + "\n")
-
-    # AuthPagesRegistry examples
+    # ****************** AuthPagesRegistry examples ******************
     print("=== AuthPagesRegistry Examples ===")
 
     # Enable/disable pages
-    auth_pages_registry.enable_page("password_reset")
-    auth_pages_registry.disable_page("signup")
+    auth_registry.enable_page("password_reset")
+    auth_registry.disable_page("signup")
 
     # Configure pages
-    auth_pages_registry.configure_page(
-        "signin", redirect_url="/dashboard", require_2fa=True
-    )
-    auth_pages_registry.configure_page(
-        "profile_update", fields=["email", "name", "avatar"]
-    )
+    auth_registry.configure_page("signin", redirect_url="/dashboard", require_2fa=True)
+    auth_registry.configure_page("profile_update", fields=["email", "name", "avatar"])
 
     # Bulk configuration
-    auth_pages_registry.bulk_configure(
+    auth_registry.bulk_configure(
         {
             "signin": {"redirect_url": "/home", "remember_me": True},
             "signup": {"enabled": True, "require_email_verification": True},
@@ -155,9 +98,9 @@ if __name__ == "__main__":
     )
 
     # Check status
-    print("Enabled pages:", auth_pages_registry.get_enabled_pages())
-    print("Signin enabled:", auth_pages_registry.is_enabled("signin"))
-    print("Signin config:", auth_pages_registry.get_page_config("signin"))
+    print("Enabled pages:", auth_registry.get_enabled_pages())
+    print("Signin enabled:", auth_registry.is_enabled("signin"))
+    print("Signin config:", auth_registry.get_page_config("signin"))
     print("\nAll pages status:")
-    for page, status in auth_pages_registry.get_all_pages_status().items():
+    for page, status in auth_registry.get_all_pages_status().items():
         print(f"  - {page}: {'✓' if status['enabled'] else '✗'} {status['config']}")

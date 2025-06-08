@@ -1,4 +1,6 @@
-{% if header_navigation %}
+{% load navigation %}
+
+{% if header_navigation|default_if_none:True %}
   <nav id="navmenu" class="navmenu">
     <ul>
       <li>
@@ -7,11 +9,7 @@
       <li>
         <a href="{% url 'base:home' %}#contact" class="header-navlink">Contact</a>
       </li>
-      {% for item in nav_items %}
-        <li>
-          <a href="{{ item.url }}" class="header-navlink">{{ item.name }}</a>
-        </li>
-      {% endfor %}
+      {% navigation link_class="header-navlink" %}
     </ul>
     <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
   </nav>

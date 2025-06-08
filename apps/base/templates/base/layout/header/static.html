@@ -1,6 +1,6 @@
 {% load static %}
 
-{% if show_header %}
+{% if show_header|default_if_none:True %}
   <link href="{% static 'base/layout/header/layout.css' %}" rel="stylesheet" />
   <script defer src="{% static 'base/layout/header/layout.js' %}"></script>
   <!-- logo -->

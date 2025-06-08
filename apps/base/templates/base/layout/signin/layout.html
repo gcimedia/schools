@@ -1,6 +1,11 @@
-{% if auth_pages.has_signin and auth_signin %}
+{% load auth %}
+
+{% has_signin as signin_enabled %}
+{% has_signup as signup_enabled %}
+{% if signin_enabled and show_auth == "signin" %}
   <section class="registration pt-3">
     <div class="container">
+      {% include "base/widget/section-title/widget.html" with section_title_heading="Sign In" section_title_paragraph="Enter your credentials below to sign in to your account." %}
       <form method="post" role="form" class="mx-auto w-75 text-start email-form">
         {% if messages %}
           {% for message in messages %}
@@ -22,10 +27,10 @@
           <button type="submit" class="btn btn-primary">Login</button>
           {% if back %}<a href="{{ back }}" class="back-btn btn btn-secondary ms-2">Back</a>{% endif %}
         </div>
-        {% if auth_pages.has_signup %}
+        {% if signup_enabled %}
           <p class="mt-5">
             Don't have an account yet? You can
-            <a href="{% url 'base:signup' %}?next={{ next|urlencode }}&back={{ back|urlencode }}">sign up here</a>
+            <a href="{% auth_url 'signup' %}?next={{ next|urlencode }}&back={{ back|urlencode }}">sign up here</a>
           </p>
         {% endif %}
       </form>

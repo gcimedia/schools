@@ -1,17 +1,19 @@
 import logging
-from importlib import import_module
 
 from django.apps import AppConfig
 
 logger = logging.getLogger(__name__)
 
 
-class ElearningConfig(AppConfig):
+class SchoolsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.schools"
 
     def ready(self):
         try:
-            import_module(f"{self.name}.registry")
-        except ImportError as e:
-            logger.warning(f"Could not import registry module for {self.name}: {e}")
+            from apps.base.registry.auth import auth_registry
+
+            auth_registry.disable_page("signup")  # Disable the signup page
+
+        except Exception as e:
+            logger.warning(f"Failed to disable signup page: {e}")

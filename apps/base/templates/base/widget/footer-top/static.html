@@ -1,6 +1,6 @@
 {% load static %}
 
-{% if footer_top %}
+{% if footer_top|default_if_none:True %}
   <link href="{% static 'base/widget/footer-top/widget.css' %}"
         rel="stylesheet" />
 {% endif %}

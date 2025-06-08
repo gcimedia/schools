@@ -1,3 +1,5 @@
+{% load auth %}
+
 <!-- Modal -->
 <div class="modal fade"
      id="loginSignupModal"
@@ -12,28 +14,30 @@
                 data-bs-dismiss="modal"
                 aria-label="Close"></button>
       </div>
-      {% if auth_pages.has_signin or auth_pages.has_signup %}
+      {% has_signin as signin_enabled %}
+      {% has_signup as signup_enabled %}
+      {% if signin_enabled or signup_enabled %}
         <!-- Only show modal if at least one auth page is available -->
         <div class="modal-body pt-2">
           <div class="text-center mb-4">
             <i class="bi bi-lock-fill text-primary" style="font-size: 3rem;"></i>
             <p class="mt-3 mb-0 fw-bold fs-5">
-              {% if auth_pages.has_signin and auth_pages.has_signup %}
+              {% if signin_enabled and signup_enabled %}
                 Sign in or create an account
-              {% elif auth_pages.has_signin %}
+              {% elif signin_enabled %}
                 Sign in to your account
-              {% elif auth_pages.has_signup %}
+              {% elif signup_enabled %}
                 Create an account
               {% else %}
                 Account access
               {% endif %}
             </p>
             <p class="text-muted small">
-              {% if auth_pages.has_signin and auth_pages.has_signup %}
+              {% if signin_enabled and signup_enabled %}
                 Please sign in to your account or create a new one.
-              {% elif auth_pages.has_signin %}
+              {% elif signin_enabled %}
                 Please sign in to continue.
-              {% elif auth_pages.has_signup %}
+              {% elif signup_enabled %}
                 Please create an account to continue.
               {% else %}
                 Account features are currently unavailable.
@@ -42,16 +46,16 @@
           </div>
           <!-- Dynamic Login/Signup Options -->
           <div class="d-grid gap-2">
-            {% if auth_pages.has_signin %}
-              <a href="{{ auth_urls.signin }}?next={{ header_cta_btn_url_path|urlencode }}&back={{ request.path|urlencode }}"
+            {% if signin_enabled %}
+              <a href="{% auth_url 'signin' %}?next=/&back={{ request.path|urlencode }}"
                  class="btn btn-primary btn-lg">
                 <i class="bi bi-box-arrow-in-right me-2"></i>
                 Sign In
               </a>
             {% endif %}
-            {% if auth_pages.has_signup %}
-              <a href="{{ auth_urls.signup }}?next={{ header_cta_btn_url_path|urlencode }}&back={{ request.path|urlencode }}"
-                 class="btn {% if auth_pages.has_signin %}btn-outline-primary{% else %}btn-primary{% endif %} btn-lg">
+            {% if signup_enabled %}
+              <a href="{% auth_url 'signup' %}?next=/&back={{ request.path|urlencode }}"
+                 class="btn {% if signin_enabled %}btn-outline-primary{% else %}btn-primary{% endif %} btn-lg">
                 <i class="bi bi-person-plus me-2"></i>
                 Create Account
               </a>
