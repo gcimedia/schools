@@ -1,6 +1,6 @@
 {% load static %}
 
-{% if header_navigation|default_if_none:True %}
+{% if header_logo|default_if_none:True %}
     <link href="{% static 'base/widget/header-logo/widget.css' %}"
           rel="stylesheet" />
 {% endif %}

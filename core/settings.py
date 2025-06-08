@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_recaptcha",
     "phonenumber_field",
     "apps.base",
+    "apps.landing",
     "apps.schools",
 ]
 
@@ -111,8 +112,6 @@ AUTHENTICATION_BACKENDS = [
     # "app.core.authentication.backends.PhoneAuthBackend",  # Custom auth backend
     "django.contrib.auth.backends.ModelBackend",  # Keep the default auth backend
 ]
-
-LOGOUT_REDIRECT_URL = "base:home"
 
 AUTH_PASSWORD_VALIDATORS = [
     {

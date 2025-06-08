@@ -1,7 +1,8 @@
 {% load org %}
+{% load home %}
 
-{% if header_navigation|default_if_none:True %}
-  <a href="{% url 'base:home' %}" class="logo d-flex align-items-center">
+{% if header_logo|default_if_none:True %}
+  <a href="{% home_url %}" class="logo d-flex align-items-center">
     <!-- Uncomment the line below if you also wish to use an image logo -->
     <img src="{% org_logo %}" class="img-fluid" alt="logo" width="" height="" />
     <!-- <h1 class="sitename">Bigpen</h1> -->

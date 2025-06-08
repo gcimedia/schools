@@ -1,4 +1,5 @@
 {% load navigation %}
+{% load home %}
 
 {% if header_navigation|default_if_none:True %}
   <nav id="navmenu" class="navmenu">
@@ -6,13 +7,13 @@
 
       {% if show_hero %}
         <li>
-          <a href="{% url 'base:home' %}#hero" class="header-navlink">Home</a>
+          <a href="{% home_url_with_fragment 'hero' %}" class="header-navlink">Home</a>
         </li>
       {% endif %}
 
       {% if show_contact %}
         <li>
-          <a href="{% url 'base:home' %}#contact" class="header-navlink">Contact</a>
+          <a href="{% home_url_with_fragment 'contact' %}" class="header-navlink">Contact</a>
         </li>
       {% endif %}
 
