@@ -5,9 +5,9 @@ from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import CreateView
 
+from .config.landing import get_landing_url_name
 from .decorators import auth_page_required, auth_page_required_class
 from .forms import SignInForm, SignUpForm
-from .registry.landing import get_landing_url_name
 
 
 def landing(request):

@@ -3,7 +3,7 @@ import logging
 from django import template
 from django.core.exceptions import ImproperlyConfigured
 
-from ..registry.landing import get_landing_url, get_landing_url_name, landing_registry
+from ..config.landing import get_landing_url, get_landing_url_name, landing_config
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ def landing_url():
         {% load landing %}
         <a href="{% landing_url %}">Home</a>
     """
-    if not landing_registry:
+    if not landing_config:
         logger.warning("Home registry not available")
         return "/"
 
@@ -39,7 +39,7 @@ def landing_url_name():
         {% load landing %}
         <a href="{% url landing_url_name %}">Home</a>
     """
-    if not landing_registry:
+    if not landing_config:
         logger.warning("Home registry not available")
         return "home"
 
@@ -60,7 +60,7 @@ def landing_url_with_fragment(fragment=None):
         <a href="{% landing_url_with_fragment 'hero' %}">Home</a>
         <a href="{% landing_url_with_fragment %}">Home</a>
     """
-    if not landing_registry:
+    if not landing_config:
         logger.warning("Home registry not available")
         base_url = "/"
     else:
@@ -86,7 +86,7 @@ def is_landing_url(url_name):
             <span class="active">Current Home</span>
         {% endif %}
     """
-    if not landing_registry:
+    if not landing_config:
         return False
 
     try:
@@ -109,7 +109,7 @@ def is_landing_page(context):
         {% endif %}
     """
     request = context.get("request")
-    if not request or not landing_registry:
+    if not request or not landing_config:
         return False
 
     try:

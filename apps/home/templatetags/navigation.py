@@ -2,7 +2,7 @@ from django import template
 from django.urls import NoReverseMatch, reverse
 from django.utils.safestring import mark_safe
 
-from ..registry.navigation import nav_registry
+from ..config.navigation import nav_config
 
 register = template.Library()
 
@@ -19,7 +19,7 @@ def navigation(link_class=""):
     """
     nav_items = []
 
-    for item in nav_registry.get_items():
+    for item in nav_config.get_items():
         try:
             url = reverse(item["url_name"])
             if item.get("fragment"):

@@ -20,14 +20,14 @@ class BaseConfig(AppConfig):
 
         # ********* Home App Configuration *********
         try:
-            from .registry.landing import landing_registry
-            from .registry.navigation import nav_registry
+            from .config.landing import landing_config
+            from .config.navigation import nav_config
 
             # Configure landing url
-            landing_registry.register_landing_url("landing", f"{self.name}")
+            landing_config.register_landing_url("landing", f"{self.name}")
 
             # Add landing url to nav items
-            nav_registry.register("Home", "landing", fragment="hero", order=0)
+            nav_config.register("Home", "landing", fragment="hero", order=0)
 
         except Exception as e:
             logger.warning(f"Failed to configure home app settings: {e}")

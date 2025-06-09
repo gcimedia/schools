@@ -1,4 +1,4 @@
-class AuthRegistry:
+class AuthConfig:
     def __init__(self):
         self._enabled_pages = {
             "signin": True,
@@ -106,8 +106,8 @@ class AuthRegistry:
         return self._global_config.copy()
 
 
-# Global registry instances
-auth_registry = AuthRegistry()
+# Global config instances
+auth_config = AuthConfig()
 
 # Example usage:
 if __name__ == "__main__":
@@ -115,12 +115,12 @@ if __name__ == "__main__":
     print("=== AuthPagesRegistry Examples ===")
 
     # Configure username field globally
-    auth_registry.configure_username_field(
+    auth_config.configure_username_field(
         label="Phone Number", placeholder="Your phone number"
     )
 
     # Set global configuration (multiple options at once)
-    auth_registry.set_global_config(
+    auth_config.set_global_config(
         username_field_label="Student ID",
         username_field_placeholder="Enter your student ID",
         password_min_length=8,
@@ -130,24 +130,22 @@ if __name__ == "__main__":
     )
 
     # Get specific global config value
-    print("Username label:", auth_registry.get_global_config("username_field_label"))
-    print(
-        "Password min length:", auth_registry.get_global_config("password_min_length")
-    )
+    print("Username label:", auth_config.get_global_config("username_field_label"))
+    print("Password min length:", auth_config.get_global_config("password_min_length"))
 
     # Get all global configuration
-    print("All global config:", auth_registry.get_global_config())
+    print("All global config:", auth_config.get_global_config())
 
     # Enable/disable pages
-    auth_registry.enable_page("password_reset")
-    auth_registry.disable_page("signup")
+    auth_config.enable_page("password_reset")
+    auth_config.disable_page("signup")
 
     # Configure pages
-    auth_registry.configure_page("signin", redirect_url="/dashboard", require_2fa=True)
-    auth_registry.configure_page("profile_update", fields=["email", "name", "avatar"])
+    auth_config.configure_page("signin", redirect_url="/dashboard", require_2fa=True)
+    auth_config.configure_page("profile_update", fields=["email", "name", "avatar"])
 
     # Bulk configuration
-    auth_registry.bulk_configure(
+    auth_config.bulk_configure(
         {
             "signin": {"redirect_url": "/home", "remember_me": True},
             "signup": {"enabled": True, "require_email_verification": True},
@@ -156,23 +154,23 @@ if __name__ == "__main__":
     )
 
     # Check status
-    print("Enabled pages:", auth_registry.get_enabled_pages())
-    print("Signin enabled:", auth_registry.is_enabled("signin"))
-    print("Signin config:", auth_registry.get_page_config("signin"))
-    print("Username label:", auth_registry.get_username_label())
-    print("Username placeholder:", auth_registry.get_username_placeholder())
+    print("Enabled pages:", auth_config.get_enabled_pages())
+    print("Signin enabled:", auth_config.is_enabled("signin"))
+    print("Signin config:", auth_config.get_page_config("signin"))
+    print("Username label:", auth_config.get_username_label())
+    print("Username placeholder:", auth_config.get_username_placeholder())
 
     # Get username configuration
-    print("Username config:", auth_registry.get_username_config())
+    print("Username config:", auth_config.get_username_config())
 
     print("\nAll pages status:")
-    for page, status in auth_registry.get_all_pages_status().items():
+    for page, status in auth_config.get_all_pages_status().items():
         print(f"  - {page}: {'✓' if status['enabled'] else '✗'} {status['config']}")
 
     print("\n=== Global Configuration Examples ===")
 
     # Example 1: Configure for a school system
-    auth_registry.set_global_config(
+    auth_config.set_global_config(
         username_field_label="Student ID",
         username_field_placeholder="Enter your student ID",
         password_min_length=8,
@@ -182,7 +180,7 @@ if __name__ == "__main__":
     )
 
     # Example 2: Configure for a phone-based system
-    auth_registry.set_global_config(
+    auth_config.set_global_config(
         username_field_label="Phone Number",
         username_field_placeholder="Your phone number",
         sms_verification=True,
@@ -190,7 +188,7 @@ if __name__ == "__main__":
     )
 
     # Example 3: Configure for an email-based system
-    auth_registry.set_global_config(
+    auth_config.set_global_config(
         username_field_label="Email Address",
         username_field_placeholder="your@email.com",
         email_verification_required=True,
@@ -200,16 +198,16 @@ if __name__ == "__main__":
     # Get specific configurations
     print(
         "Current username label:",
-        auth_registry.get_global_config("username_field_label"),
+        auth_config.get_global_config("username_field_label"),
     )
     print(
         "Email verification required:",
-        auth_registry.get_global_config("email_verification_required"),
+        auth_config.get_global_config("email_verification_required"),
     )
-    print("SMS verification:", auth_registry.get_global_config("sms_verification"))
+    print("SMS verification:", auth_config.get_global_config("sms_verification"))
 
     # Get all global settings
-    all_settings = auth_registry.get_global_config()
+    all_settings = auth_config.get_global_config()
     print("\nAll global settings:")
     for key, value in all_settings.items():
         print(f"  {key}: {value}")

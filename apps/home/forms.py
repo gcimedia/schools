@@ -7,8 +7,8 @@ from django.contrib.auth.forms import (
     UsernameField,
 )
 
+from .config.auth import auth_config
 from .models import OrgDetail, OrgGraphic, SocialMediaLink
-from .registry.auth import auth_registry
 
 
 class UniqueChoiceFormMixin:
@@ -75,8 +75,8 @@ class SignInForm(AuthenticationForm):
         super().__init__(*args, **kwargs)
 
         # Get username configuration from registry
-        username_label = auth_registry.get_username_label()
-        username_placeholder = auth_registry.get_username_placeholder()
+        username_label = auth_config.get_username_label()
+        username_placeholder = auth_config.get_username_placeholder()
 
         # Update the username field
         self.fields["username"] = UsernameField(
@@ -120,8 +120,8 @@ class SignUpForm(UserCreationForm):
         super().__init__(*args, **kwargs)
 
         # Get username configuration from registry
-        username_label = auth_registry.get_username_label()
-        username_placeholder = auth_registry.get_username_placeholder()
+        username_label = auth_config.get_username_label()
+        username_placeholder = auth_config.get_username_placeholder()
 
         # Update the username field
         self.fields["username"].label = username_label

@@ -6,7 +6,7 @@ from django.urls import reverse
 logger = logging.getLogger(__name__)
 
 
-class LandingURLRegistry:
+class LandingURLConfig:
     """
     Registry for managing home URL across Django apps.
     Allows apps to register themselves as the home URL provider.
@@ -51,7 +51,7 @@ class LandingURLRegistry:
         if not self._registered:
             raise ImproperlyConfigured(
                 "No home URL registered. Make sure one of your apps calls "
-                "landing_registry.register_landing_url() in its ready() method."
+                "landing_config.register_landing_url() in its ready() method."
             )
 
         try:
@@ -81,24 +81,24 @@ class LandingURLRegistry:
         self._registered = False
 
 
-# Global registry instance
-landing_registry = LandingURLRegistry()
+# Global config instance
+landing_config = LandingURLConfig()
 
 
 # Convenience functions
 def register_landing_url(url_name, app_name):
     """Convenience function to register home URL."""
-    return landing_registry.register_landing_url(url_name, app_name)
+    return landing_config.register_landing_url(url_name, app_name)
 
 
 def get_landing_url():
     """Convenience function to get home URL."""
-    return landing_registry.get_landing_url()
+    return landing_config.get_landing_url()
 
 
 def get_landing_url_name():
     """Convenience function to get home URL name."""
-    return landing_registry.get_landing_url_name()
+    return landing_config.get_landing_url_name()
 
 
 if __name__ == "__main__":
@@ -114,8 +114,8 @@ if __name__ == "__main__":
     success = register_landing_url("dashboard:index", "dashboard")
     print(f"Registration successful: {success}")
     print(f"Landing URL name: {get_landing_url_name()}")
-    print(f"Registered by app: {landing_registry.get_landing_app()}")
-    print(f"Is registered: {landing_registry.is_registered()}")
+    print(f"Registered by app: {landing_config.get_landing_app()}")
+    print(f"Is registered: {landing_config.is_registered()}")
     print()
 
     # Example 2: Attempt duplicate registration
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     success2 = register_landing_url("blog:home", "blog")
     print(f"Second registration successful: {success2}")
     print(f"Home URL name remains: {get_landing_url_name()}")
-    print(f"Still registered by: {landing_registry.get_landing_app()}")
+    print(f"Still registered by: {landing_config.get_landing_app()}")
     print()
 
     # Example 3: Clear and re-register
@@ -134,14 +134,14 @@ if __name__ == "__main__":
     print("-" * 34)
 
     # Clear the registry
-    landing_registry.clear()
-    print(f"After clearing - Is registered: {landing_registry.is_registered()}")
+    landing_config.clear()
+    print(f"After clearing - Is registered: {landing_config.is_registered()}")
 
     # Register a new home URL
     success3 = register_landing_url("blog:home", "blog")
     print(f"New registration successful: {success3}")
     print(f"New home URL name: {get_landing_url_name()}")
-    print(f"New registered app: {landing_registry.get_landing_app()}")
+    print(f"New registered app: {landing_config.get_landing_app()}")
     print()
 
     # Example 4: Error handling
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     print("-" * 26)
 
     # Clear registry to demonstrate error
-    landing_registry.clear()
+    landing_config.clear()
     print("Registry cleared. Attempting to get home URL without registration...")
 
     try:
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     # In your app's apps.py file:
     
     from django.apps import AppConfig
-    from home.registry.landing import register_landing_url
+    from home.config.landing import register_landing_url
     
     class DashboardConfig(AppConfig):
         default_auto_field = 'django.db.models.BigAutoField'
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     
     # Or in your views:
     
-    from home.registry.landing import get_landing_url
+    from home.config.landing import get_landing_url
     from django.shortcuts import redirect
     
     def some_view(request):
@@ -192,7 +192,7 @@ if __name__ == "__main__":
     
     # In your URL patterns:
     
-    from home.registry.landing import get_landing_url_name
+    from home.config.landing import get_landing_url_name
     
     urlpatterns = [
         path('', RedirectView.as_view(url=get_landing_url()), name='root'),

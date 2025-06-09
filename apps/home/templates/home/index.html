@@ -32,10 +32,10 @@
   </head>
   <body>
     {% include 'home/layout/header/layout.html' %}
-    {% include 'home/layout/hero/layout.html' %}
-    {% include 'home/layout/signin/layout.html' %}
-    {% include 'home/layout/signup/layout.html' %}
     <main>
+      {% include 'home/layout/hero/layout.html' %}
+      {% include 'home/layout/signin/layout.html' %}
+      {% include 'home/layout/signup/layout.html' %}
 
       {% block sections %}
       {% endblock sections %}

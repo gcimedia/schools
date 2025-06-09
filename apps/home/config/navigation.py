@@ -1,4 +1,4 @@
-class NavigationRegistry:
+class NavigationConfig:
     def __init__(self):
         self._items = []
 
@@ -18,8 +18,8 @@ class NavigationRegistry:
         return sorted(self._items, key=lambda x: x["order"])
 
 
-# Global registry instances
-nav_registry = NavigationRegistry()
+# Global config instances
+nav_config = NavigationConfig()
 
 # Example usage:
 if __name__ == "__main__":
@@ -27,18 +27,18 @@ if __name__ == "__main__":
     print("=== NavigationRegistry Examples ===")
 
     # Register navigation items
-    nav_registry.register("Home", "home", order=1, icon="house")
-    nav_registry.register("About", "about", order=3, type="page")
-    nav_registry.register(
+    nav_config.register("Home", "home", order=1, icon="house")
+    nav_config.register("About", "about", order=3, type="page")
+    nav_config.register(
         "Dashboard", "dashboard", order=2, fragment="overview", requires_auth=True
     )
-    nav_registry.register("Contact", "contact", order=4, type="page", external=True)
-    nav_registry.register(
+    nav_config.register("Contact", "contact", order=4, type="page", external=True)
+    nav_config.register(
         "Admin", "admin", order=10, type="admin", permissions=["admin"]
     )
 
     # Get sorted navigation items
-    nav_items = nav_registry.get_items()
+    nav_items = nav_config.get_items()
     print("Navigation items (sorted by order):")
     for item in nav_items:
         print(f"  - {item['name']} ({item['url_name']}) - Order: {item['order']}")

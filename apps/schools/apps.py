@@ -12,13 +12,13 @@ class SchoolsConfig(AppConfig):
     def ready(self):
         # ********* School App Configuration *********
         try:
-            from apps.home.registry.auth import auth_registry
+            from apps.home.config.auth import auth_config
 
             # Disable the signup page
-            auth_registry.disable_page("signup")
+            auth_config.disable_page("signup")
 
             # Configure username field for schools app
-            auth_registry.configure_username_field(
+            auth_config.configure_username_field(
                 label="ID/Username", placeholder="Your School ID/Username"
             )
 

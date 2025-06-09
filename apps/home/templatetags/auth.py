@@ -1,7 +1,7 @@
 from django import template
 from django.urls import NoReverseMatch, reverse
 
-from ..registry.auth import auth_registry
+from ..config.auth import auth_config
 
 register = template.Library()
 
@@ -26,7 +26,7 @@ def auth_url(page_name):
     {% auth_url 'signin' %}
     {% auth_url 'signup' %}
     """
-    if not auth_registry.is_enabled(page_name):
+    if not auth_config.is_enabled(page_name):
         return ""
 
     url_name = URL_MAPPINGS.get(page_name)
@@ -39,24 +39,6 @@ def auth_url(page_name):
 
 
 @register.simple_tag
-def auth_config(page_name, key=None):
-    """
-    Get the config for an auth page.
-
-    Usage:
-    {% auth_config 'signin' %}
-    {% auth_config 'signin' 'title' %}
-    """
-    if not auth_registry.is_enabled(page_name):
-        return None
-
-    config = auth_registry.get_page_config(page_name)
-    if key and config:
-        return config.get(key)
-    return config
-
-
-@register.simple_tag
 def is_auth_enabled(page_name):
     """
     Check if an auth page is enabled.
@@ -64,7 +46,7 @@ def is_auth_enabled(page_name):
     Usage:
     {% is_auth_enabled 'signin' %}
     """
-    return auth_registry.is_enabled(page_name)
+    return auth_config.is_enabled(page_name)
 
 
 @register.simple_tag
@@ -75,7 +57,7 @@ def enabled_auth_pages():
     Usage:
     {% enabled_auth_pages %}
     """
-    return auth_registry.get_enabled_pages()
+    return auth_config.get_enabled_pages()
 
 
 @register.simple_tag
@@ -87,7 +69,7 @@ def auth_urls():
     {% auth_urls as urls %}
     {{ urls.signin }}
     """
-    enabled_pages = auth_registry.get_enabled_pages()
+    enabled_pages = auth_config.get_enabled_pages()
     auth_urls_dict = {}
 
     for page_name in enabled_pages:
@@ -105,56 +87,56 @@ def auth_urls():
 @register.simple_tag
 def has_signin():
     """Check if signin is enabled."""
-    return auth_registry.is_enabled("signin")
+    return auth_config.is_enabled("signin")
 
 
 @register.simple_tag
 def has_signup():
     """Check if signup is enabled."""
-    return auth_registry.is_enabled("signup")
+    return auth_config.is_enabled("signup")
 
 
 @register.simple_tag
 def has_logout():
     """Check if logout is enabled."""
-    return auth_registry.is_enabled("logout")
+    return auth_config.is_enabled("logout")
 
 
 @register.simple_tag
 def has_profile_update():
     """Check if profile update is enabled."""
-    return auth_registry.is_enabled("profile_update")
+    return auth_config.is_enabled("profile_update")
 
 
 @register.simple_tag
 def has_password_reset():
     """Check if password reset is enabled."""
-    return auth_registry.is_enabled("password_reset")
+    return auth_config.is_enabled("password_reset")
 
 
 @register.simple_tag
 def has_email_verification():
     """Check if email verification is enabled."""
-    return auth_registry.is_enabled("email_verification")
+    return auth_config.is_enabled("email_verification")
 
 
 # Username field configuration tags
 @register.simple_tag
 def username_label():
     """Get the configured username field label."""
-    return auth_registry.get_username_label()
+    return auth_config.get_username_label()
 
 
 @register.simple_tag
 def username_placeholder():
     """Get the configured username field placeholder."""
-    return auth_registry.get_username_placeholder()
+    return auth_config.get_username_placeholder()
 
 
 @register.simple_tag
 def username_config():
     """Get the complete username field configuration."""
-    return auth_registry.get_username_config()
+    return auth_config.get_username_config()
 
 
 @register.simple_tag
@@ -166,7 +148,7 @@ def global_auth_config(key=None):
     {% global_auth_config %}
     {% global_auth_config 'username_field_label' %}
     """
-    return auth_registry.get_global_config(key)
+    return auth_config.get_global_config(key)
 
 
 # Filter versions for use in conditional statements
@@ -178,4 +160,4 @@ def auth_enabled(page_name):
     Usage:
     {% if 'signin'|auth_enabled %}
     """
-    return auth_registry.is_enabled(page_name)
+    return auth_config.is_enabled(page_name)
