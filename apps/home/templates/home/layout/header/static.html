@@ -1,0 +1,12 @@
+{% load static %}
+
+{% if show_header|default_if_none:True %}
+  <link href="{% static 'home/layout/header/layout.css' %}" rel="stylesheet" />
+  <script defer src="{% static 'home/layout/header/layout.js' %}"></script>
+  <!-- logo -->
+  {% include 'home/widget/header-logo/static.html' %}
+  <!-- navmenu -->
+  {% include 'home/widget/header-navigation/static.html' %}
+  <!-- login / signup btn -->
+  {% include 'home/widget/header-auth-btn/static.html' %}
+{% endif %}

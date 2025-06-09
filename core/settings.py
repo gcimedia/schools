@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "django_ckeditor_5",
     "django_recaptcha",
     "phonenumber_field",
-    "apps.base",
+    "apps.home",
     "apps.schools",
 ]
 

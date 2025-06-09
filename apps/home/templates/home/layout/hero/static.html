@@ -1,0 +1,7 @@
+{% load static %}
+
+{% if show_hero|default_if_none:False %}
+  <link rel="stylesheet" href="{% static 'home/layout/hero/layout.css' %}">
+  {% include 'home/widget/hero-btn-1/static.html' %}
+  {% include 'home/widget/hero-btn-2/static.html' %}
+{% endif %}

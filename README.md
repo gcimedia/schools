@@ -88,6 +88,16 @@ Same for both development and production:
 
 **Note**: Only `seed_example.json` files are tracked in Git. All other fixture files are gitignored.
 
+### E. 📦 Static Files (Production Only)
+
+If you're deploying to production and using a web server (like Nginx) to serve static files, collect them into a single location using:
+
+   ```bash
+   python manage.py collectstatic --noinput
+   ```
+
+⚠️ This step is not needed in development, as Django serves static files automatically when `DEBUG=True`.
+
 ## 📚 System Documentation
 
 - 🧭 [Overview](apps/schools/docs/overview.md)  

@@ -12,7 +12,7 @@ class SchoolsConfig(AppConfig):
     def ready(self):
         # ********* Auth Configuration *********
         try:
-            from apps.base.registry.auth import auth_registry
+            from apps.home.registry.auth import auth_registry
 
             auth_registry.disable_page("signup")  # Disable the signup page
 
