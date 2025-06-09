@@ -21,7 +21,13 @@ These apply to **both** development and production setups:
    pip install poetry
    ```
 
-2. Install dependencies:
+2. **(Optional)** Configure Poetry to create virtualenv inside project roots.
+
+   ```bash
+   poetry config.virtualenvs.in-project true
+   ```
+
+3. Install dependencies:
 
    - For **development** (includes dev tools and test libs):
 
