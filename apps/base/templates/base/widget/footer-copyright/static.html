@@ -3,4 +3,13 @@
 {% if footer_copyright|default_if_none:True %}
   <link href="{% static 'base/widget/footer-copyright/widget.css' %}"
         rel="stylesheet" />
+
+  {% if footer_top|default_if_none:True %}
+    <style>
+      .footer .copyright {
+        border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+        /* * see style.css for the other external styles */
+      }
+    </style>
+  {% endif %}
 {% endif %}

@@ -6,6 +6,7 @@ def home(request):
         "page_title": "Welcome",
         "show_hero": True,
         "header_navigation": False,
+        "footer_top": False,
     }
 
     return render(request, "landing/index.html", extra_context)
