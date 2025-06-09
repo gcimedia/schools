@@ -13,12 +13,23 @@ from .models import (
 
 
 class UniqueChoiceAdminMixin(admin.ModelAdmin):
+    """
+    Mixin for Django admin models where the 'name' field is chosen from a unique set of
+    predefined choices. This mixin restricts non-superusers from selecting or modifying
+    certain 'superuser-only' choices, enforces read-only fields on editing, and disables deletion.
+    """
+
     exclude = ("ordering",)
     list_display = ("name",)
     ordering = ("ordering",)
     superuser_only_choices = []
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        Returns a list of fields to be displayed as read-only in the admin form.
+        The 'name' field is read-only when editing an existing object.
+        The 'ordering' field is always read-only.
+        """
         readonly_fields = list(super().get_readonly_fields(request, obj))
         if obj:
             readonly_fields.append("name")
@@ -27,6 +38,10 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
         return readonly_fields
 
     def get_form(self, request, obj=None, **kwargs):
+        """
+        Customize the form to filter out choices from the 'name' field
+        that are restricted to superusers only, for non-superuser requests.
+        """
         form = super().get_form(request, obj, **kwargs)
         if not request.user.is_superuser and "name" in form.base_fields:
             form.base_fields["name"].choices = [
@@ -37,12 +52,21 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
         return form
 
     def get_queryset(self, request):
+        """
+        Modify the queryset to exclude objects with names restricted to superusers
+        for non-superuser users.
+        """
         qs = super().get_queryset(request)
         if not request.user.is_superuser:
             qs = qs.exclude(name__in=self.superuser_only_choices)
         return qs
 
     def has_add_permission(self, request):
+        """
+        Determines if the user has permission to add new objects.
+        Non-superusers can only add objects with 'name' choices that are not
+        restricted to superusers and that are not already used.
+        """
         all_choices = [c[0] for c in self.model.CHOICES]
         if not request.user.is_superuser:
             all_choices = [
@@ -53,9 +77,17 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
         return bool(remaining) and super().has_add_permission(request)
 
     def has_delete_permission(self, request, obj=None):
+        """
+        Disable delete permission for all users.
+        """
         return False
 
     def has_change_permission(self, request, obj=None):
+        """
+        Restrict change permission such that:
+        - Only superusers can edit objects with superuser-only names.
+        - Otherwise, follow the default permission logic.
+        """
         if not super().has_change_permission(request, obj):
             return False
         if (
@@ -67,6 +99,10 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
         return True
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        """
+        Customize the change form view to conditionally show the 'Save and add another'
+        button based on whether there are any remaining allowed choices to add.
+        """
         extra_context = extra_context or {}
         all_choices = [c[0] for c in self.model.CHOICES]
         if not request.user.is_superuser:
@@ -80,15 +116,25 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
 
 @admin.register(OrgDetail, site=org_admin_site)
 class OrgDetailAdmin(UniqueChoiceAdminMixin):
+    """
+    Admin interface for OrgDetail model, using UniqueChoiceAdminMixin to enforce unique
+    'name' choices and restrictions. Allows editing of the 'value' field inline.
+    """
+
     form = OrgDetailForm
     list_display = ("name", "value")
     list_editable = ("value",)
     fieldsets = (("Site Detail", {"fields": ("name", "value")}),)
-    superuser_only_choices = ["org_author", "org_author_url"]
+    superuser_only_choices = ["org_author", "org_author_url", "org_theme_color"]
 
 
 @admin.register(OrgImage, site=org_admin_site)
 class OrgImageAdmin(UniqueChoiceAdminMixin):
+    """
+    Admin interface for OrgImage model, using UniqueChoiceAdminMixin to enforce unique
+    'name' choices. Allows editing of the 'image' field inline.
+    """
+
     form = OrgImageForm
     list_display = ("name", "image")
     list_editable = ("image",)
@@ -97,6 +143,11 @@ class OrgImageAdmin(UniqueChoiceAdminMixin):
 
 @admin.register(SocialMediaLink, site=org_admin_site)
 class SocialMediaLinkAdmin(admin.ModelAdmin):
+    """
+    Admin interface for SocialMediaLink model, supporting listing, filtering, searching,
+    and inline editing of URLs and order. Restricts the 'name' field to read-only on edit.
+    """
+
     form = SocialMediaLinkForm
     list_display = ("name", "url", "is_active", "order")
     list_editable = ("url", "order")
@@ -117,6 +168,9 @@ class SocialMediaLinkAdmin(admin.ModelAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        Make the 'name' field read-only when editing an existing SocialMediaLink.
+        """
         if obj:  # editing an existing object
             return ("name",)
         return ()
@@ -124,6 +178,12 @@ class SocialMediaLinkAdmin(admin.ModelAdmin):
 
 @admin.register(PhoneNumber, site=org_admin_site)
 class PhoneNumberAdmin(admin.ModelAdmin):
+    """
+    Admin interface for PhoneNumber model with support for listing, filtering,
+    searching, ordering, and inline editing of the 'order' field.
+    The 'number' field is read-only when editing an existing object.
+    """
+
     list_display = ("number", "is_active", "is_primary", "use_for_whatsapp", "order")
     list_editable = ("order",)
     list_filter = ("is_active", "is_primary", "use_for_whatsapp")
@@ -141,6 +201,9 @@ class PhoneNumberAdmin(admin.ModelAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        Make the 'number' field read-only when editing an existing PhoneNumber.
+        """
         if obj:  # editing an existing object
             return ("number",)
         return ()
@@ -148,6 +211,12 @@ class PhoneNumberAdmin(admin.ModelAdmin):
 
 @admin.register(EmailAddress, site=org_admin_site)
 class EmailAddressAdmin(admin.ModelAdmin):
+    """
+    Admin interface for EmailAddress model with support for listing, filtering,
+    searching, ordering, and inline editing of the 'order' field.
+    The 'email' field is read-only when editing an existing object.
+    """
+
     list_display = ("email", "is_active", "is_primary", "order")
     list_editable = ("order",)
     list_filter = ("is_active", "is_primary")
@@ -162,6 +231,9 @@ class EmailAddressAdmin(admin.ModelAdmin):
     )
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        Make the 'email' field read-only when editing an existing EmailAddress.
+        """
         if obj:  # editing an existing object
             return ("email",)
         return ()
@@ -169,6 +241,11 @@ class EmailAddressAdmin(admin.ModelAdmin):
 
 @admin.register(PhysicalAddress, site=org_admin_site)
 class PhysicalAddressAdmin(admin.ModelAdmin):
+    """
+    Admin interface for PhysicalAddress model supporting listing, filtering,
+    searching, ordering, and displaying detailed address fields.
+    """
+
     list_display = (
         "label",
         "city",

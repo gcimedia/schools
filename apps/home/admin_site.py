@@ -4,7 +4,21 @@ from .views import signin, signout
 
 
 class OrgAdminSite(AdminSite):
+    """
+    Custom admin site for the organization.
+
+    Overrides default admin login/logout URLs with custom views
+    for authentication that may include branding, layout, or behavior
+    tailored to the organization.
+    """
+
     def get_urls(self):
+        """
+        Returns a list of URL patterns for the custom admin site.
+
+        Adds custom login and logout paths (handled by `signin` and `signout` views),
+        and appends the default admin site URLs.
+        """
         from django.urls import path
 
         urls = super().get_urls()

@@ -6,7 +6,11 @@ from .models import OrgDetail
 
 
 def set_admin_site_titles():
-    # Fetch OrgDetail values
+    """
+    Sets the Django admin site's title, header, and index title
+    based on the 'org_name' value stored in the OrgDetail model.
+    If the value is not found, default titles are used.
+    """
     org_name = OrgDetail.objects.filter(name="org_name").first()
     org_admin_site.site_title = (
         org_name.value if org_name else "Organisation site admin"
@@ -20,4 +24,10 @@ def set_admin_site_titles():
 @receiver(post_save, sender=OrgDetail)
 @receiver(post_delete, sender=OrgDetail)
 def update_admin_site_titles(sender, **kwargs):
+    """
+    Signal receiver that updates the admin site titles whenever an OrgDetail
+    instance is saved or deleted.
+
+    This ensures the admin reflects the latest organization name if updated.
+    """
     set_admin_site_titles()

@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.forms import (
     AuthenticationForm,
-    # UserChangeForm,
     UserCreationForm,
     UsernameField,
 )
@@ -12,9 +11,20 @@ from .models import OrgDetail, OrgImage, SocialMediaLink
 
 
 class UniqueChoiceFormMixin:
+    """
+    Mixin for forms that restricts the 'name' field choices to those not
+    already used in the database, ensuring uniqueness.
+
+    Expects `choices_attr` to be defined in subclasses, pointing to a list of allowed choices.
+    """
+
     choices_attr = None  # Will be set dynamically in subclass
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the form and dynamically filters available 'name' choices
+        based on which ones are not already used in the database.
+        """
         super().__init__(*args, **kwargs)
 
         if self.instance.pk or not self.choices_attr:
@@ -31,6 +41,17 @@ class UniqueChoiceFormMixin:
 
 
 def generate_model_form(model_class, choices_attr_name):
+    """
+    Generates a model form class using UniqueChoiceFormMixin, with dynamic filtering of choices.
+
+    Args:
+        model_class (Model): The Django model class to build the form for.
+        choices_attr_name (str): The name of the class attribute containing the choice list.
+
+    Returns:
+        forms.ModelForm: A dynamically generated model form class.
+    """
+
     class _ModelForm(UniqueChoiceFormMixin, forms.ModelForm):
         choices_attr = choices_attr_name
 
@@ -41,11 +62,19 @@ def generate_model_form(model_class, choices_attr_name):
     return _ModelForm
 
 
+# Form for OrgDetail with filtered unique name choices
 OrgDetailForm = generate_model_form(OrgDetail, "CHOICES")
+
+# Form for OrgImage with filtered unique name choices
 OrgImageForm = generate_model_form(OrgImage, "CHOICES")
 
 
 class SocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
+    """
+    Form for SocialMediaLink model, filtering out existing choices for 'name'.
+    Excludes the 'icon' field from the form.
+    """
+
     choices_attr = "SOCIAL_MEDIA_CHOICES"
 
     class Meta:
@@ -55,7 +84,15 @@ class SocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
 
 
 class SignInForm(AuthenticationForm):
+    """
+    Custom authentication form that applies dynamic labels and placeholders
+    for the username field based on `auth_config`.
+    """
+
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the login form with custom field widgets and labels.
+        """
         super().__init__(*args, **kwargs)
 
         # Get username configuration from registry
@@ -87,20 +124,18 @@ class SignInForm(AuthenticationForm):
             ),
         )
 
-    # remember_me = forms.BooleanField(
-    #     required=False,
-    #     initial=True,
-    #     widget=forms.CheckboxInput(
-    #         attrs={
-    #             "class": "form-check-input",
-    #         }
-    #     ),
-    #     label="Remember Me",
-    # )
-
 
 class SignUpForm(UserCreationForm):
+    """
+    Custom user creation form that supports dynamic username labels/placeholders
+    and styled input fields.
+    """
+
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the registration form with dynamic username settings
+        and customized password field widgets and help texts.
+        """
         super().__init__(*args, **kwargs)
 
         # Get username configuration from registry
