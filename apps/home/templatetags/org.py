@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 
@@ -148,3 +149,12 @@ def org_author():
 def org_author_url():
     """Get org author URL specifically"""
     return get_org_detail("ORG_AUTHOR_URL")
+
+
+@register.simple_tag
+def org_admin_url():
+    """
+    Return the normalized admin URL path using settings.ADMIN_URL.
+    Usage: {% org_admin_url %}
+    """
+    return settings.ADMIN_URL.strip("/") + "/"

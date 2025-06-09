@@ -1,8 +1,10 @@
+{% load org %}
 {% load auth %}
 
 {% has_signin as signin_enabled %}
 {% has_signup as signup_enabled %}
 {% has_logout as logout_enabled %}
+
 {% if signin_enabled or signup_enabled %}
   {% if header_auth_btn|default_if_none:True %}
     <div class="dropdown">
@@ -13,12 +15,14 @@
         <i class="bi bi-person-circle fs-5"></i>
       </a>
       <ul class="dropdown-menu">
+
         {% if request.user.is_authenticated %}
           {% if request.user.is_staff %}
             <li>
-              <a class="dropdown-item" href="/admin">Admin Panel</a>
+              <a class="dropdown-item" href="{% org_admin_url %}">Admin Panel</a>
             </li>
           {% endif %}
+
           {% if logout_enabled %}
             <li>
               <form method="post" action="{% auth_url 'logout' %}" class="d-inline">
@@ -27,18 +31,24 @@
               </form>
             </li>
           {% endif %}
+
         {% else %}
+
           {% if signin_enabled %}
             <li>
-              <a class="dropdown-item" href="{% auth_url 'signin' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">Login</a>
+              <a class="dropdown-item"
+                 href="{% auth_url 'signin' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">Login</a>
             </li>
           {% endif %}
+
           {% if signup_enabled %}
             <li>
-              <a class="dropdown-item" href="{% auth_url 'signup' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">Sign up</a>
+              <a class="dropdown-item"
+                 href="{% auth_url 'signup' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">Sign up</a>
             </li>
           {% endif %}
         {% endif %}
+
       </ul>
     </div>
   {% endif %}
