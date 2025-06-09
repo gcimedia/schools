@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "django_recaptcha",
     "phonenumber_field",
     "apps.base",
-    "apps.landing",
     "apps.schools",
 ]
 

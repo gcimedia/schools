@@ -3,44 +3,32 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
-from django.views.generic import RedirectView
 from django.views.generic.edit import CreateView
 
 from .decorators import auth_page_required, auth_page_required_class
 from .forms import SignInForm, SignUpForm
-from .registry.home import get_home_url_name
+from .registry.landing import get_landing_url_name
 
 
-class HomeRedirectView(RedirectView):
-    permanent = False  # Use 302 redirect by default
+def landing(request):
+    extra_context = {
+        "page_title": "Welcome",
+        "show_hero": True,
+        "header_navigation": False,
+    }
 
-    def get_redirect_url(self, *args, **kwargs):
-        """Get the registered home URL or fall back to root."""
-        try:
-            from .registry.home import get_home_url
-
-            return get_home_url()
-        except Exception:
-            # Fallback to root if home registry fails
-            return "/"
-
-
-class PermanentHomeRedirectView(HomeRedirectView):
-    """
-    Permanent (301) version of HomeRedirectView.
-    """
-
-    permanent = True
+    return render(request, "base/index.html", extra_context)
 
 
 @auth_page_required("signin")
 def signin(request):
     if request.user.is_authenticated:
-        return redirect(get_home_url_name())
+        return redirect(get_landing_url_name())
 
     extra_context = {
         "page_title": "Login",
         "header_auth_btn": False,
+        "header_navigation": False,
         "show_auth": "signin",
     }
 
@@ -60,7 +48,7 @@ def signin(request):
                 next = request.POST.get("next", "")
                 if next:
                     return redirect(next)
-                return redirect(get_home_url_name())
+                return redirect(get_landing_url_name())
             else:
                 messages.error(
                     request, "Invalid username or password.", extra_tags="signin"
@@ -80,16 +68,17 @@ def signin(request):
 def signout(request):
     logout(request)
     messages.success(request, "You have been successfully logged out.")
-    return redirect(get_home_url_name())
+    return redirect(get_landing_url_name())
 
 
 @auth_page_required_class("signup")
-class SignUp(CreateView):
+class SignUpView(CreateView):
     form_class = SignUpForm
     template_name = "base/index.html"
     extra_context = {
         "page_title": "Sign up",
         "header_auth_btn": False,
+        "header_navigation": False,
         "show_auth": "signup",
     }
 

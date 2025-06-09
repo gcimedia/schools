@@ -10,6 +10,7 @@ class SchoolsConfig(AppConfig):
     name = "apps.schools"
 
     def ready(self):
+        # ********* Auth Configuration *********
         try:
             from apps.base.registry.auth import auth_registry
 

@@ -1,6 +1,6 @@
 {% load org %}
 
-{% if footer_top|default_if_none:True %}
+{% if nav_items|length > 0 %}
   <div class="container footer-top">
     <div class="row gy-4">
       <div class="col-lg-4 col-md-6 footer-about">

@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 
 from .registry.auth import auth_registry
-from .registry.home import get_home_url_name
+from .registry.landing import get_landing_url_name
 
 
 def auth_page_required(page_name):
@@ -28,7 +28,7 @@ def auth_page_required(page_name):
                     f"{page_name.title()} is currently unavailable.",
                     extra_tags="auth_page_required",
                 )
-                return redirect(get_home_url_name())
+                return redirect(get_landing_url_name())
             return view_func(request, *args, **kwargs)
 
         return wrapper
