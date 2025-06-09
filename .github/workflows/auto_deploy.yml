@@ -2,21 +2,21 @@ name: Auto Deploy to Server
 
 on:
   push:
-    branches: [ main ]  # Change if your default branch is different
+    branches: [ main ]  # Adjust if needed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH Remote Commands
-        uses: appleboy/ssh-action@v1.2.2
+      - name: Run SSH Commands
+        uses: garygrossgarten/github-action-ssh@release
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           port: 22
-          script: |
+          command: |
             cd /repos/schools
             git pull origin main
             poetry install --only main
