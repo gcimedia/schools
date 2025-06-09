@@ -10,11 +10,17 @@ class SchoolsConfig(AppConfig):
     name = "apps.schools"
 
     def ready(self):
-        # ********* Auth Configuration *********
+        # ********* School App Configuration *********
         try:
             from apps.home.registry.auth import auth_registry
 
-            auth_registry.disable_page("signup")  # Disable the signup page
+            # Disable the signup page
+            auth_registry.disable_page("signup")
+
+            # Configure username field for schools app
+            auth_registry.configure_username_field(
+                label="ID/Username", placeholder="Your School ID/Username"
+            )
 
         except Exception as e:
-            logger.warning(f"Failed to disable signup page: {e}")
+            logger.warning(f"Failed to configure school app settings: {e}")

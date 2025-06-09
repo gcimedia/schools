@@ -18,20 +18,16 @@ class BaseConfig(AppConfig):
         except ImportError as e:
             print(f"Error importing signals: {e}")
 
-        # ********* Register landing page in nav_items *********
+        # ********* Home App Configuration *********
         try:
+            from .registry.landing import landing_registry
             from .registry.navigation import nav_registry
 
+            # Configure landing url
+            landing_registry.register_landing_url("landing", f"{self.name}")
+
+            # Add landing url to nav items
             nav_registry.register("Home", "landing", fragment="hero", order=0)
 
         except Exception as e:
-            logger.error(f"Failed to register landing app navigation links: {e}")
-
-        # ********* Register landing page as home URL *********
-        try:
-            from .registry.landing import landing_registry
-
-            landing_registry.register_landing_url("landing", f"{self.name}")
-
-        except Exception as e:
-            logger.error(f"Failed to register landing app home URL: {e}")
+            logger.warning(f"Failed to configure home app settings: {e}")

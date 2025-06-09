@@ -138,6 +138,37 @@ def has_email_verification():
     return auth_registry.is_enabled("email_verification")
 
 
+# Username field configuration tags
+@register.simple_tag
+def username_label():
+    """Get the configured username field label."""
+    return auth_registry.get_username_label()
+
+
+@register.simple_tag
+def username_placeholder():
+    """Get the configured username field placeholder."""
+    return auth_registry.get_username_placeholder()
+
+
+@register.simple_tag
+def username_config():
+    """Get the complete username field configuration."""
+    return auth_registry.get_username_config()
+
+
+@register.simple_tag
+def global_auth_config(key=None):
+    """
+    Get global auth configuration.
+
+    Usage:
+    {% global_auth_config %}
+    {% global_auth_config 'username_field_label' %}
+    """
+    return auth_registry.get_global_config(key)
+
+
 # Filter versions for use in conditional statements
 @register.filter
 def auth_enabled(page_name):

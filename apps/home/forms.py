@@ -8,6 +8,7 @@ from django.contrib.auth.forms import (
 )
 
 from .models import OrgDetail, OrgGraphic, SocialMediaLink
+from .registry.auth import auth_registry
 
 
 class UniqueChoiceFormMixin:
@@ -70,27 +71,37 @@ class SocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
 
 
 class SignInForm(AuthenticationForm):
-    # override the variables in BaseUserCreationform
-    username = UsernameField(
-        widget=forms.TextInput(
-            attrs={
-                "autofocus": True,
-                "class": "form-control",
-                "placeholder": "Your phone number",
-            }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Get username configuration from registry
+        username_label = auth_registry.get_username_label()
+        username_placeholder = auth_registry.get_username_placeholder()
+
+        # Update the username field
+        self.fields["username"] = UsernameField(
+            label=username_label,
+            widget=forms.TextInput(
+                attrs={
+                    "autofocus": True,
+                    "class": "form-control",
+                    "placeholder": username_placeholder,
+                }
+            ),
         )
-    )
-    password = forms.CharField(
-        label="Password",
-        strip=False,
-        widget=forms.PasswordInput(
-            attrs={
-                "autocomplete": "current-password",
-                "class": "form-control",
-                "placeholder": "Your password",
-            }
-        ),
-    )
+
+        # Update password field
+        self.fields["password"] = forms.CharField(
+            label="Password",
+            strip=False,
+            widget=forms.PasswordInput(
+                attrs={
+                    "autocomplete": "current-password",
+                    "class": "form-control",
+                    "placeholder": "Your password",
+                }
+            ),
+        )
 
     # remember_me = forms.BooleanField(
     #     required=False,
@@ -105,41 +116,49 @@ class SignInForm(AuthenticationForm):
 
 
 class SignUpForm(UserCreationForm):
-    # override the variables in BaseUserCreationform
-    password1 = forms.CharField(
-        strip=False,
-        widget=forms.PasswordInput(
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Get username configuration from registry
+        username_label = auth_registry.get_username_label()
+        username_placeholder = auth_registry.get_username_placeholder()
+
+        # Update the username field
+        self.fields["username"].label = username_label
+        self.fields["username"].widget = forms.TextInput(
             attrs={
-                "autocomplete": "new-password",
                 "class": "form-control",
-                "placeholder": "Password",
+                "placeholder": username_placeholder,
             }
-        ),
-        help_text=password_validation.password_validators_help_text_html(),
-    )
-    password2 = forms.CharField(
-        widget=forms.PasswordInput(
-            attrs={
-                "autocomplete": "new-password",
-                "class": "form-control",
-                "placeholder": "Password confirmation",
-            }
-        ),
-        strip=False,
-        help_text="Enter the same password as before, for verification.",
-    )
+        )
+
+        # Update password fields
+        self.fields["password1"] = forms.CharField(
+            strip=False,
+            widget=forms.PasswordInput(
+                attrs={
+                    "autocomplete": "new-password",
+                    "class": "form-control",
+                    "placeholder": "Password",
+                }
+            ),
+            help_text=password_validation.password_validators_help_text_html(),
+        )
+        self.fields["password2"] = forms.CharField(
+            widget=forms.PasswordInput(
+                attrs={
+                    "autocomplete": "new-password",
+                    "class": "form-control",
+                    "placeholder": "Password confirmation",
+                }
+            ),
+            strip=False,
+            help_text="Enter the same password as before, for verification.",
+        )
 
     class Meta:
         model = get_user_model()
         fields = ("username",)
-        widgets = {
-            "username": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "Phone number",
-                }
-            ),
-        }
 
 
 # class AuthProfileUpdateForm(UserChangeForm):
