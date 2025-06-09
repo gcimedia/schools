@@ -2,7 +2,7 @@ from django import template
 from django.core.cache import cache
 from django.utils.safestring import mark_safe
 
-from ..models import OrgDetail, OrgGraphic
+from ..models import OrgDetail, OrgImage
 
 register = template.Library()
 
@@ -20,14 +20,14 @@ def get_org_config():
             f"{detail.name.upper()}": detail.value
             for detail in OrgDetail.objects.only("name", "value")
         }
-        org_graphics = {
-            f"{graphic.name.upper()}": graphic.image.url
-            for graphic in OrgGraphic.objects.only("name", "image")
+        org_images = {
+            f"{image.name.upper()}": image.image.url
+            for image in OrgImage.objects.only("name", "image")
         }
 
         # Merge database values
         org_config.update(org_details)
-        org_config.update(org_graphics)
+        org_config.update(org_images)
 
         # Cache for 1 hour
         cache.set("org_config", org_config, 3600)

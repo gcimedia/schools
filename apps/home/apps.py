@@ -6,10 +6,10 @@ from django.apps import AppConfig
 logger = logging.getLogger(__name__)
 
 
-class BaseConfig(AppConfig):
+class HomeConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.home"
-    verbose_name = "(Organization) Base"
+    verbose_name = "Base"
 
     def ready(self):
         # ********* Import signals to ensure they are registered

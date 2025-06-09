@@ -8,16 +8,13 @@ from .models import OrgDetail
 def set_admin_site_titles():
     # Fetch OrgDetail values
     org_name = OrgDetail.objects.filter(name="org_name").first()
-    org_description = OrgDetail.objects.filter(name="org_description").first()
     org_admin_site.site_title = (
         org_name.value if org_name else "Organisation site admin"
     )
     org_admin_site.site_header = (
         org_name.value if org_name else "Organisation Administration"
     )
-    org_admin_site.index_title = (
-        org_description.value if org_description else "Site administration"
-    )
+    org_admin_site.index_title = "Site administration"
 
 
 @receiver(post_save, sender=OrgDetail)

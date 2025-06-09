@@ -3,70 +3,110 @@
     "model": "home.orgdetail",
     "pk": 1,
     "fields": {
-      "name": "org_name",
-      "value": "Lorem Ipsum Enterprises",
+      "ordering": 1,
       "created_at": "2025-06-02T18:50:04.127Z",
-      "updated_at": "2025-06-02T22:30:22.665Z"
+      "updated_at": "2025-06-02T22:30:22.665Z",
+      "name": "org_name",
+      "value": "Example Organization Name"
     }
   },
   {
     "model": "home.orgdetail",
     "pk": 2,
     "fields": {
+      "ordering": 2,
+      "created_at": "2025-06-09T10:00:00Z",
+      "updated_at": "2025-06-09T10:00:00Z",
       "name": "org_description",
-      "value": "We ship placeholder content globally in under 24 hours.",
-      "created_at": "2025-06-02T18:50:45.171Z",
-      "updated_at": "2025-06-02T18:50:45.171Z"
+      "value": "This is an example description for the organization. It can be a few sentences long."
     }
   },
   {
     "model": "home.orgdetail",
     "pk": 3,
     "fields": {
-      "name": "org_url",
-      "value": "https://www.loremipsum.fake",
-      "created_at": "2025-06-02T18:51:06.914Z",
-      "updated_at": "2025-06-02T18:51:06.914Z"
+      "ordering": 3,
+      "created_at": "2025-06-09T10:00:00Z",
+      "updated_at": "2025-06-09T10:00:00Z",
+      "name": "org_theme_color",
+      "value": "#RRGGBB"
     }
   },
   {
-    "model": "home.orggraphic",
-    "pk": 1,
-    "fields": {
-      "name": "org_logo",
-      "image": "home/site/logo.png",
-      "created_at": "2025-06-02T22:46:27.579Z",
-      "updated_at": "2025-06-02T22:48:28.390Z"
-    }
-  },
-  {
-    "model": "home.orggraphic",
-    "pk": 2,
-    "fields": {
-      "name": "org_favicon",
-      "image": "home/site/favicon.ico",
-      "created_at": "2025-06-02T22:46:40.654Z",
-      "updated_at": "2025-06-02T22:48:28.388Z"
-    }
-  },
-  {
-    "model": "home.orggraphic",
-    "pk": 3,
-    "fields": {
-      "name": "org_apple_touch_icon",
-      "image": "home/site/apple-touch-icon.png",
-      "created_at": "2025-06-02T22:46:48.646Z",
-      "updated_at": "2025-06-02T22:48:28.378Z"
-    }
-  },
-  {
-    "model": "home.orggraphic",
+    "model": "home.orgdetail",
     "pk": 4,
     "fields": {
-      "name": "org_cover_image",
-      "image": "home/site/cover.jpg",
+      "ordering": 4,
+      "created_at": "2025-06-02T18:51:06.914Z",
+      "updated_at": "2025-06-02T18:51:06.914Z",
+      "name": "org_url",
+      "value": "https://www.example.com"
+    }
+  },
+  {
+    "model": "home.orgdetail",
+    "pk": 5,
+    "fields": {
+      "ordering": 5,
+      "created_at": "2025-06-08T17:46:48.330Z",
+      "updated_at": "2025-06-08T17:46:48.330Z",
+      "name": "org_author",
+      "value": "Example Author Name"
+    }
+  },
+  {
+    "model": "home.orgdetail",
+    "pk": 6,
+    "fields": {
+      "ordering": 6,
+      "created_at": "2025-06-08T17:47:08.033Z",
+      "updated_at": "2025-06-08T17:47:08.033Z",
+      "name": "org_author_url",
+      "value": "https://github.com/example-author/"
+    }
+  },
+  {
+    "model": "home.orgimage",
+    "pk": 1,
+    "fields": {
+      "ordering": 1,
+      "created_at": "2025-06-02T22:46:27.579Z",
+      "updated_at": "2025-06-02T22:48:28.390Z",
+      "name": "org_logo",
+      "image": "home/org/logo.png"
+    }
+  },
+  {
+    "model": "home.orgimage",
+    "pk": 2,
+    "fields": {
+      "ordering": 2,
+      "created_at": "2025-06-02T22:46:40.654Z",
+      "updated_at": "2025-06-02T22:48:28.388Z",
+      "name": "org_favicon",
+      "image": "home/org/favicon.ico"
+    }
+  },
+  {
+    "model": "home.orgimage",
+    "pk": 3,
+    "fields": {
+      "ordering": 3,
+      "created_at": "2025-06-02T22:46:48.646Z",
+      "updated_at": "2025-06-02T22:48:28.378Z",
+      "name": "org_apple_touch_icon",
+      "image": "home/org/apple-touch-icon.png"
+    }
+  },
+  {
+    "model": "home.orgimage",
+    "pk": 4,
+    "fields": {
+      "ordering": 4,
       "created_at": "2025-06-05T15:08:17.610Z",
-      "updated_at": "2025-06-05T15:08:17.610Z"
+      "updated_at": "2025-06-05T15:08:17.610Z",
+      "name": "org_cover_image",
+      "image": "home/org/cover.jpg"
     }
   },
   {
@@ -75,7 +115,7 @@
     "fields": {
       "name": "facebook",
       "icon": "bi bi-facebook",
-      "url": "https://www.facebook.com/loremipsum.corp",
+      "url": "https://www.facebook.com/exampleorg/",
       "is_active": true,
       "order": 0,
       "created_at": "2025-06-02T06:44:37.799Z",
@@ -86,7 +126,7 @@
     "model": "home.phonenumber",
     "pk": 1,
     "fields": {
-      "number": "+123456789000",
+      "number": "+11234567890",
       "is_active": true,
       "is_primary": true,
       "use_for_whatsapp": true,
@@ -99,7 +139,7 @@
     "model": "home.phonenumber",
     "pk": 2,
     "fields": {
-      "number": "+123456789001",
+      "number": "+11234567891",
       "is_active": true,
       "is_primary": false,
       "use_for_whatsapp": false,
@@ -109,23 +149,10 @@
     }
   },
   {
-    "model": "home.phonenumber",
-    "pk": 3,
-    "fields": {
-      "number": "+123456789002",
-      "is_active": true,
-      "is_primary": false,
-      "use_for_whatsapp": false,
-      "order": 2,
-      "created_at": "2025-06-02T07:08:26.759Z",
-      "updated_at": "2025-06-02T07:08:33.287Z"
-    }
-  },
-  {
     "model": "home.emailaddress",
     "pk": 1,
     "fields": {
-      "email": "hello@loremipsum.fake",
+      "email": "info@example.com",
       "is_active": true,
       "is_primary": true,
       "order": 0,
@@ -137,19 +164,19 @@
     "model": "home.physicaladdress",
     "pk": 1,
     "fields": {
-      "label": "Lorem HQ",
-      "building": "Dolor Sit Building",
-      "street_address": "Suite 42, Ipsum Avenue",
-      "city": "Loremville",
-      "state_province": "Dolore County",
-      "postal_code": "12345",
-      "country": "Fakeland",
-      "map_embed_url": "https://maps.example.com/embed?pb=!1m18!1m12!1m3!1d9999.9999!2d36.0000000!3d-1.0000000",
+      "label": "Example Office",
+      "building": "Example Building",
+      "street_address": "123 Example Street",
+      "city": "Exampleville",
+      "state_province": "Example State",
+      "postal_code": "98765",
+      "country": "Exampleland",
+      "map_embed_url": "https://maps.google.com/maps?q=example+location",
       "is_active": true,
-      "is_primary": true,
+      "use_in_contact_form": true,
       "order": 0,
       "created_at": "2025-06-02T07:32:59.225Z",
-      "updated_at": "2025-06-02T07:40:06.306Z"
+      "updated_at": "2025-06-09T15:38:12.702Z"
     }
   }
 ]

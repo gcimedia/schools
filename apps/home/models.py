@@ -2,76 +2,73 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 
-class OrgDetail(models.Model):
-    ORG_DETAIL_CHOICES = [
-        ("org_name", "Organization Name"),
-        ("org_description", "Organization Description"),
-        ("org_url", "Organization URL"),
-        ("org_theme_color", "Organization Theme Color"),
-        ("org_author", "Organization Author"),
-        ("org_author_url", "Organization Author URL"),
-    ]
-
-    name = models.CharField(max_length=25, choices=ORG_DETAIL_CHOICES, unique=True)
-
-    value = models.CharField(
-        max_length=255,
-        help_text="Value for the organization detail (e.g., name, description, etc.)",
-    )
-
+class UniqueChoiceBaseModel(models.Model):
+    name = models.CharField(max_length=25, unique=True)
+    ordering = models.PositiveIntegerField(editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    CHOICES = []  # Override in subclass
+    ORDER_MAPPING = {}  # Override in subclass
+
     class Meta:
-        ordering = ["name"]
-        verbose_name = "(Org) Detail"
-        verbose_name_plural = "(Org) Details"
+        abstract = True
+        ordering = ["ordering"]
 
     def save(self, *args, **kwargs):
+        if self.name:
+            self.ordering = self.ORDER_MAPPING.get(self.name, 999)
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.get_name_display()} - {self.value}"
+        return self.get_name_display()
 
     @property
     def display_name(self):
-        """Returns the human-readable name of the organization detail"""
         return self.get_name_display()
 
 
-class OrgGraphic(models.Model):
-    ORG_GRAPHIC_CHOICES = [
+class OrgDetail(UniqueChoiceBaseModel):
+    CHOICES = [
+        ("org_name", "Name"),
+        ("org_description", "Motto"),
+        ("org_theme_color", "Theme Color"),
+        ("org_url", "Website URL"),
+        ("org_author", "Author's Name"),
+        ("org_author_url", "Author's Website URL"),
+    ]
+    ORDER_MAPPING = {key: i + 1 for i, (key, _) in enumerate(CHOICES)}
+
+    name = models.CharField(max_length=25, choices=CHOICES, unique=True)
+    value = models.CharField(
+        max_length=255, blank=True, help_text="Value for the organization detail."
+    )
+
+    class Meta(UniqueChoiceBaseModel.Meta):
+        verbose_name = "(Org) Detail"
+        verbose_name_plural = "(Org) Details"
+
+
+class OrgImage(UniqueChoiceBaseModel):
+    CHOICES = [
         ("org_logo", "Logo"),
         ("org_favicon", "Favicon"),
         ("org_apple_touch_icon", "Apple Touch Icon"),
         ("org_cover_image", "Cover / Hero image"),
     ]
+    ORDER_MAPPING = {key: i + 1 for i, (key, _) in enumerate(CHOICES)}
 
-    name = models.CharField(max_length=25, choices=ORG_GRAPHIC_CHOICES, unique=True)
-
+    name = models.CharField(max_length=25, choices=CHOICES, unique=True)
     image = models.ImageField(
         upload_to="home/org",
+        null=True,
+        blank=True,
         help_text="Image file for logos, favicons, etc.",
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["name"]
-        verbose_name = "(Org) Graphic"
-        verbose_name_plural = "(Org) Graphics"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.get_name_display()}"
-
-    @property
-    def display_name(self):
-        """Returns the human-readable name of the organization graphic"""
-        return self.get_name_display()
+    class Meta(UniqueChoiceBaseModel.Meta):
+        verbose_name = "(Org) Image"
+        verbose_name_plural = "(Org) Images"
 
 
 class SocialMediaLink(models.Model):
@@ -298,9 +295,8 @@ class PhysicalAddress(models.Model):
     label = models.CharField(
         max_length=100,
         blank=True,
-        help_text="Optional custom label for this address",
-        unique=True,  # Ensure labels are unique
-        # This can be useful for distinguishing between multiple addresses
+        help_text="Optional custom label for this address e.g Main Office Address",
+        unique=True,
     )
 
     building = models.CharField(
@@ -312,12 +308,10 @@ class PhysicalAddress(models.Model):
     street_address = models.CharField(
         max_length=255,
         help_text="Street address including house number and street name",
+        blank=True,
     )
 
-    city = models.CharField(
-        max_length=100,
-        help_text="City name",
-    )
+    city = models.CharField(max_length=100, help_text="City name", blank=True)
 
     state_province = models.CharField(
         max_length=100,
@@ -332,13 +326,12 @@ class PhysicalAddress(models.Model):
     )
 
     country = models.CharField(
-        max_length=100,
-        default="Kenya",
-        help_text="Country name",
+        max_length=100, default="Kenya", help_text="Country name", blank=True
     )
 
     map_embed_url = models.URLField(
         blank=True,
+        max_length=500,
         help_text="Google Maps/Other map provider embed URL for displaying in iframes (e.g., https://www.google.com/maps/embed?pb=...)",
     )
 
@@ -347,9 +340,9 @@ class PhysicalAddress(models.Model):
         help_text="Whether this address should be displayed",
     )
 
-    is_primary = models.BooleanField(
+    use_in_contact_form = models.BooleanField(
         default=False,
-        help_text="Mark as primary address which is used for contact forms and maps. If is_active is False, this will be ignored.",
+        help_text="Mark this as the address to use in contact forms and maps. Only one active address can be selected.",
     )
 
     order = models.PositiveIntegerField(
@@ -366,46 +359,35 @@ class PhysicalAddress(models.Model):
         verbose_name_plural = "Physical Addresses"
 
     def save(self, *args, **kwargs):
-        # If address is not active, ensure it's not primary
         if not self.is_active:
-            self.is_primary = False
+            self.use_in_contact_form = False
 
-        # Ensure only one primary address exists
-        if self.is_primary:
-            PhysicalAddress.objects.filter(is_primary=True).exclude(pk=self.pk).update(
-                is_primary=False
-            )
+        if self.use_in_contact_form:
+            PhysicalAddress.objects.filter(use_in_contact_form=True).exclude(
+                pk=self.pk
+            ).update(use_in_contact_form=False)
 
         super().save(*args, **kwargs)
 
     def __str__(self):
-        if self.label:
-            return self.label
-        return self.city
+        return self.label if self.label else self.city
 
     @property
     def full_address(self):
-        """Returns the complete formatted address"""
-        address_parts = [self.street_address, self.city]
-
+        parts = [self.street_address, self.city]
         if self.state_province:
-            address_parts.append(self.state_province)
-
+            parts.append(self.state_province)
         if self.postal_code:
-            address_parts.append(self.postal_code)
-
-        address_parts.append(self.country)
-
-        return ", ".join(address_parts)
+            parts.append(self.postal_code)
+        parts.append(self.country)
+        return ", ".join(parts)
 
     @property
     def short_address(self):
-        """Returns a shortened version of the address"""
         return f"{self.city}, {self.country}"
 
     @property
     def google_maps_url(self):
-        """Returns a Google Maps URL for this address"""
         import urllib.parse
 
         query = urllib.parse.quote_plus(self.full_address)
