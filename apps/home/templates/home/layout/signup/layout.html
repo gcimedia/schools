@@ -6,7 +6,7 @@
 {% if signup_enabled and show_auth == "signup" %}
   <section class="registration pt-3">
     <div class="container">
-      {% include "home/widget/section-title/widget.html" with section_title_heading="Sign up" section_title_paragraph="Enter your credentials below to create a new account." %}
+      {% include "home/widget/section-title/widget.html" with section_title_heading="Sign up" section_title_paragraph="Enter your credentials below to create a new account." section_title_aos="" %}
       <form method="post" role="form" class="mx-auto w-75 text-start email-form">
 
         {% if messages %}
