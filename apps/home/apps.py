@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class HomeConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.home"
-    verbose_name = "Base"
+    verbose_name = "Application Configuration"
 
     def ready(self):
         # ********* Import signals to ensure they are registered

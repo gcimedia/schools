@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 class SchoolsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.schools"
+    verbose_name = "Functional Modules"
 
     def ready(self):
         try:

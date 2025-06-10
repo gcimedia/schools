@@ -12,7 +12,7 @@ class School(models.Model):
         return self.name
 
 
-class Module(models.Model):
+class Unit(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="modules")
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -30,7 +30,7 @@ class Enrollment(models.Model):
     student = models.ForeignKey(
         User, on_delete=models.CASCADE, limit_choices_to={"role": "student"}
     )
-    module = models.ForeignKey(Module, on_delete=models.CASCADE)
+    module = models.ForeignKey(Unit, on_delete=models.CASCADE)
     date_enrolled = models.DateField(auto_now_add=True)
     completed = models.BooleanField(default=False)
 

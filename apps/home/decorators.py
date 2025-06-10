@@ -91,7 +91,6 @@ def redirect_authenticated_users_class(view_class):
     Class-based version of redirect_authenticated_users decorator.
     Redirects authenticated users from views like SignUpView.
     """
-    from django.utils.decorators import method_decorator
 
     view_class.dispatch = method_decorator(redirect_authenticated_users)(
         view_class.dispatch

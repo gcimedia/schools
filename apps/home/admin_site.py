@@ -1,9 +1,9 @@
-from django.contrib.admin import AdminSite
+from django.contrib.admin import AdminSite as DjangoAdminSite
 
 from .views import signin, signout
 
 
-class OrgAdminSite(AdminSite):
+class AdminSite(DjangoAdminSite):
     """
     Custom admin site for the organization.
 
@@ -23,11 +23,11 @@ class OrgAdminSite(AdminSite):
 
         urls = super().get_urls()
         custom_urls = [
-            path("login/", signin, name="org_admin_login"),
-            path("logout/", signout, name="org_admin_logout"),
+            path("login/", signin, name="admin_login"),
+            path("logout/", signout, name="admin_logout"),
         ]
         return custom_urls + urls
 
 
 # Create custom admin site instance
-org_admin_site = OrgAdminSite(name="org_admin")
+admin_site = AdminSite(name="admin_site")

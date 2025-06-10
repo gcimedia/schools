@@ -1,15 +1,15 @@
 from django.contrib import admin
 
-from apps.home.admin_site import org_admin_site
+from apps.home.admin_site import admin_site
 
-from .models import Module, School
+from .models import School, Unit
 
 
-@admin.register(School, site=org_admin_site)
+@admin.register(School, site=admin_site)
 class SchoolAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(Module, site=org_admin_site)
-class ModuleAdmin(admin.ModelAdmin):
+@admin.register(Unit, site=admin_site)
+class UnitAdmin(admin.ModelAdmin):
     pass

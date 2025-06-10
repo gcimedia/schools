@@ -1,18 +1,19 @@
 import logging
 
+from django.core.cache import cache  # Import cache
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
 from apps.home.config.auth import auth_config
 
-from .admin_site import org_admin_site
-from .models import OrgDetail, User
+from .admin_site import admin_site
+from .models import BaseDetail, BaseImage, User  # Import BaseImage
 
 logger = logging.getLogger(__name__)
 
 
-@receiver(post_save, sender=OrgDetail)
-@receiver(post_delete, sender=OrgDetail)
+@receiver(post_save, sender=BaseDetail)
+@receiver(post_delete, sender=BaseDetail)
 def update_admin_site_titles(sender, **kwargs):
     """
     Signal receiver that updates the admin site titles whenever an OrgDetail
@@ -20,14 +21,24 @@ def update_admin_site_titles(sender, **kwargs):
 
     This ensures the admin reflects the latest organization name if updated.
     """
-    org_name = OrgDetail.objects.filter(name="org_name").first()
-    org_admin_site.site_title = (
-        org_name.value if org_name else "Organisation site admin"
+    base_name = BaseDetail.objects.filter(name="base_name").first()
+    admin_site.site_title = base_name.value if base_name else "Organisation site admin"
+    admin_site.site_header = (
+        f"{base_name.value} Admin" if base_name else "Organisation Administration"
     )
-    org_admin_site.site_header = (
-        org_name.value if org_name else "Organisation Administration"
-    )
-    org_admin_site.index_title = "Site administration"
+
+
+@receiver(post_save, sender=BaseDetail)
+@receiver(post_delete, sender=BaseDetail)
+@receiver(post_save, sender=BaseImage)
+@receiver(post_delete, sender=BaseImage)
+def clear_base_config_cache(sender, **kwargs):
+    """
+    Signal receiver to clear the 'base_config' cache whenever BaseDetail
+    or BaseImage instances are saved or deleted, ensuring fresh data.
+    """
+    # logger.info(f"Clearing 'base_config' cache due to {sender.__name__} change.")
+    cache.delete("base_config")
 
 
 @receiver(m2m_changed, sender=User.groups.through)

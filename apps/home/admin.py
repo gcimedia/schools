@@ -1,18 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import GroupAdmin as DjangoGroupAdmin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.contrib.auth.models import Group
 
-from .admin_site import org_admin_site
-from .forms import OrgDetailForm, OrgImageForm, SocialMediaForm, UserChangeForm
+from .admin_site import admin_site
+from .forms import BaseDetailForm, BaseImageForm, SocialMediaLinkForm, UserChangeForm
 from .models import (
+    BaseDetail,
+    BaseImage,
     EmailAddress,
-    OrgDetail,
-    OrgImage,
     PhoneNumber,
     PhysicalAddress,
-    SocialMedia,
+    SocialMediaLink,
     User,
+    UserGroup,
 )
 
 
@@ -118,41 +118,41 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
         return super().changeform_view(request, object_id, form_url, extra_context)
 
 
-@admin.register(OrgDetail, site=org_admin_site)
-class OrgDetailAdmin(UniqueChoiceAdminMixin):
+@admin.register(BaseDetail, site=admin_site)
+class BaseDetailAdmin(UniqueChoiceAdminMixin):
     """
     Admin interface for OrgDetail model, using UniqueChoiceAdminMixin to enforce unique
     'name' choices and restrictions. Allows editing of the 'value' field inline.
     """
 
-    form = OrgDetailForm
+    form = BaseDetailForm
     list_display = ("name", "value")
     list_editable = ("value",)
     fieldsets = (("Site Detail", {"fields": ("name", "value")}),)
-    superuser_only_choices = ["org_author", "org_author_url", "org_theme_color"]
+    superuser_only_choices = ["base_author", "base_author_url", "base_theme_color"]
 
 
-@admin.register(OrgImage, site=org_admin_site)
-class OrgImageAdmin(UniqueChoiceAdminMixin):
+@admin.register(BaseImage, site=admin_site)
+class BaseImageAdmin(UniqueChoiceAdminMixin):
     """
     Admin interface for OrgImage model, using UniqueChoiceAdminMixin to enforce unique
     'name' choices. Allows editing of the 'image' field inline.
     """
 
-    form = OrgImageForm
+    form = BaseImageForm
     list_display = ("name", "image")
     list_editable = ("image",)
     fieldsets = (("Site Graphic", {"fields": ("name", "image")}),)
 
 
-@admin.register(SocialMedia, site=org_admin_site)
-class SocialMediaAdmin(admin.ModelAdmin):
+@admin.register(SocialMediaLink, site=admin_site)
+class SocialMediaLinkAdmin(admin.ModelAdmin):
     """
     Admin interface for SocialMediaLink model, supporting listing, filtering, searching,
     and inline editing of URLs and order. Restricts the 'name' field to read-only on edit.
     """
 
-    form = SocialMediaForm
+    form = SocialMediaLinkForm
     list_display = ("name", "url", "is_active", "order")
     list_editable = ("url", "order")
     list_filter = ("is_active",)
@@ -180,7 +180,7 @@ class SocialMediaAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhoneNumber, site=org_admin_site)
+@admin.register(PhoneNumber, site=admin_site)
 class PhoneNumberAdmin(admin.ModelAdmin):
     """
     Admin interface for PhoneNumber model with support for listing, filtering,
@@ -213,7 +213,7 @@ class PhoneNumberAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(EmailAddress, site=org_admin_site)
+@admin.register(EmailAddress, site=admin_site)
 class EmailAddressAdmin(admin.ModelAdmin):
     """
     Admin interface for EmailAddress model with support for listing, filtering,
@@ -243,7 +243,7 @@ class EmailAddressAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhysicalAddress, site=org_admin_site)
+@admin.register(PhysicalAddress, site=admin_site)
 class PhysicalAddressAdmin(admin.ModelAdmin):
     """
     Admin interface for PhysicalAddress model supporting listing, filtering,
@@ -283,8 +283,8 @@ class PhysicalAddressAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(Group, site=org_admin_site)
-class GroupAdmin(DjangoGroupAdmin):
+@admin.register(UserGroup, site=admin_site)
+class UserGroupAdmin(DjangoGroupAdmin):
     def get_readonly_fields(self, request, obj=None):
         # Make 'name' readonly if the group is protected
         if obj:
@@ -292,7 +292,7 @@ class GroupAdmin(DjangoGroupAdmin):
         return self.readonly_fields
 
 
-@admin.register(User, site=org_admin_site)
+@admin.register(User, site=admin_site)
 class UserAdmin(DjangoUserAdmin):
     form = UserChangeForm
     list_display = ["username", "first_name", "last_name", "get_role_for_admin"]

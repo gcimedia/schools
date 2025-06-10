@@ -1,4 +1,5 @@
-from django.contrib.auth.models import AbstractUser, Group
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import Group as DjangoGroup
 from django.core.exceptions import ValidationError
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
@@ -42,23 +43,19 @@ class UniqueChoiceBaseModel(models.Model):
         return self.get_name_display()
 
 
-class OrgDetail(UniqueChoiceBaseModel):
+class BaseDetail(UniqueChoiceBaseModel):
     """
     Represents a customizable organization text detail, such as name, motto,
     theme color, or URLs.
     """
 
-    class Meta(UniqueChoiceBaseModel.Meta):
-        verbose_name = "App Detail"
-        verbose_name_plural = "App Details"
-
     CHOICES = [
-        ("org_name", "Name"),
-        ("org_description", "Motto"),
-        ("org_theme_color", "Theme Color"),
-        ("org_url", "Website URL"),
-        ("org_author", "Author's Name"),
-        ("org_author_url", "Author's Website URL"),
+        ("base_name", "Name"),
+        ("base_description", "Motto / Description"),
+        ("base_theme_color", "Theme Color"),
+        ("base_url", "Website URL"),
+        ("base_author", "Author's Name"),
+        ("base_author_url", "Author's Website URL"),
     ]
     ORDER_MAPPING = {key: i + 1 for i, (key, _) in enumerate(CHOICES)}
 
@@ -68,34 +65,30 @@ class OrgDetail(UniqueChoiceBaseModel):
     )
 
 
-class OrgImage(UniqueChoiceBaseModel):
+class BaseImage(UniqueChoiceBaseModel):
     """
     Represents organization-related image assets like logos, favicons,
     and hero images.
     """
 
-    class Meta(UniqueChoiceBaseModel.Meta):
-        verbose_name = "App Image"
-        verbose_name_plural = "App Images"
-
     CHOICES = [
-        ("org_logo", "Logo"),
-        ("org_favicon", "Favicon"),
-        ("org_apple_touch_icon", "Apple Touch Icon"),
-        ("org_cover_image", "Cover / Hero image"),
+        ("base_logo", "Logo"),
+        ("base_favicon", "Favicon"),
+        ("base_apple_touch_icon", "Apple touch icon"),
+        ("base_hero_image", "Hero / cover image"),
     ]
     ORDER_MAPPING = {key: i + 1 for i, (key, _) in enumerate(CHOICES)}
 
     name = models.CharField(max_length=25, choices=CHOICES, unique=True)
     image = models.ImageField(
-        upload_to="home/org",
+        upload_to="home/base",
         null=True,
         blank=True,
         help_text="Image file for logos, favicons, etc.",
     )
 
 
-class SocialMedia(models.Model):
+class SocialMediaLink(models.Model):
     """
     Represents a social media link with associated Bootstrap icon class,
     display status, and display order.
@@ -103,7 +96,6 @@ class SocialMedia(models.Model):
 
     class Meta:
         ordering = ["order", "name"]
-        verbose_name_plural = "Social Media"
 
     SOCIAL_MEDIA_CHOICES = [
         ("facebook", "Facebook"),
@@ -269,7 +261,7 @@ class EmailAddress(models.Model):
 
     class Meta:
         ordering = ["order", "email"]
-        verbose_name_plural = "Email Addresses"
+        verbose_name_plural = "Email addresses"
 
     email = models.EmailField(
         help_text="Email address (e.g., user@example.com)",
@@ -322,7 +314,7 @@ class PhysicalAddress(models.Model):
 
     class Meta:
         ordering = ["order", "label", "city"]
-        verbose_name_plural = "Physical Addresses"
+        verbose_name_plural = "Physical addresses"
 
     label = models.CharField(
         max_length=100,
@@ -416,6 +408,23 @@ class PhysicalAddress(models.Model):
         return f"https://www.google.com/maps/search/?api=1&query={query}"
 
 
+class UserGroup(DjangoGroup):
+    class Meta:
+        proxy = True
+
+    def clean(self):
+        super().clean()
+        if not self.pk:  # Only for new groups
+            if UserGroup.objects.filter(name=self.name).exists():
+                raise ValidationError(
+                    f"A group with name '{self.name}' already exists."
+                )
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+
 class User(AbstractUser):
     FALLBACK_ROLES = ["standard", "admin"]
 
@@ -454,11 +463,11 @@ class User(AbstractUser):
             raise ValueError(f"Invalid role: {role_name}. Valid roles: {role_groups}")
 
         # Remove from all role groups first
-        existing_role_groups = Group.objects.filter(name__in=role_groups)
+        existing_role_groups = UserGroup.objects.filter(name__in=role_groups)
         self.groups.remove(*existing_role_groups)
 
         # Add to new role group
-        group, _ = Group.objects.get_or_create(name=role_name)
+        group, _ = UserGroup.objects.get_or_create(name=role_name)
         self.groups.add(group)
 
         # Update staff status based on role (but not for superusers)

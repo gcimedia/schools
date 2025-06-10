@@ -1,4 +1,4 @@
-{% load org %}
+{% load base %}
 {% load auth %}
 
 {% has_signin as signin_enabled %}
@@ -19,7 +19,7 @@
         {% if request.user.is_authenticated %}
           {% if request.user.is_staff %}
             <li>
-              <a class="dropdown-item" href="{% org_admin_url %}">Admin Panel</a>
+              <a class="dropdown-item" href="{% base_admin_url %}">Admin Panel</a>
             </li>
           {% endif %}
 

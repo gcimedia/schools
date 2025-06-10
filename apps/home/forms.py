@@ -10,7 +10,7 @@ from django.contrib.auth.forms import (
 )
 
 from .config.auth import auth_config
-from .models import OrgDetail, OrgImage, SocialMedia, User
+from .models import BaseDetail, BaseImage, SocialMediaLink, User
 
 
 class UniqueChoiceFormMixin:
@@ -66,13 +66,13 @@ def generate_model_form(model_class, choices_attr_name):
 
 
 # Form for OrgDetail with filtered unique name choices
-OrgDetailForm = generate_model_form(OrgDetail, "CHOICES")
+BaseDetailForm = generate_model_form(BaseDetail, "CHOICES")
 
 # Form for OrgImage with filtered unique name choices
-OrgImageForm = generate_model_form(OrgImage, "CHOICES")
+BaseImageForm = generate_model_form(BaseImage, "CHOICES")
 
 
-class SocialMediaForm(UniqueChoiceFormMixin, forms.ModelForm):
+class SocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
     """
     Form for SocialMediaLink model, filtering out existing choices for 'name'.
     Excludes the 'icon' field from the form.
@@ -81,7 +81,7 @@ class SocialMediaForm(UniqueChoiceFormMixin, forms.ModelForm):
     choices_attr = "SOCIAL_MEDIA_CHOICES"
 
     class Meta:
-        model = SocialMedia
+        model = SocialMediaLink
         fields = "__all__"
         exclude = ("icon",)
 

@@ -1,19 +1,19 @@
-{% load org %}
+{% load base %}
 
 {% if show_hero|default_if_none:False %}
   <section id="hero"
            class="hero section dark-background"
-           style="background-image: url('{% org_cover_image %}')">
+           style="background-image: url('{% base_hero_image %}')">
     <div class="container text-center">
       <div class="row justify-content-center" data-aos="zoom-out">
         <div class="col-lg-9">
-          <img src="{% org_logo %}"
+          <img src="{% base_logo %}"
                width="130"
                height="133"
                alt=""
                class="img-fluid mb-3" />
-          <h2>{% org_name %}</h2>
-          <p>{% org_description %}</p>
+          <h2>{% base_name %}</h2>
+          <p>{% base_description %}</p>
           <span>{% include 'home/widget/hero-btn-1/widget.html' %}</span>
           <span class="ms-2">{% include 'home/widget/hero-btn-2/widget.html' %}</span>
         </div>
