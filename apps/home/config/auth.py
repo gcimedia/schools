@@ -14,6 +14,11 @@ class AuthConfig:
             "username_field_label": "Username",
             "username_field_placeholder": "Enter your username",
         }
+        # Role registry for project-specific roles
+        self._roles = []
+        self._role_permissions = {}
+        self._role_staff_status = {}  # New: Track which roles should be staff
+        self._default_role = None
 
     def enable_page(self, page_name, **config):
         """Enable an auth page with optional configuration."""
@@ -59,12 +64,7 @@ class AuthConfig:
         }
 
     def bulk_configure(self, pages_config):
-        """Configure multiple pages at once.
-
-        Args:
-            pages_config (dict): Dict with page names as keys and config dicts as values.
-                               Use {"enabled": False} to disable a page.
-        """
+        """Configure multiple pages at once."""
         for page_name, config in pages_config.items():
             if page_name not in self._enabled_pages:
                 raise ValueError(f"Unknown auth page: {page_name}")
@@ -105,109 +105,478 @@ class AuthConfig:
             return self._global_config.get(key)
         return self._global_config.copy()
 
+    # ================== ROLE MANAGEMENT METHODS ==================
 
-# Global config instances
+    def register_roles(self, roles, default_role=None):
+        """Register roles for this project.
+
+        Args:
+            roles (list): List of role names, tuples (name, display_name),
+                         or dicts with role configuration
+            default_role (str): Default role to assign to new users
+        """
+        self._roles = []
+        for role in roles:
+            if isinstance(role, dict):
+                # Full role configuration: {"name": "admin", "display_name": "Administrator", "is_staff": True}
+                role_name = role["name"]
+                display_name = role.get("display_name", role_name.title())
+                is_staff = role.get("is_staff", False)
+
+                self._roles.append({"name": role_name, "display_name": display_name})
+                self._role_staff_status[role_name] = is_staff
+
+            elif isinstance(role, tuple):
+                role_name, display_name = role
+                self._roles.append({"name": role_name, "display_name": display_name})
+                # Default to False for staff status if not specified
+                self._role_staff_status[role_name] = False
+            else:
+                # Just role name as string
+                self._roles.append({"name": role, "display_name": role.title()})
+                self._role_staff_status[role] = False
+
+        if default_role:
+            if not self.is_valid_role(default_role):
+                raise ValueError(
+                    f"Default role '{default_role}' not in registered roles"
+                )
+            self._default_role = default_role
+
+    def add_role(self, role_name, display_name=None, permissions=None, is_staff=False):
+        """Add a single role to the registry."""
+        if self.is_valid_role(role_name):
+            raise ValueError(f"Role '{role_name}' already exists")
+
+        self._roles.append(
+            {"name": role_name, "display_name": display_name or role_name.title()}
+        )
+
+        self._role_staff_status[role_name] = is_staff
+
+        if permissions:
+            self._role_permissions[role_name] = permissions
+
+    def remove_role(self, role_name):
+        """Remove a role from the registry."""
+        self._roles = [r for r in self._roles if r["name"] != role_name]
+        self._role_permissions.pop(role_name, None)
+        self._role_staff_status.pop(role_name, None)
+        if self._default_role == role_name:
+            self._default_role = None
+
+    def get_roles(self):
+        """Get all registered roles."""
+        return [role["name"] for role in self._roles]
+
+    def get_roles_display(self):
+        """Get roles with display names for forms/UI."""
+        return [(role["name"], role["display_name"]) for role in self._roles]
+
+    def is_valid_role(self, role_name):
+        """Check if a role is registered."""
+        return role_name in self.get_roles()
+
+    def get_default_role(self):
+        """Get the default role for new users."""
+        return self._default_role
+
+    def set_default_role(self, role_name):
+        """Set the default role for new users."""
+        if not self.is_valid_role(role_name):
+            raise ValueError(f"Role '{role_name}' not registered")
+        self._default_role = role_name
+
+    def set_role_permissions(self, role_name, permissions):
+        """Set permissions for a role."""
+        if not self.is_valid_role(role_name):
+            raise ValueError(f"Role '{role_name}' not registered")
+        self._role_permissions[role_name] = permissions
+
+    def get_role_permissions(self, role_name):
+        """Get permissions for a role."""
+        return self._role_permissions.get(role_name, [])
+
+    def set_role_staff_status(self, role_name, is_staff):
+        """Set whether a role should have staff status."""
+        if not self.is_valid_role(role_name):
+            raise ValueError(f"Role '{role_name}' not registered")
+        self._role_staff_status[role_name] = is_staff
+
+    def get_role_staff_status(self, role_name):
+        """Get whether a role should have staff status."""
+        return self._role_staff_status.get(role_name, False)
+
+    def get_staff_roles(self):
+        """Get all roles that should have staff status."""
+        return [role for role, is_staff in self._role_staff_status.items() if is_staff]
+
+    def create_groups_if_needed(self):
+        """Create Django groups for all registered roles (call this in apps.py)."""
+        from django.contrib.auth.models import Group
+
+        created_groups = []
+        for role in self._roles:
+            group, created = Group.objects.get_or_create(name=role["name"])
+            if created:
+                created_groups.append(role["name"])
+
+                # Set permissions if defined
+                permissions = self._role_permissions.get(role["name"], [])
+                if permissions:
+                    from django.contrib.auth.models import Permission
+
+                    perm_objects = Permission.objects.filter(codename__in=permissions)
+                    group.permissions.set(perm_objects)
+
+        return created_groups
+
+    def update_user_staff_status(self, user):
+        """Update a user's staff status based on their role."""
+        try:
+            user_role = user.get_role()
+            if user_role and user_role != "No role assigned":
+                should_be_staff = self.get_role_staff_status(user_role)
+                if user.is_staff != should_be_staff:
+                    user.is_staff = should_be_staff
+                    user.save(update_fields=["is_staff"])
+                    return True
+        except Exception:
+            pass
+        return False
+
+    def bulk_update_staff_status(self):
+        """Update staff status for all users based on their roles."""
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+        updated_count = 0
+
+        try:
+            for user in User.objects.all():
+                if self.update_user_staff_status(user):
+                    updated_count += 1
+        except Exception:
+            pass
+
+        return updated_count
+
+    def get_role_info(self):
+        """Get complete role information."""
+        return {
+            "roles": self._roles,
+            "default_role": self._default_role,
+            "permissions": self._role_permissions,
+            "staff_status": self._role_staff_status,
+        }
+
+
+# Global config instance
 auth_config = AuthConfig()
 
-# Example usage:
 if __name__ == "__main__":
-    # ****************** AuthPagesRegistry examples ******************
-    print("=== AuthPagesRegistry Examples ===")
+    print("=== AuthConfig with Role Management Examples ===\n")
 
-    # Configure username field globally
-    auth_config.configure_username_field(
-        label="Phone Number", placeholder="Your phone number"
+    # ================== ROLE REGISTRATION EXAMPLES ==================
+    print("1. ROLE REGISTRATION EXAMPLES")
+    print("-" * 40)
+
+    # Example 1: Register roles with simple names
+    auth_config.register_roles(
+        ["student", "instructor", "admin"], default_role="student"
+    )
+    print("Simple roles registered:", auth_config.get_roles())
+    print("Default role:", auth_config.get_default_role())
+
+    # Example 2: Register roles with display names
+    auth_config.register_roles(
+        [
+            ("student", "Student"),
+            ("instructor", "Course Instructor"),
+            ("admin", "System Administrator"),
+            ("principal", "School Principal"),
+        ],
+        default_role="student",
     )
 
-    # Set global configuration (multiple options at once)
-    auth_config.set_global_config(
-        username_field_label="Student ID",
-        username_field_placeholder="Enter your student ID",
-        password_min_length=8,
+    print("\nRoles with display names:")
+    for role_name, display_name in auth_config.get_roles_display():
+        print(f"  - {role_name}: {display_name}")
+
+    # Example 3: Add individual roles
+    auth_config.add_role(
+        "librarian", "School Librarian", permissions=["view_books", "add_books"]
+    )
+    auth_config.add_role("counselor", "School Counselor")
+
+    print(f"\nAll roles after additions: {auth_config.get_roles()}")
+
+    # ================== ROLE PERMISSIONS EXAMPLES ==================
+    print("\n2. ROLE PERMISSIONS EXAMPLES")
+    print("-" * 40)
+
+    # Set permissions for different roles
+    auth_config.set_role_permissions(
+        "student", ["view_course", "view_grade", "submit_assignment"]
+    )
+
+    auth_config.set_role_permissions(
+        "instructor",
+        [
+            "view_course",
+            "add_course",
+            "change_course",
+            "view_grade",
+            "add_grade",
+            "change_grade",
+            "view_assignment",
+            "add_assignment",
+        ],
+    )
+
+    auth_config.set_role_permissions(
+        "admin",
+        [
+            "add_user",
+            "change_user",
+            "delete_user",
+            "add_course",
+            "change_course",
+            "delete_course",
+            "add_grade",
+            "change_grade",
+            "delete_grade",
+        ],
+    )
+
+    print("Role permissions:")
+    for role in auth_config.get_roles():
+        permissions = auth_config.get_role_permissions(role)
+        print(f"  {role}: {permissions}")
+
+    # ================== PAGE CONFIGURATION EXAMPLES ==================
+    print("\n3. PAGE CONFIGURATION EXAMPLES")
+    print("-" * 40)
+
+    # Configure pages with role-specific settings
+    auth_config.configure_page(
+        "signin",
+        redirect_url="/dashboard",
+        remember_me=True,
+        allowed_roles=["student", "instructor", "admin"],
+    )
+
+    auth_config.configure_page(
+        "signup",
         require_email_verification=True,
-        session_timeout=3600,
-        max_login_attempts=5,
+        default_role="student",
+        allowed_roles=["student"],  # Only students can self-register
     )
 
-    # Get specific global config value
-    print("Username label:", auth_config.get_global_config("username_field_label"))
-    print("Password min length:", auth_config.get_global_config("password_min_length"))
-
-    # Get all global configuration
-    print("All global config:", auth_config.get_global_config())
-
-    # Enable/disable pages
-    auth_config.enable_page("password_reset")
-    auth_config.disable_page("signup")
-
-    # Configure pages
-    auth_config.configure_page("signin", redirect_url="/dashboard", require_2fa=True)
-    auth_config.configure_page("profile_update", fields=["email", "name", "avatar"])
-
-    # Bulk configuration
-    auth_config.bulk_configure(
-        {
-            "signin": {"redirect_url": "/home", "remember_me": True},
-            "signup": {"enabled": True, "require_email_verification": True},
-            "email_verification": {"enabled": True, "expiry_hours": 24},
-        }
+    auth_config.configure_page(
+        "profile_update",
+        fields=["email", "first_name", "last_name"],
+        role_specific_fields={
+            "instructor": ["email", "first_name", "last_name", "bio", "office_hours"],
+            "student": ["email", "first_name", "last_name", "student_id"],
+            "admin": ["email", "first_name", "last_name", "phone", "department"],
+        },
     )
 
-    # Check status
-    print("Enabled pages:", auth_config.get_enabled_pages())
-    print("Signin enabled:", auth_config.is_enabled("signin"))
-    print("Signin config:", auth_config.get_page_config("signin"))
-    print("Username label:", auth_config.get_username_label())
-    print("Username placeholder:", auth_config.get_username_placeholder())
+    print("Page configurations:")
+    for page in auth_config.get_enabled_pages():
+        config = auth_config.get_page_config(page)
+        print(f"  {page}: {config}")
 
-    # Get username configuration
-    print("Username config:", auth_config.get_username_config())
+    # ================== BULK CONFIGURATION EXAMPLES ==================
+    print("\n4. BULK CONFIGURATION EXAMPLES")
+    print("-" * 40)
 
-    print("\nAll pages status:")
-    for page, status in auth_config.get_all_pages_status().items():
-        print(f"  - {page}: {'✓' if status['enabled'] else '✗'} {status['config']}")
+    # Bulk configure for different project types
 
-    print("\n=== Global Configuration Examples ===")
+    # School Management System Configuration
+    school_config = {
+        "signin": {
+            "redirect_url": "/school-dashboard",
+            "require_role_verification": True,
+            "allowed_roles": ["student", "instructor", "admin", "principal"],
+        },
+        "signup": {
+            "enabled": False  # Disable public signup for schools
+        },
+        "profile_update": {
+            "role_based_access": True,
+            "instructor_fields": ["bio", "qualifications", "subjects"],
+            "student_fields": ["grade", "section", "parent_contact"],
+        },
+        "password_reset": {"enabled": True, "require_admin_approval": True},
+    }
 
-    # Example 1: Configure for a school system
+    auth_config.bulk_configure(school_config)
+
+    # Hospital Management System Configuration
+    hospital_config = {
+        "signin": {
+            "redirect_url": "/medical-dashboard",
+            "require_2fa": True,
+            "allowed_roles": ["patient", "nurse", "doctor", "admin"],
+        },
+        "signup": {
+            "enabled": True,
+            "default_role": "patient",
+            "require_email_verification": True,
+        },
+        "profile_update": {
+            "medical_fields": ["medical_history", "allergies", "emergency_contact"],
+            "staff_fields": ["license_number", "specialization", "department"],
+        },
+    }
+
+    print("Bulk configuration applied for school system")
+
+    # ================== GLOBAL CONFIGURATION EXAMPLES ==================
+    print("\n5. GLOBAL CONFIGURATION EXAMPLES")
+    print("-" * 40)
+
+    # Different username field configurations for different systems
+
+    # School system
+    auth_config.configure_username_field(
+        label="Student/Staff ID", placeholder="Enter your School ID"
+    )
+
     auth_config.set_global_config(
-        username_field_label="Student ID",
-        username_field_placeholder="Enter your student ID",
+        username_field_label="Student/Staff ID",
+        username_field_placeholder="Enter your School ID",
         password_min_length=8,
         require_uppercase=True,
         require_numbers=True,
-        allow_password_reset=True,
+        session_timeout=7200,  # 2 hours
+        role_based_redirects={
+            "student": "/student-dashboard",
+            "instructor": "/teacher-dashboard",
+            "admin": "/admin-dashboard",
+            "principal": "/principal-dashboard",
+        },
     )
 
-    # Example 2: Configure for a phone-based system
-    auth_config.set_global_config(
-        username_field_label="Phone Number",
-        username_field_placeholder="Your phone number",
-        sms_verification=True,
-        country_code_required=True,
-    )
-
-    # Example 3: Configure for an email-based system
-    auth_config.set_global_config(
-        username_field_label="Email Address",
-        username_field_placeholder="your@email.com",
-        email_verification_required=True,
-        allow_social_login=True,
-    )
-
-    # Get specific configurations
-    print(
-        "Current username label:",
-        auth_config.get_global_config("username_field_label"),
-    )
-    print(
-        "Email verification required:",
-        auth_config.get_global_config("email_verification_required"),
-    )
-    print("SMS verification:", auth_config.get_global_config("sms_verification"))
-
-    # Get all global settings
-    all_settings = auth_config.get_global_config()
-    print("\nAll global settings:")
-    for key, value in all_settings.items():
+    print("Global config for school system:")
+    for key, value in auth_config.get_global_config().items():
         print(f"  {key}: {value}")
+
+    # ================== ROLE VALIDATION EXAMPLES ==================
+    print("\n6. ROLE VALIDATION EXAMPLES")
+    print("-" * 40)
+
+    # Check role validity
+    test_roles = ["student", "teacher", "invalid_role", "admin"]
+    for role in test_roles:
+        is_valid = auth_config.is_valid_role(role)
+        print(f"  {role}: {'✓ Valid' if is_valid else '✗ Invalid'}")
+
+    # ================== COMPLETE ROLE INFO EXAMPLES ==================
+    print("\n7. COMPLETE ROLE INFORMATION")
+    print("-" * 40)
+
+    role_info = auth_config.get_role_info()
+    print("Complete role information:")
+    print(f"  Registered roles: {len(role_info['roles'])}")
+    print(f"  Default role: {role_info['default_role']}")
+    print(f"  Roles with permissions: {len(role_info['permissions'])}")
+
+    print("\nDetailed role info:")
+    for role in role_info["roles"]:
+        permissions = role_info["permissions"].get(role["name"], [])
+        print(
+            f"  - {role['name']} ({role['display_name']}): {len(permissions)} permissions"
+        )
+
+    # ================== PROJECT-SPECIFIC EXAMPLES ==================
+    print("\n8. PROJECT-SPECIFIC CONFIGURATION EXAMPLES")
+    print("-" * 50)
+
+    print("Example 1: E-Learning Platform")
+    print("- Roles: student, instructor, content_creator, admin")
+    print("- Default role: student")
+    print("- Features: Public signup, email verification, role-based dashboards")
+
+    elearning_roles = [
+        ("student", "Student"),
+        ("instructor", "Course Instructor"),
+        ("content_creator", "Content Creator"),
+        ("admin", "Platform Administrator"),
+    ]
+
+    print("\nExample 2: Hospital Management")
+    print("- Roles: patient, nurse, doctor, admin, receptionist")
+    print("- Default role: patient")
+    print("- Features: 2FA for staff, medical record access control")
+
+    hospital_roles = [
+        ("patient", "Patient"),
+        ("nurse", "Nurse"),
+        ("doctor", "Doctor"),
+        ("admin", "Hospital Administrator"),
+        ("receptionist", "Receptionist"),
+    ]
+
+    print("\nExample 3: Corporate System")
+    print("- Roles: employee, manager, hr, admin, executive")
+    print("- Default role: employee")
+    print("- Features: Department-based access, hierarchy permissions")
+
+    corporate_roles = [
+        ("employee", "Employee"),
+        ("manager", "Manager"),
+        ("hr", "HR Representative"),
+        ("admin", "System Administrator"),
+        ("executive", "Executive"),
+    ]
+
+    # ================== USAGE IN DJANGO APPS ==================
+    print("\n9. USAGE IN DJANGO APPS.PY")
+    print("-" * 40)
+
+    example_apps_py = """
+# In your apps/schools/apps.py
+from django.apps import AppConfig
+from django.db.models.signals import post_migrate
+
+class SchoolsConfig(AppConfig):
+    name = "apps.schools"
+    
+    def ready(self):
+        from apps.home.config.auth import auth_config
+        
+        # Register school-specific roles
+        auth_config.register_roles([
+            ('student', 'Student'),
+            ('teacher', 'Teacher'),
+            ('admin', 'School Administrator'),
+            ('principal', 'Principal')
+        ], default_role='student')
+        
+        # Set role permissions
+        auth_config.set_role_permissions('student', [
+            'view_course', 'submit_assignment'
+        ])
+        
+        # Configure auth pages
+        auth_config.disable_page('signup')  # No public signup
+        auth_config.configure_username_field(
+            label='School ID',
+            placeholder='Enter your School ID'
+        )
+        
+        # Create groups after migrations
+        post_migrate.connect(create_school_groups, sender=self)
+
+def create_school_groups(sender, **kwargs):
+    from apps.home.config.auth import auth_config
+    auth_config.create_groups_if_needed()
+    """
+
+    print("Example apps.py configuration:")
+    print(example_apps_py)
+
+    print("\n=== End of Examples ===")

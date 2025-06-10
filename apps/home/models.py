@@ -1,5 +1,9 @@
+from django.contrib.auth.models import AbstractUser, Group
+from django.core.exceptions import ValidationError
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
+
+from apps.home.config.auth import auth_config
 
 
 class UniqueChoiceBaseModel(models.Model):
@@ -415,3 +419,150 @@ class PhysicalAddress(models.Model):
 
         query = urllib.parse.quote_plus(self.full_address)
         return f"https://www.google.com/maps/search/?api=1&query={query}"
+
+
+class User(AbstractUser):
+    FALLBACK_ROLES = ["standard", "admin"]
+
+    def __str__(self):
+        return self.username
+
+    def get_role(self):
+        """Get the user's role from groups"""
+        role_groups = auth_config.get_roles()
+        if not role_groups:
+            # Fallback to default roles if none registered
+            role_groups = self.FALLBACK_ROLES
+
+        # Use select_related to optimize the query and avoid recursion
+        try:
+            user_groups = self.groups.filter(name__in=role_groups).first()
+            if user_groups:
+                return user_groups.name
+        except Exception:
+            # Fallback in case of any database issues
+            pass
+
+        return "No role assigned"
+
+    def get_role_display(self):
+        """Get role with username for display purposes"""
+        return f"{self.username} ({self.get_role()})"
+
+    def has_role(self, role_name):
+        """Check if user has a specific role"""
+        try:
+            return self.groups.filter(name=role_name).exists()
+        except Exception:
+            return False
+
+    def set_role(self, role_name):
+        """Set user's role, ensuring only one role group and updating staff status"""
+        role_groups = auth_config.get_roles()
+        if not role_groups:
+            # Fallback to default roles if none registered
+            role_groups = self.FALLBACK_ROLES
+
+        if role_name not in role_groups:
+            raise ValueError(f"Invalid role: {role_name}. Valid roles: {role_groups}")
+
+        # Remove from all role groups first
+        existing_role_groups = Group.objects.filter(name__in=role_groups)
+        self.groups.remove(*existing_role_groups)
+
+        # Add to new role group
+        group, _ = Group.objects.get_or_create(name=role_name)
+        self.groups.add(group)
+
+        # Update staff status based on role (but not for superusers)
+        if not self.is_superuser:
+            self._update_staff_status_from_role(role_name)
+
+    def _update_staff_status_from_role(self, role_name=None):
+        """Update user's staff status based on their role"""
+        # Don't modify staff status for superusers - they should always remain staff
+        if self.is_superuser:
+            return
+
+        if role_name is None:
+            role_name = self.get_role()
+
+        if role_name and role_name != "No role assigned":
+            should_be_staff = auth_config.get_role_staff_status(role_name)
+            if self.is_staff != should_be_staff:
+                self.is_staff = should_be_staff
+                # Only save if we're not in the middle of a save operation
+                if self.pk and hasattr(self, "_state") and not self._state.adding:
+                    self.save(update_fields=["is_staff"])
+
+    def _assign_superuser_role(self):
+        """Assign appropriate role to superusers"""
+        try:
+            # Try to assign to admin role if it exists
+            staff_roles = auth_config.get_staff_roles()
+            if staff_roles:
+                # Prefer 'admin' role, or use the first staff role available
+                admin_role = "admin" if "admin" in staff_roles else staff_roles[0]
+                self.set_role(admin_role)
+            elif "admin" in auth_config.get_roles():
+                # If admin role exists but isn't marked as staff, still assign it
+                self.set_role("admin")
+                # And mark admin role as staff for future users
+                auth_config.set_role_staff_status("admin", True)
+        except Exception:
+            # If role assignment fails, that's okay - superuser will still be staff
+            pass
+
+    def clean(self):
+        """Validate that user has exactly one role"""
+        super().clean()
+
+        role_groups = auth_config.get_roles()
+        if not role_groups:
+            return  # Skip validation if no roles registered yet
+
+        try:
+            user_role_groups = self.groups.filter(name__in=role_groups)
+            if user_role_groups.count() > 1:
+                raise ValidationError("User can only belong to one role group.")
+        except Exception:
+            # Skip validation if there are database issues
+            pass
+
+    @property
+    def role(self):
+        """Property to get role like the old field"""
+        return self.get_role()
+
+    def save(self, *args, **kwargs):
+        """Override save to assign default role, update staff status, and handle superusers"""
+        is_new = self.pk is None
+
+        # Ensure superusers are always staff
+        if self.is_superuser and not self.is_staff:
+            self.is_staff = True
+
+        super().save(*args, **kwargs)
+
+        if is_new:
+            # Handle role assignment for new users
+            if self.is_superuser:
+                # For superusers, assign them to admin role if it exists
+                self._assign_superuser_role()
+            else:
+                # Check if user has any role
+                role_groups = auth_config.get_roles()
+                if role_groups:
+                    try:
+                        if not self.groups.filter(name__in=role_groups).exists():
+                            default_role = auth_config.get_default_role()
+                            if default_role:
+                                self.set_role(default_role)
+                    except Exception:
+                        # Skip role assignment if there are issues
+                        pass
+        else:
+            # Update staff status for existing users when they're saved
+            # But don't override superuser staff status
+            if not self.is_superuser:
+                self._update_staff_status_from_role()

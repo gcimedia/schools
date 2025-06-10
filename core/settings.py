@@ -108,8 +108,10 @@ DATABASES = {
 # https://docs.djangoproject.com/en/latest/ref/settings/#auth
 # https://docs.djangoproject.com/en/latest/ref/settings/#auth-password-validators
 
+AUTH_USER_MODEL = "home.User" 
+
 AUTHENTICATION_BACKENDS = [
-    # "app.core.authentication.backends.PhoneAuthBackend",  # Custom auth backend
+    # "app.home.authentication.backends.PhoneAuthBackend",  # * Ensure your custom backend is the first in this list 
     "django.contrib.auth.backends.ModelBackend",  # Keep the default auth backend
 ]
 

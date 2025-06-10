@@ -1,13 +1,16 @@
 from django import forms
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import password_validation
 from django.contrib.auth.forms import (
     AuthenticationForm,
     UserCreationForm,
     UsernameField,
 )
+from django.contrib.auth.forms import (
+    UserChangeForm as DjangoUserChangeForm,
+)
 
 from .config.auth import auth_config
-from .models import OrgDetail, OrgImage, SocialMediaLink
+from .models import OrgDetail, OrgImage, SocialMediaLink, User
 
 
 class UniqueChoiceFormMixin:
@@ -176,7 +179,7 @@ class SignUpForm(UserCreationForm):
         )
 
     class Meta:
-        model = get_user_model()
+        model = User
         fields = ("username",)
 
 
@@ -213,7 +216,7 @@ class SignUpForm(UserCreationForm):
 #     )
 
 #     class Meta:
-#         model = get_user_model()
+#         model = User
 #         fields = ("username", "image", "first_name", "last_name")
 #         widgets = {
 #             "username": forms.TextInput(
@@ -262,3 +265,16 @@ class SignUpForm(UserCreationForm):
 #         if commit:
 #             user.save()
 #         return user
+
+
+class UserChangeForm(DjangoUserChangeForm):
+    class Meta:
+        model = User
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].label = f"Username / {auth_config.get_username_label()}"
+        self.fields["username"].widget.attrs["placeholder"] = (
+            auth_config.get_username_placeholder()
+        )

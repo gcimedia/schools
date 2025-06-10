@@ -1,7 +1,10 @@
 from django.contrib import admin
+from django.contrib.auth.admin import GroupAdmin as DjangoGroupAdmin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.models import Group
 
 from .admin_site import org_admin_site
-from .forms import OrgDetailForm, OrgImageForm, SocialMediaLinkForm
+from .forms import OrgDetailForm, OrgImageForm, SocialMediaLinkForm, UserChangeForm
 from .models import (
     EmailAddress,
     OrgDetail,
@@ -9,6 +12,7 @@ from .models import (
     PhoneNumber,
     PhysicalAddress,
     SocialMediaLink,
+    User,
 )
 
 
@@ -277,3 +281,54 @@ class PhysicalAddressAdmin(admin.ModelAdmin):
         ),
         ("Display Options", {"fields": ("is_active", "use_in_contact_form", "order")}),
     )
+
+
+@admin.register(Group, site=org_admin_site)
+class GroupAdmin(DjangoGroupAdmin):
+    def get_readonly_fields(self, request, obj=None):
+        # Make 'name' readonly if the group is protected
+        if obj:
+            return ["name"] + list(self.readonly_fields)
+        return self.readonly_fields
+
+
+@admin.register(User, site=org_admin_site)
+class UserAdmin(DjangoUserAdmin):
+    form = UserChangeForm
+    list_display = ["username", "first_name", "last_name", "get_role_for_admin"]
+    list_filter = ("is_active", "groups")
+    fieldsets = (
+        (None, {"fields": ("username", "password")}),
+        ("Personal info", {"fields": ("first_name", "last_name", "email")}),
+        (
+            "Permissions",
+            {"fields": ("is_active", "is_staff", "is_superuser", "groups")},
+        ),
+        ("Important dates", {"fields": ("last_login", "date_joined")}),
+    )
+
+    
+    def get_role_for_admin(self, obj):
+        try:
+            return obj.get_role()
+        except Exception:
+            return "Unknown"
+
+    get_role_for_admin.short_description = "Role"
+    get_role_for_admin.admin_order_field = "groups"
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+
+        if request.user.is_superuser:
+            return fieldsets
+
+        fieldsets = list(fieldsets)
+        for name, section in fieldsets:
+            section["fields"] = tuple(
+                field
+                for field in section["fields"]
+                if field not in ["is_superuser", "is_staff"]
+            )
+
+        return fieldsets
