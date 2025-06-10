@@ -65,7 +65,7 @@ def org_meta():
     
     <!-- Open Graph -->
     <meta property="og:url" content="{get_org_detail("ORG_URL")}" />
-    <meta property="og:org_name" content="{get_org_detail("ORG_NAME")}" />
+    <meta property="og:site_name" content="{get_org_detail("ORG_NAME")}" />
     <meta property="og:title" content="{get_org_detail("ORG_NAME")}" />
     <meta property="og:image" content="{get_org_detail("ORG_LOGO")}" />
     <meta property="og:locale" content="en_GB" />
@@ -140,15 +140,16 @@ def org_cover_image():
 
 
 @register.simple_tag
-def org_author():
-    """Get org author specifically"""
-    return get_org_detail("ORG_AUTHOR")
+def org_credits():
+    author = get_org_detail("ORG_AUTHOR")
+    author_url = get_org_detail("ORG_AUTHOR_URL")
 
+    class_name = "pe-none" if not author_url or author_url == "#" else ""
 
-@register.simple_tag
-def org_author_url():
-    """Get org author URL specifically"""
-    return get_org_detail("ORG_AUTHOR_URL")
+    html = (
+        f'Designed by <a href="{author_url}" class="{class_name}"><em>{author}</em></a>'
+    )
+    return mark_safe(html.strip())
 
 
 @register.simple_tag
