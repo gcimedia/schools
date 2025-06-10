@@ -280,11 +280,16 @@ class UserChangeForm(DjangoUserChangeForm):
         )
 
     def clean_groups(self):
-        """Ensure user is only assigned to one role group"""
+        """
+        Ensure user is assigned to at least one group and only one role group.
+        """
         groups = self.cleaned_data.get("groups")
 
+        # Add this check to prevent blank values for 'groups'
         if not groups:
-            return groups
+            raise forms.ValidationError(
+                "This field is required. Please select at least one group."
+            )
 
         # Get registered role groups
         role_groups = auth_config.get_roles()

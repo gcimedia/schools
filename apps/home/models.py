@@ -426,6 +426,8 @@ class UserGroup(DjangoGroup):
 
 
 class User(AbstractUser):
+
+    # Since we have a signal to create the groups, is it possible to not use auth_config in this model at all?
     FALLBACK_ROLES = ["standard", "admin"]
 
     def __str__(self):
@@ -491,24 +493,6 @@ class User(AbstractUser):
                 if self.pk and hasattr(self, "_state") and not self._state.adding:
                     self.save(update_fields=["is_staff"])
 
-    def _assign_superuser_role(self):
-        """Assign appropriate role to superusers"""
-        try:
-            # Try to assign to admin role if it exists
-            staff_roles = auth_config.get_staff_roles()
-            if staff_roles:
-                # Prefer 'admin' role, or use the first staff role available
-                admin_role = "admin" if "admin" in staff_roles else staff_roles[0]
-                self.set_role(admin_role)
-            elif "admin" in auth_config.get_roles():
-                # If admin role exists but isn't marked as staff, still assign it
-                self.set_role("admin")
-                # And mark admin role as staff for future users
-                auth_config.set_role_staff_status("admin", True)
-        except Exception:
-            # If role assignment fails, that's okay - superuser will still be staff
-            pass
-
     def clean(self):
         """Validate that user has exactly one role"""
         super().clean()
@@ -543,22 +527,17 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
 
         if is_new:
-            # Handle role assignment for new users
-            if self.is_superuser:
-                # For superusers, assign them to admin role if it exists
-                self._assign_superuser_role()
-            else:
-                # Check if user has any role
-                role_groups = auth_config.get_roles()
-                if role_groups:
-                    try:
-                        if not self.groups.filter(name__in=role_groups).exists():
-                            default_role = auth_config.get_default_role()
-                            if default_role:
-                                self.set_role(default_role)
-                    except Exception:
-                        # Skip role assignment if there are issues
-                        pass
+            # Check if user has any role
+            role_groups = auth_config.get_roles()
+            if role_groups:
+                try:
+                    if not self.groups.filter(name__in=role_groups).exists():
+                        default_role = auth_config.get_default_role()
+                        if default_role:
+                            self.set_role(default_role)
+                except Exception:
+                    # Skip role assignment if there are issues
+                    pass
         else:
             # Update staff status for existing users when they're saved
             # But don't override superuser staff status

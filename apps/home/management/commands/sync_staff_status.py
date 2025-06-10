@@ -1,7 +1,8 @@
 # Create this file: apps/schools/management/commands/sync_staff_status.py
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+
 from apps.home.config.auth import auth_config
 
 User = get_user_model()
