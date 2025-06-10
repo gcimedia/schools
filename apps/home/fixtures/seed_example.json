@@ -110,7 +110,7 @@
     }
   },
   {
-    "model": "home.socialmedialink",
+    "model": "home.socialmedia",
     "pk": 1,
     "fields": {
       "name": "facebook",

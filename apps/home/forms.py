@@ -10,7 +10,7 @@ from django.contrib.auth.forms import (
 )
 
 from .config.auth import auth_config
-from .models import OrgDetail, OrgImage, SocialMediaLink, User
+from .models import OrgDetail, OrgImage, SocialMedia, User
 
 
 class UniqueChoiceFormMixin:
@@ -72,7 +72,7 @@ OrgDetailForm = generate_model_form(OrgDetail, "CHOICES")
 OrgImageForm = generate_model_form(OrgImage, "CHOICES")
 
 
-class SocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
+class SocialMediaForm(UniqueChoiceFormMixin, forms.ModelForm):
     """
     Form for SocialMediaLink model, filtering out existing choices for 'name'.
     Excludes the 'icon' field from the form.
@@ -81,7 +81,7 @@ class SocialMediaLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
     choices_attr = "SOCIAL_MEDIA_CHOICES"
 
     class Meta:
-        model = SocialMediaLink
+        model = SocialMedia
         fields = "__all__"
         exclude = ("icon",)
 
@@ -278,3 +278,28 @@ class UserChangeForm(DjangoUserChangeForm):
         self.fields["username"].widget.attrs["placeholder"] = (
             auth_config.get_username_placeholder()
         )
+
+    def clean_groups(self):
+        """Ensure user is only assigned to one role group"""
+        groups = self.cleaned_data.get("groups")
+
+        if not groups:
+            return groups
+
+        # Get registered role groups
+        role_groups = auth_config.get_roles()
+        if not role_groups:
+            return groups
+
+        # Filter selected groups to only role groups
+        selected_role_groups = [g for g in groups if g.name in role_groups]
+
+        if len(selected_role_groups) > 1:
+            role_names = [g.name for g in selected_role_groups]
+            raise forms.ValidationError(
+                f"User can only be assigned to one role group. "
+                f"You selected: {', '.join(role_names)}. "
+                f"Please select only one role group."
+            )
+
+        return groups

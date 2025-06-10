@@ -48,6 +48,10 @@ class OrgDetail(UniqueChoiceBaseModel):
     theme color, or URLs.
     """
 
+    class Meta(UniqueChoiceBaseModel.Meta):
+        verbose_name = "App Detail"
+        verbose_name_plural = "App Details"
+
     CHOICES = [
         ("org_name", "Name"),
         ("org_description", "Motto"),
@@ -63,16 +67,16 @@ class OrgDetail(UniqueChoiceBaseModel):
         max_length=255, blank=True, help_text="Value for the organization detail."
     )
 
-    class Meta(UniqueChoiceBaseModel.Meta):
-        verbose_name = "(Org) Detail"
-        verbose_name_plural = "(Org) Details"
-
 
 class OrgImage(UniqueChoiceBaseModel):
     """
     Represents organization-related image assets like logos, favicons,
     and hero images.
     """
+
+    class Meta(UniqueChoiceBaseModel.Meta):
+        verbose_name = "App Image"
+        verbose_name_plural = "App Images"
 
     CHOICES = [
         ("org_logo", "Logo"),
@@ -90,16 +94,16 @@ class OrgImage(UniqueChoiceBaseModel):
         help_text="Image file for logos, favicons, etc.",
     )
 
-    class Meta(UniqueChoiceBaseModel.Meta):
-        verbose_name = "(Org) Image"
-        verbose_name_plural = "(Org) Images"
 
-
-class SocialMediaLink(models.Model):
+class SocialMedia(models.Model):
     """
     Represents a social media link with associated Bootstrap icon class,
     display status, and display order.
     """
+
+    class Meta:
+        ordering = ["order", "name"]
+        verbose_name_plural = "Social Media"
 
     SOCIAL_MEDIA_CHOICES = [
         ("facebook", "Facebook"),
@@ -149,11 +153,6 @@ class SocialMediaLink(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    class Meta:
-        ordering = ["order", "name"]
-        verbose_name = "Social Media Link"
-        verbose_name_plural = "Social Media Links"
-
     def save(self, *args, **kwargs):
         """Auto-assign icon based on the platform name before saving."""
         if self.name in self.ICON_MAPPING:
@@ -180,6 +179,9 @@ class PhoneNumber(models.Model):
     display status, and order.
     """
 
+    class Meta:
+        ordering = ["order", "number"]
+
     number = PhoneNumberField(
         region="KE",
         help_text="Phone number (e.g., +254712345678 or 0712345678)",
@@ -203,11 +205,6 @@ class PhoneNumber(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order", "number"]
-        verbose_name = "Phone Number"
-        verbose_name_plural = "Phone Numbers"
 
     def save(self, *args, **kwargs):
         """
@@ -270,6 +267,10 @@ class EmailAddress(models.Model):
     and ordering.
     """
 
+    class Meta:
+        ordering = ["order", "email"]
+        verbose_name_plural = "Email Addresses"
+
     email = models.EmailField(
         help_text="Email address (e.g., user@example.com)",
         unique=True,
@@ -288,11 +289,6 @@ class EmailAddress(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order", "email"]
-        verbose_name = "Email Address"
-        verbose_name_plural = "Email Addresses"
 
     def save(self, *args, **kwargs):
         """
@@ -323,6 +319,10 @@ class PhysicalAddress(models.Model):
     Stores physical addresses, with optional Google Maps embed URLs,
     display order, and contact form preferences.
     """
+
+    class Meta:
+        ordering = ["order", "label", "city"]
+        verbose_name_plural = "Physical Addresses"
 
     label = models.CharField(
         max_length=100,
@@ -372,11 +372,6 @@ class PhysicalAddress(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["order", "label", "city"]
-        verbose_name = "Physical Address"
-        verbose_name_plural = "Physical Addresses"
 
     def save(self, *args, **kwargs):
         """
@@ -431,23 +426,16 @@ class User(AbstractUser):
         """Get the user's role from groups"""
         role_groups = auth_config.get_roles()
         if not role_groups:
-            # Fallback to default roles if none registered
             role_groups = self.FALLBACK_ROLES
 
-        # Use select_related to optimize the query and avoid recursion
         try:
             user_groups = self.groups.filter(name__in=role_groups).first()
             if user_groups:
                 return user_groups.name
         except Exception:
-            # Fallback in case of any database issues
             pass
 
         return "No role assigned"
-
-    def get_role_display(self):
-        """Get role with username for display purposes"""
-        return f"{self.username} ({self.get_role()})"
 
     def has_role(self, role_name):
         """Check if user has a specific role"""
@@ -460,7 +448,6 @@ class User(AbstractUser):
         """Set user's role, ensuring only one role group and updating staff status"""
         role_groups = auth_config.get_roles()
         if not role_groups:
-            # Fallback to default roles if none registered
             role_groups = self.FALLBACK_ROLES
 
         if role_name not in role_groups:
@@ -536,6 +523,8 @@ class User(AbstractUser):
 
     def save(self, *args, **kwargs):
         """Override save to assign default role, update staff status, and handle superusers"""
+        self.full_clean()
+
         is_new = self.pk is None
 
         # Ensure superusers are always staff

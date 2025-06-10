@@ -16,8 +16,7 @@ class AuthConfig:
         }
         # Role registry for project-specific roles
         self._roles = []
-        self._role_permissions = {}
-        self._role_staff_status = {}  # New: Track which roles should be staff
+        self._role_staff_status = {}  # Track which roles should be staff
         self._default_role = None
 
     def enable_page(self, page_name, **config):
@@ -143,7 +142,7 @@ class AuthConfig:
                 )
             self._default_role = default_role
 
-    def add_role(self, role_name, display_name=None, permissions=None, is_staff=False):
+    def add_role(self, role_name, display_name=None, is_staff=False):
         """Add a single role to the registry."""
         if self.is_valid_role(role_name):
             raise ValueError(f"Role '{role_name}' already exists")
@@ -154,13 +153,9 @@ class AuthConfig:
 
         self._role_staff_status[role_name] = is_staff
 
-        if permissions:
-            self._role_permissions[role_name] = permissions
-
     def remove_role(self, role_name):
         """Remove a role from the registry."""
         self._roles = [r for r in self._roles if r["name"] != role_name]
-        self._role_permissions.pop(role_name, None)
         self._role_staff_status.pop(role_name, None)
         if self._default_role == role_name:
             self._default_role = None
@@ -187,16 +182,6 @@ class AuthConfig:
             raise ValueError(f"Role '{role_name}' not registered")
         self._default_role = role_name
 
-    def set_role_permissions(self, role_name, permissions):
-        """Set permissions for a role."""
-        if not self.is_valid_role(role_name):
-            raise ValueError(f"Role '{role_name}' not registered")
-        self._role_permissions[role_name] = permissions
-
-    def get_role_permissions(self, role_name):
-        """Get permissions for a role."""
-        return self._role_permissions.get(role_name, [])
-
     def set_role_staff_status(self, role_name, is_staff):
         """Set whether a role should have staff status."""
         if not self.is_valid_role(role_name):
@@ -220,14 +205,6 @@ class AuthConfig:
             group, created = Group.objects.get_or_create(name=role["name"])
             if created:
                 created_groups.append(role["name"])
-
-                # Set permissions if defined
-                permissions = self._role_permissions.get(role["name"], [])
-                if permissions:
-                    from django.contrib.auth.models import Permission
-
-                    perm_objects = Permission.objects.filter(codename__in=permissions)
-                    group.permissions.set(perm_objects)
 
         return created_groups
 
@@ -266,7 +243,6 @@ class AuthConfig:
         return {
             "roles": self._roles,
             "default_role": self._default_role,
-            "permissions": self._role_permissions,
             "staff_status": self._role_staff_status,
         }
 
@@ -304,55 +280,27 @@ if __name__ == "__main__":
         print(f"  - {role_name}: {display_name}")
 
     # Example 3: Add individual roles
-    auth_config.add_role(
-        "librarian", "School Librarian", permissions=["view_books", "add_books"]
-    )
+    auth_config.add_role("librarian", "School Librarian")
     auth_config.add_role("counselor", "School Counselor")
 
     print(f"\nAll roles after additions: {auth_config.get_roles()}")
 
-    # ================== ROLE PERMISSIONS EXAMPLES ==================
-    print("\n2. ROLE PERMISSIONS EXAMPLES")
+    # ================== STAFF STATUS EXAMPLES ==================
+    print("\n2. STAFF STATUS EXAMPLES")
     print("-" * 40)
 
-    # Set permissions for different roles
-    auth_config.set_role_permissions(
-        "student", ["view_course", "view_grade", "submit_assignment"]
-    )
+    # Set staff status for different roles
+    auth_config.set_role_staff_status("admin", True)
+    auth_config.set_role_staff_status("principal", True)
+    auth_config.set_role_staff_status("instructor", False)
+    auth_config.set_role_staff_status("student", False)
 
-    auth_config.set_role_permissions(
-        "instructor",
-        [
-            "view_course",
-            "add_course",
-            "change_course",
-            "view_grade",
-            "add_grade",
-            "change_grade",
-            "view_assignment",
-            "add_assignment",
-        ],
-    )
-
-    auth_config.set_role_permissions(
-        "admin",
-        [
-            "add_user",
-            "change_user",
-            "delete_user",
-            "add_course",
-            "change_course",
-            "delete_course",
-            "add_grade",
-            "change_grade",
-            "delete_grade",
-        ],
-    )
-
-    print("Role permissions:")
+    print("Role staff status:")
     for role in auth_config.get_roles():
-        permissions = auth_config.get_role_permissions(role)
-        print(f"  {role}: {permissions}")
+        is_staff = auth_config.get_role_staff_status(role)
+        print(f"  {role}: {'Staff' if is_staff else 'Non-staff'}")
+
+    print(f"\nStaff roles: {auth_config.get_staff_roles()}")
 
     # ================== PAGE CONFIGURATION EXAMPLES ==================
     print("\n3. PAGE CONFIGURATION EXAMPLES")
@@ -414,24 +362,6 @@ if __name__ == "__main__":
 
     auth_config.bulk_configure(school_config)
 
-    # Hospital Management System Configuration
-    hospital_config = {
-        "signin": {
-            "redirect_url": "/medical-dashboard",
-            "require_2fa": True,
-            "allowed_roles": ["patient", "nurse", "doctor", "admin"],
-        },
-        "signup": {
-            "enabled": True,
-            "default_role": "patient",
-            "require_email_verification": True,
-        },
-        "profile_update": {
-            "medical_fields": ["medical_history", "allergies", "emergency_contact"],
-            "staff_fields": ["license_number", "specialization", "department"],
-        },
-    }
-
     print("Bulk configuration applied for school system")
 
     # ================== GLOBAL CONFIGURATION EXAMPLES ==================
@@ -482,13 +412,13 @@ if __name__ == "__main__":
     print("Complete role information:")
     print(f"  Registered roles: {len(role_info['roles'])}")
     print(f"  Default role: {role_info['default_role']}")
-    print(f"  Roles with permissions: {len(role_info['permissions'])}")
+    print(f"  Staff roles: {len([r for r in role_info['staff_status'].values() if r])}")
 
     print("\nDetailed role info:")
     for role in role_info["roles"]:
-        permissions = role_info["permissions"].get(role["name"], [])
+        is_staff = role_info["staff_status"].get(role["name"], False)
         print(
-            f"  - {role['name']} ({role['display_name']}): {len(permissions)} permissions"
+            f"  - {role['name']} ({role['display_name']}): {'Staff' if is_staff else 'Non-staff'}"
         )
 
     # ================== PROJECT-SPECIFIC EXAMPLES ==================
@@ -500,38 +430,15 @@ if __name__ == "__main__":
     print("- Default role: student")
     print("- Features: Public signup, email verification, role-based dashboards")
 
-    elearning_roles = [
-        ("student", "Student"),
-        ("instructor", "Course Instructor"),
-        ("content_creator", "Content Creator"),
-        ("admin", "Platform Administrator"),
-    ]
-
     print("\nExample 2: Hospital Management")
     print("- Roles: patient, nurse, doctor, admin, receptionist")
     print("- Default role: patient")
     print("- Features: 2FA for staff, medical record access control")
 
-    hospital_roles = [
-        ("patient", "Patient"),
-        ("nurse", "Nurse"),
-        ("doctor", "Doctor"),
-        ("admin", "Hospital Administrator"),
-        ("receptionist", "Receptionist"),
-    ]
-
     print("\nExample 3: Corporate System")
     print("- Roles: employee, manager, hr, admin, executive")
     print("- Default role: employee")
     print("- Features: Department-based access, hierarchy permissions")
-
-    corporate_roles = [
-        ("employee", "Employee"),
-        ("manager", "Manager"),
-        ("hr", "HR Representative"),
-        ("admin", "System Administrator"),
-        ("executive", "Executive"),
-    ]
 
     # ================== USAGE IN DJANGO APPS ==================
     print("\n9. USAGE IN DJANGO APPS.PY")
@@ -556,10 +463,9 @@ class SchoolsConfig(AppConfig):
             ('principal', 'Principal')
         ], default_role='student')
         
-        # Set role permissions
-        auth_config.set_role_permissions('student', [
-            'view_course', 'submit_assignment'
-        ])
+        # Set staff status for roles
+        auth_config.set_role_staff_status('admin', True)
+        auth_config.set_role_staff_status('principal', True)
         
         # Configure auth pages
         auth_config.disable_page('signup')  # No public signup

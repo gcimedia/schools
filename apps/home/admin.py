@@ -4,14 +4,14 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group
 
 from .admin_site import org_admin_site
-from .forms import OrgDetailForm, OrgImageForm, SocialMediaLinkForm, UserChangeForm
+from .forms import OrgDetailForm, OrgImageForm, SocialMediaForm, UserChangeForm
 from .models import (
     EmailAddress,
     OrgDetail,
     OrgImage,
     PhoneNumber,
     PhysicalAddress,
-    SocialMediaLink,
+    SocialMedia,
     User,
 )
 
@@ -145,14 +145,14 @@ class OrgImageAdmin(UniqueChoiceAdminMixin):
     fieldsets = (("Site Graphic", {"fields": ("name", "image")}),)
 
 
-@admin.register(SocialMediaLink, site=org_admin_site)
-class SocialMediaLinkAdmin(admin.ModelAdmin):
+@admin.register(SocialMedia, site=org_admin_site)
+class SocialMediaAdmin(admin.ModelAdmin):
     """
     Admin interface for SocialMediaLink model, supporting listing, filtering, searching,
     and inline editing of URLs and order. Restricts the 'name' field to read-only on edit.
     """
 
-    form = SocialMediaLinkForm
+    form = SocialMediaForm
     list_display = ("name", "url", "is_active", "order")
     list_editable = ("url", "order")
     list_filter = ("is_active",)
@@ -259,7 +259,7 @@ class PhysicalAddressAdmin(admin.ModelAdmin):
         "order",
     )
     list_editable = ("order",)
-    list_filter = ("is_active", "use_in_contact_form", "country")
+    list_filter = ("is_active", "use_in_contact_form", "country", "state_province")
     search_fields = ("label", "street_address", "city", "country")
     ordering = ("order",)
 
@@ -307,7 +307,6 @@ class UserAdmin(DjangoUserAdmin):
         ("Important dates", {"fields": ("last_login", "date_joined")}),
     )
 
-    
     def get_role_for_admin(self, obj):
         try:
             return obj.get_role()
