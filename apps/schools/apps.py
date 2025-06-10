@@ -1,9 +1,6 @@
 import logging
-from importlib import import_module
 
 from django.apps import AppConfig
-
-from apps.home.config.auth import auth_config
 
 logger = logging.getLogger(__name__)
 
@@ -15,34 +12,16 @@ class SchoolsConfig(AppConfig):
 
     def ready(self):
         try:
-            # Register roles specific to schools with staff status configuration
-            auth_config.register_roles(
-                [
-                    {"name": "student", "display_name": "Student", "is_staff": False},
-                    {
-                        "name": "instructor",
-                        "display_name": "Instructor",
-                        "is_staff": False,
-                    },
-                    {
-                        "name": "admin",
-                        "display_name": "Administrator",
-                        "is_staff": True,
-                    },
-                ],
-                default_role="student",
-            )
+            # Only configure non-role related auth settings
+            from apps.home.config.auth import auth_config
 
-            # Disable signup page
+            # Configure page settings (no role management needed)
             auth_config.disable_page("signup")
-
-            # Set username field label
             auth_config.configure_username_field(
                 label="School ID", placeholder="Enter your School ID"
             )
 
-            # Import signals to ensure signal handlers are registered
-            import_module(f"{self.name}.signals")
+            logger.info("School app configured successfully")
 
         except Exception as e:
             logger.warning(f"Failed to configure school app settings: {e}")

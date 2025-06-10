@@ -10,7 +10,7 @@ from django.contrib.auth.forms import (
 )
 
 from .config.auth import auth_config
-from .models import BaseDetail, BaseImage, SocialMediaLink, User
+from .models import BaseDetail, BaseImage, SocialMediaLink, User, UserGroup
 
 
 class UniqueChoiceFormMixin:
@@ -274,33 +274,31 @@ class UserChangeForm(DjangoUserChangeForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Update username field (assuming auth_config is defined elsewhere)
         self.fields["username"].label = f"Username / {auth_config.get_username_label()}"
         self.fields["username"].widget.attrs["placeholder"] = (
             auth_config.get_username_placeholder()
         )
 
+        # Filter groups to only show UserGroup instances in the admin
+        if "groups" in self.fields:
+            self.fields["groups"].queryset = UserGroup.objects.all()
+
     def clean_groups(self):
-        """
-        Ensure user is assigned to at least one group and only one role group.
-        """
+        """Ensure user is assigned to exactly one role group."""
         groups = self.cleaned_data.get("groups")
 
-        # Add this check to prevent blank values for 'groups'
         if not groups:
             raise forms.ValidationError(
                 "This field is required. Please select at least one group."
             )
 
-        # Get registered role groups
-        role_groups = auth_config.get_roles()
-        if not role_groups:
-            return groups
+        # Check that only one role group is selected
+        role_groups = list(groups)
 
-        # Filter selected groups to only role groups
-        selected_role_groups = [g for g in groups if g.name in role_groups]
-
-        if len(selected_role_groups) > 1:
-            role_names = [g.name for g in selected_role_groups]
+        if len(role_groups) > 1:
+            role_names = [g.name for g in role_groups]
             raise forms.ValidationError(
                 f"User can only be assigned to one role group. "
                 f"You selected: {', '.join(role_names)}. "

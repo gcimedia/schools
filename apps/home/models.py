@@ -1,10 +1,12 @@
-from django.contrib.auth.models import AbstractUser
+import logging
+
+from django.contrib.auth.models import AbstractUser, Permission
 from django.contrib.auth.models import Group as DjangoGroup
 from django.core.exceptions import ValidationError
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
-from apps.home.config.auth import auth_config
+logger = logging.getLogger(__name__)
 
 
 class UniqueChoiceBaseModel(models.Model):
@@ -409,137 +411,396 @@ class PhysicalAddress(models.Model):
 
 
 class UserGroup(DjangoGroup):
+    """UserGroup with configurable role settings and permissions via admin panel"""
+
     class Meta:
-        proxy = True
+        verbose_name = "User Role"
+        verbose_name_plural = "User Roles"
+
+    # Add fields for role configuration
+    display_name = models.CharField(
+        max_length=100, blank=True, help_text="Human-readable name for this role"
+    )
+    is_staff_role = models.BooleanField(
+        default=False, help_text="Users with this role will have staff access"
+    )
+    is_default_role = models.BooleanField(
+        default=False, help_text="New users will be assigned this role by default"
+    )
+    description = models.TextField(
+        blank=True, help_text="Description of this role's purpose and permissions"
+    )
+
+    # Permissions are inherited from Django's Group model via the 'permissions' field
+    # We can add helper methods to work with them
+
+    def __str__(self):
+        return self.get_display_name()
+
+    def get_display_name(self):
+        """Get the display name for this role"""
+        return self.display_name or self.name.title()
 
     def clean(self):
         super().clean()
-        if not self.pk:  # Only for new groups
-            if UserGroup.objects.filter(name=self.name).exists():
+        # Ensure only one default role exists
+        if self.is_default_role:
+            existing_default = UserGroup.objects.filter(is_default_role=True).exclude(
+                pk=self.pk
+            )
+
+            if existing_default.exists():
                 raise ValidationError(
-                    f"A group with name '{self.name}' already exists."
+                    "Only one role can be set as the default role. "
+                    f"'{existing_default.first().name}' is currently the default."
                 )
 
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
 
+        # Update staff status for users with this role after saving
+        self._update_users_staff_status()
+
+    def _update_users_staff_status(self):
+        """Update staff status for all users with this role"""
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        try:
+            users_with_role = User.objects.filter(
+                groups=self,
+                is_superuser=False,  # Skip superusers
+            )
+
+            updated_count = 0
+            for user in users_with_role:
+                if user.is_staff != self.is_staff_role:
+                    user.is_staff = self.is_staff_role
+                    user.save(update_fields=["is_staff"])
+                    updated_count += 1
+
+            if updated_count > 0:
+                logger.info(
+                    f"Updated staff status for {updated_count} users in role '{self.name}'"
+                )
+
+        except Exception as e:
+            logger.error(f"Failed to update staff status for role '{self.name}': {e}")
+
+    # Permission-related methods
+    def add_permission(self, permission):
+        """Add a permission to this role"""
+        if isinstance(permission, str):
+            # If permission is a string like 'app_label.permission_codename'
+            try:
+                app_label, codename = permission.split(".")
+                permission_obj = Permission.objects.get(
+                    content_type__app_label=app_label, codename=codename
+                )
+                self.permissions.add(permission_obj)
+            except (ValueError, Permission.DoesNotExist) as e:
+                logger.error(
+                    f"Failed to add permission '{permission}' to role '{self.name}': {e}"
+                )
+        else:
+            # If permission is a Permission object
+            self.permissions.add(permission)
+
+    def remove_permission(self, permission):
+        """Remove a permission from this role"""
+        if isinstance(permission, str):
+            try:
+                app_label, codename = permission.split(".")
+                permission_obj = Permission.objects.get(
+                    content_type__app_label=app_label, codename=codename
+                )
+                self.permissions.remove(permission_obj)
+            except (ValueError, Permission.DoesNotExist) as e:
+                logger.error(
+                    f"Failed to remove permission '{permission}' from role '{self.name}': {e}"
+                )
+        else:
+            self.permissions.remove(permission)
+
+    def has_permission(self, permission):
+        """Check if this role has a specific permission"""
+        if isinstance(permission, str):
+            try:
+                app_label, codename = permission.split(".")
+                return self.permissions.filter(
+                    content_type__app_label=app_label, codename=codename
+                ).exists()
+            except ValueError:
+                return False
+        else:
+            return self.permissions.filter(pk=permission.pk).exists()
+
+    def get_permissions_list(self):
+        """Get a list of permission codenames for this role"""
+        return list(self.permissions.values_list("content_type__app_label", "codename"))
+
+    def get_permissions_display(self):
+        """Get a human-readable list of permissions"""
+        permissions = self.permissions.select_related("content_type").all()
+        return [
+            f"{perm.content_type.app_label}.{perm.codename} ({perm.name})"
+            for perm in permissions
+        ]
+
+    def set_permissions(self, permission_list):
+        """Set permissions for this role (replaces existing permissions)"""
+        self.permissions.clear()
+
+        for perm in permission_list:
+            if isinstance(perm, str):
+                self.add_permission(perm)
+            else:
+                self.permissions.add(perm)
+
+    @classmethod
+    def get_default_role(cls):
+        """Get the default role for new users"""
+        try:
+            return cls.objects.filter(is_default_role=True).first()
+        except Exception as e:
+            logger.error(f"Error getting default role: {e}")
+            return None
+
+    @classmethod
+    def get_staff_roles(cls):
+        """Get all roles that should have staff status"""
+        try:
+            return cls.objects.filter(is_staff_role=True)
+        except Exception as e:
+            logger.error(f"Error getting staff roles: {e}")
+            return cls.objects.none()
+
+    @classmethod
+    def get_role_staff_status(cls, role_name):
+        """Get staff status for a specific role name"""
+        try:
+            role = cls.objects.get(name=role_name)
+            return role.is_staff_role
+        except cls.DoesNotExist:
+            logger.warning(f"Role '{role_name}' does not exist")
+            return False
+        except Exception as e:
+            logger.error(f"Error getting staff status for role '{role_name}': {e}")
+            return False
+
+    @classmethod
+    def get_roles_display(cls):
+        """Get roles with display names for forms/UI"""
+        try:
+            return [(role.name, role.get_display_name()) for role in cls.objects.all()]
+        except Exception as e:
+            logger.error(f"Error getting roles display: {e}")
+            return []
+
 
 class User(AbstractUser):
+    """User model with simplified role management and permission checking"""
 
-    # Since we have a signal to create the groups, is it possible to not use auth_config in this model at all?
-    FALLBACK_ROLES = ["standard", "admin"]
+    # When I save I should also update staff status depending on group
 
     def __str__(self):
         return self.username
 
     def get_role(self):
         """Get the user's role from groups"""
-        role_groups = auth_config.get_roles()
-        if not role_groups:
-            role_groups = self.FALLBACK_ROLES
-
         try:
-            user_groups = self.groups.filter(name__in=role_groups).first()
-            if user_groups:
-                return user_groups.name
-        except Exception:
-            pass
+            role_group = (
+                self.groups.select_related().filter(usergroup__isnull=False).first()
+            )
+            return role_group.name if role_group else "No role assigned"
+        except Exception as e:
+            logger.error(f"Error getting role for user {self.username}: {e}")
+            return "No role assigned"
 
-        return "No role assigned"
+    def get_role_object(self):
+        """Get the UserGroup object for this user's role"""
+        try:
+            group = self.groups.select_related().filter(usergroup__isnull=False).first()
+            if group:
+                return UserGroup.objects.get(pk=group.pk)
+            return None
+        except Exception as e:
+            logger.error(f"Error getting role object for user {self.username}: {e}")
+            return None
 
     def has_role(self, role_name):
         """Check if user has a specific role"""
         try:
-            return self.groups.filter(name=role_name).exists()
-        except Exception:
+            return self.groups.filter(name=role_name, usergroup__isnull=False).exists()
+        except Exception as e:
+            logger.error(f"Error checking role for user {self.username}: {e}")
             return False
 
     def set_role(self, role_name):
-        """Set user's role, ensuring only one role group and updating staff status"""
-        role_groups = auth_config.get_roles()
-        if not role_groups:
-            role_groups = self.FALLBACK_ROLES
+        """Set user's role, ensuring only one role group"""
+        try:
+            # Get the role group
+            new_role = UserGroup.objects.get(name=role_name)
 
-        if role_name not in role_groups:
-            raise ValueError(f"Invalid role: {role_name}. Valid roles: {role_groups}")
+            # Remove from all existing UserGroup instances
+            existing_user_groups = UserGroup.objects.filter(user=self)
+            self.groups.remove(*existing_user_groups)
 
-        # Remove from all role groups first
-        existing_role_groups = UserGroup.objects.filter(name__in=role_groups)
-        self.groups.remove(*existing_role_groups)
+            # Add to new role group
+            self.groups.add(new_role)
 
-        # Add to new role group
-        group, _ = UserGroup.objects.get_or_create(name=role_name)
-        self.groups.add(group)
-
-        # Update staff status based on role (but not for superusers)
-        if not self.is_superuser:
-            self._update_staff_status_from_role(role_name)
-
-    def _update_staff_status_from_role(self, role_name=None):
-        """Update user's staff status based on their role"""
-        # Don't modify staff status for superusers - they should always remain staff
-        if self.is_superuser:
-            return
-
-        if role_name is None:
-            role_name = self.get_role()
-
-        if role_name and role_name != "No role assigned":
-            should_be_staff = auth_config.get_role_staff_status(role_name)
-            if self.is_staff != should_be_staff:
-                self.is_staff = should_be_staff
-                # Only save if we're not in the middle of a save operation
-                if self.pk and hasattr(self, "_state") and not self._state.adding:
+            # Update staff status (but not for superusers)
+            if not self.is_superuser:
+                old_staff_status = self.is_staff
+                self.is_staff = new_role.is_staff_role
+                if old_staff_status != self.is_staff:
                     self.save(update_fields=["is_staff"])
+                    logger.info(
+                        f"Updated staff status for user {self.username} to {self.is_staff}"
+                    )
+
+        except UserGroup.DoesNotExist:
+            raise ValueError(f"Role '{role_name}' does not exist")
+        except Exception as e:
+            logger.error(f"Error setting role for user {self.username}: {e}")
+            raise
+
+    def get_role_permissions(self):
+        """Get all permissions from the user's role"""
+        role_obj = self.get_role_object()
+        if role_obj:
+            return role_obj.permissions.all()
+        return Permission.objects.none()
+
+    def has_role_permission(self, permission):
+        """Check if user has permission through their role"""
+        role_obj = self.get_role_object()
+        if role_obj:
+            return role_obj.has_permission(permission)
+        return False
+
+    def get_all_permissions_display(self):
+        """Get all permissions (user + role) for display"""
+        user_perms = set(self.user_permissions.values_list("id", flat=True))
+        role_perms = set()
+
+        role_obj = self.get_role_object()
+        if role_obj:
+            role_perms = set(role_obj.permissions.values_list("id", flat=True))
+
+        all_perm_ids = user_perms | role_perms
+        permissions = Permission.objects.filter(id__in=all_perm_ids).select_related(
+            "content_type"
+        )
+
+        return [
+            {
+                "permission": f"{perm.content_type.app_label}.{perm.codename}",
+                "name": perm.name,
+                "source": "role" if perm.id in role_perms else "user",
+            }
+            for perm in permissions
+        ]
 
     def clean(self):
-        """Validate that user has exactly one role"""
+        """Validate that user has at most one role"""
         super().clean()
 
-        role_groups = auth_config.get_roles()
-        if not role_groups:
-            return  # Skip validation if no roles registered yet
-
-        try:
-            user_role_groups = self.groups.filter(name__in=role_groups)
-            if user_role_groups.count() > 1:
-                raise ValidationError("User can only belong to one role group.")
-        except Exception:
-            # Skip validation if there are database issues
-            pass
+        if self.pk:  # Only validate for existing users
+            try:
+                user_roles = self.groups.filter(usergroup__isnull=False)
+                if user_roles.count() > 1:
+                    role_names = [role.name for role in user_roles]
+                    raise ValidationError(
+                        f"User can only belong to one role group. "
+                        f"Currently assigned to: {', '.join(role_names)}"
+                    )
+            except Exception as e:
+                logger.error(f"Error validating user roles for {self.username}: {e}")
 
     @property
     def role(self):
-        """Property to get role like the old field"""
+        """Property to get role"""
         return self.get_role()
 
     def save(self, *args, **kwargs):
-        """Override save to assign default role, update staff status, and handle superusers"""
-        self.full_clean()
-
+        """Override save to assign default role, handle superusers, and update staff status"""
         is_new = self.pk is None
+        old_staff_status = None if is_new else self.is_staff
 
         # Ensure superusers are always staff
         if self.is_superuser and not self.is_staff:
             self.is_staff = True
 
+        # Validate before saving
+        if not is_new:
+            self.clean()
+
+        # Save first to ensure we have a pk for M2M operations
         super().save(*args, **kwargs)
 
+        # For new users, assign default role first
         if is_new:
-            # Check if user has any role
-            role_groups = auth_config.get_roles()
-            if role_groups:
-                try:
-                    if not self.groups.filter(name__in=role_groups).exists():
-                        default_role = auth_config.get_default_role()
-                        if default_role:
-                            self.set_role(default_role)
-                except Exception:
-                    # Skip role assignment if there are issues
-                    pass
-        else:
-            # Update staff status for existing users when they're saved
-            # But don't override superuser staff status
-            if not self.is_superuser:
-                self._update_staff_status_from_role()
+            self._assign_default_role()
+
+        # Update staff status based on current group membership (for both new and existing users)
+        if not self.is_superuser:  # Don't modify superuser staff status
+            self._update_staff_status_from_groups()
+
+        # Log staff status changes for existing users
+        if (
+            not is_new
+            and old_staff_status is not None
+            and old_staff_status != self.is_staff
+        ):
+            logger.info(
+                f"Updated staff status for user {self.username} from {old_staff_status} to {self.is_staff}"
+            )
+
+    def _update_staff_status_from_groups(self):
+        """Update staff status based on current group membership"""
+        try:
+            # Get the user's role group
+            role_obj = self.get_role_object()
+
+            if role_obj:
+                # Update staff status based on role
+                new_staff_status = role_obj.is_staff_role
+
+                if self.is_staff != new_staff_status:
+                    self.is_staff = new_staff_status
+                    # Use update_fields to avoid recursion
+                    User.objects.filter(pk=self.pk).update(is_staff=new_staff_status)
+                    logger.info(
+                        f"Updated staff status for user {self.username} to {new_staff_status} based on role '{role_obj.name}'"
+                    )
+            else:
+                # No role assigned, remove staff status unless they're a superuser
+                if self.is_staff and not self.is_superuser:
+                    self.is_staff = False
+                    User.objects.filter(pk=self.pk).update(is_staff=False)
+                    logger.info(
+                        f"Removed staff status for user {self.username} (no role assigned)"
+                    )
+
+        except Exception as e:
+            logger.error(f"Error updating staff status for user {self.username}: {e}")
+
+    def _assign_default_role(self):
+        """Assign default role to new user"""
+        try:
+            if not self.groups.filter(usergroup__isnull=False).exists():
+                default_role = UserGroup.get_default_role()
+                if default_role:
+                    self.set_role(default_role.name)
+                    logger.info(
+                        f"Assigned default role '{default_role.name}' to new user {self.username}"
+                    )
+                else:
+                    logger.warning(
+                        f"No default role found for new user {self.username}"
+                    )
+        except Exception as e:
+            logger.error(f"Failed to assign default role to user {self.username}: {e}")

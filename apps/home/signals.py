@@ -1,31 +1,50 @@
 import logging
 
-from django.core.cache import cache  # Import cache
-from django.db.models.signals import m2m_changed, post_delete, post_save
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
 from django.dispatch import receiver
 
-from apps.home.config.auth import auth_config
-
 from .admin_site import admin_site
-from .models import BaseDetail, BaseImage, User  # Import BaseImage
+from .models import BaseDetail, BaseImage
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
+
+
+@receiver(post_migrate)
+def setup_initial_roles(sender, **kwargs):
+    """Create initial roles after migrations - simplified version"""
+
+    # Only run for the home app
+    if sender.name != "apps.home":
+        return
+
+    try:
+        from django.core.management import call_command
+
+        # Call the management command
+        call_command("setup_roles", verbosity=0)
+        logger.info("Initial roles setup completed via management command")
+
+    except Exception as e:
+        logger.error(f"Failed to setup initial roles: {e}")
 
 
 @receiver(post_save, sender=BaseDetail)
 @receiver(post_delete, sender=BaseDetail)
 def update_admin_site_titles(sender, **kwargs):
-    """
-    Signal receiver that updates the admin site titles whenever an OrgDetail
-    instance is saved or deleted.
-
-    This ensures the admin reflects the latest organization name if updated.
-    """
-    base_name = BaseDetail.objects.filter(name="base_name").first()
-    admin_site.site_title = base_name.value if base_name else "Organisation site admin"
-    admin_site.site_header = (
-        f"{base_name.value} Admin" if base_name else "Organisation Administration"
-    )
+    """Update admin site titles when BaseDetail changes"""
+    try:
+        base_name = BaseDetail.objects.filter(name="base_name").first()
+        admin_site.site_title = (
+            base_name.value if base_name else "Organisation site admin"
+        )
+        admin_site.site_header = (
+            f"{base_name.value} Admin" if base_name else "Organisation Administration"
+        )
+    except Exception as e:
+        logger.error(f"Error updating admin site titles: {e}")
 
 
 @receiver(post_save, sender=BaseDetail)
@@ -33,37 +52,56 @@ def update_admin_site_titles(sender, **kwargs):
 @receiver(post_save, sender=BaseImage)
 @receiver(post_delete, sender=BaseImage)
 def clear_base_config_cache(sender, **kwargs):
-    """
-    Signal receiver to clear the 'base_config' cache whenever BaseDetail
-    or BaseImage instances are saved or deleted, ensuring fresh data.
-    """
-    # logger.info(f"Clearing 'base_config' cache due to {sender.__name__} change.")
-    cache.delete("base_config")
+    """Clear base config cache when BaseDetail or BaseImage changes"""
+    try:
+        cache.delete("base_config")
+        logger.debug(f"Cleared 'base_config' cache due to {sender.__name__} change")
+    except Exception as e:
+        logger.error(f"Error clearing base config cache: {e}")
 
 
 @receiver(m2m_changed, sender=User.groups.through)
 def update_user_staff_status_on_group_change(
     sender, instance, action, pk_set, **kwargs
 ):
-    """
-    Update user's staff status when their groups change via admin or any other method.
-    This ensures staff status stays in sync with role-based groups.
-    """
-    if action in ("post_add", "post_remove", "post_clear"):
-        try:
-            # Don't modify superuser staff status
-            if not instance.is_superuser:
-                # Get the user's current role and update staff status accordingly
-                current_role = instance.get_role()
-                if current_role and current_role != "No role assigned":
-                    should_be_staff = auth_config.get_role_staff_status(current_role)
-                    if instance.is_staff != should_be_staff:
-                        instance.is_staff = should_be_staff
-                        instance.save(update_fields=["is_staff"])
-                        logger.info(
-                            f"Updated staff status for user {instance.username} to {should_be_staff} based on role {current_role}"
-                        )
-        except Exception as e:
-            logger.warning(
-                f"Failed to update staff status for user {instance.username}: {e}"
+    """Update user staff status when group membership changes"""
+
+    # Only handle post_add and post_remove actions
+    if action not in ["post_add", "post_remove", "post_clear"]:
+        return
+
+    try:
+        # Skip superusers
+        if instance.is_superuser:
+            return
+
+        # Get the user's current role
+        role_obj = instance.get_role_object()
+
+        if role_obj:
+            # Update staff status based on role
+            new_staff_status = role_obj.is_staff_role
+        else:
+            # No role assigned, remove staff status
+            new_staff_status = False
+
+        # Update if changed
+        if instance.is_staff != new_staff_status:
+            # Use update to avoid triggering save() and potential recursion
+            User.objects.filter(pk=instance.pk).update(is_staff=new_staff_status)
+
+            action_desc = {
+                "post_add": "added to group",
+                "post_remove": "removed from group",
+                "post_clear": "cleared from all groups",
+            }.get(action, action)
+
+            logger.info(
+                f"Updated staff status for user {instance.username} to {new_staff_status} "
+                f"after being {action_desc}"
             )
+
+    except Exception as e:
+        logger.error(
+            f"Error updating staff status for user {instance.username} on group change: {e}"
+        )
