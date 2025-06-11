@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 
-from apps.home.models import UserGroup
+from apps.home.models import UserRole
 
 User = get_user_model()
 
@@ -26,8 +26,8 @@ class Command(BaseCommand):
         try:
             # Check if role exists
             try:
-                UserGroup.objects.get(name=role_name)
-            except UserGroup.DoesNotExist:
+                UserRole.objects.get(name=role_name)
+            except UserRole.DoesNotExist:
                 raise CommandError(f'Role "{role_name}" does not exist')
 
             # Get or create user

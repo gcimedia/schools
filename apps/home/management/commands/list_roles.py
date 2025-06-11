@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from apps.home.models import UserGroup
+from apps.home.models import UserRole
 
 
 class Command(BaseCommand):
@@ -16,7 +16,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         show_users = options["users"]
 
-        roles = UserGroup.objects.all().order_by("name")
+        roles = UserRole.objects.all().order_by("name")
 
         if not roles:
             self.stdout.write(self.style.WARNING("No roles found"))

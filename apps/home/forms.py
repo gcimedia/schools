@@ -10,7 +10,7 @@ from django.contrib.auth.forms import (
 )
 
 from .config.auth import auth_config
-from .models import BaseDetail, BaseImage, SocialMediaLink, User, UserGroup
+from .models import BaseDetail, BaseImage, SocialMediaLink, User, UserRole
 
 
 class UniqueChoiceFormMixin:
@@ -283,7 +283,7 @@ class UserChangeForm(DjangoUserChangeForm):
 
         # Filter groups to only show UserGroup instances in the admin
         if "groups" in self.fields:
-            self.fields["groups"].queryset = UserGroup.objects.all()
+            self.fields["groups"].queryset = UserRole.objects.all()
 
     def clean_groups(self):
         """Ensure user is assigned to exactly one role group."""

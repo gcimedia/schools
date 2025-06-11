@@ -1,10 +1,11 @@
+import json
 import logging
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from apps.home.models import UserGroup
+from apps.home.models import UserRole
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -29,12 +30,20 @@ class Command(BaseCommand):
             action="store_true",
             help="Show what would be done without making changes",
         )
+        parser.add_argument(
+            "--roles-data",
+            type=str,
+            help="JSON string of roles data to set up. Overrides hardcoded roles.",
+            required=False,  # Make it optional, so hardcoded roles can still be used if not provided
+        )
 
     def handle(self, *args, **options):
         self.verbosity = options["verbosity"]
         self.force = options["force"]
         self.update_users = options["update_users"]
         self.dry_run = options["dry_run"]
+        # Get roles data from argument, or default to None
+        self.roles_data_json = options.get("roles_data")
 
         if self.dry_run:
             self.stdout.write(
@@ -66,29 +75,18 @@ class Command(BaseCommand):
     def setup_roles(self):
         """Create or update initial roles"""
         # Define your initial roles here
-        initial_roles = [
-            {
-                "name": "student",
-                "display_name": "Student",
-                "is_staff_role": False,
-                "is_default_role": True,
-                "description": "Standard student role with basic access",
-            },
-            {
-                "name": "instructor",
-                "display_name": "Instructor",
-                "is_staff_role": True,
-                "is_default_role": False,
-                "description": "Teaching staff with course management access",
-            },
-            {
-                "name": "admin",
-                "display_name": "Administrator",
-                "is_staff_role": True,
-                "is_default_role": False,
-                "description": "Full administrative access",
-            },
-        ]
+        # If roles_data_json is provided, parse it; otherwise, use the hardcoded list
+        if self.roles_data_json:
+            try:
+                initial_roles = json.loads(self.roles_data_json)
+                self.stdout.write(self.style.SUCCESS("Using roles data from argument."))
+            except json.JSONDecodeError:
+                raise CommandError("Invalid JSON provided for --roles-data argument.")
+        else:
+            initial_roles = [
+                # pass in hardcoded values
+            ]
+            self.stdout.write(self.style.WARNING("Using hardcoded initial roles."))
 
         created_roles = []
         updated_roles = []
@@ -97,7 +95,7 @@ class Command(BaseCommand):
             role_name = role_data["name"]
 
             try:
-                role = UserGroup.objects.get(name=role_name)
+                role = UserRole.objects.get(name=role_name)
 
                 if self.force:
                     # Update existing role
@@ -119,10 +117,10 @@ class Command(BaseCommand):
                             f"Role already exists: {role_name} (use --force to update)"
                         )
 
-            except UserGroup.DoesNotExist:
+            except UserRole.DoesNotExist:
                 # Create new role
                 if not self.dry_run:
-                    role = UserGroup.objects.create(**role_data)
+                    role = UserRole.objects.create(**role_data)
 
                 created_roles.append(role_name)
 

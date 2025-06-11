@@ -13,7 +13,7 @@ from .models import (
     PhysicalAddress,
     SocialMediaLink,
     User,
-    UserGroup,
+    UserRole,
 )
 
 
@@ -284,16 +284,16 @@ class PhysicalAddressAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(UserGroup, site=admin_site)
-class UserGroupAdmin(admin.ModelAdmin):
+@admin.register(UserRole, site=admin_site)
+class UserRoleAdmin(admin.ModelAdmin):
     list_display = [
         "name",
         "display_name",
-        "is_staff_role",
         "is_default_role",
+        "is_staff_role",
         "user_count",
-        "permission_count",
     ]
+    list_editable = ["display_name", "is_default_role"]
     list_filter = ["is_staff_role", "is_default_role"]
     search_fields = ["name", "display_name"]
     filter_horizontal = ["permissions"]  # This makes permissions easier to manage
@@ -301,13 +301,10 @@ class UserGroupAdmin(admin.ModelAdmin):
     fieldsets = (
         ("Basic Information", {"fields": ("name", "display_name", "description")}),
         ("Role Settings", {"fields": ("is_staff_role", "is_default_role")}),
-        (
-            "Permissions",
-            {
-                "fields": ("permissions",),
-                "classes": ("collapse",),  # Make it collapsible to save space
-            },
-        ),
+    )
+    readonly_fields = (
+        "name",
+        "is_staff_role",
     )
 
     def user_count(self, obj):
@@ -324,12 +321,13 @@ class UserGroupAdmin(admin.ModelAdmin):
 
     user_count.short_description = "Users"
 
-    def permission_count(self, obj):
-        """Show number of permissions for this role"""
-        count = obj.permissions.count()
-        return f"{count} permissions"
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deletion via admin
+        return False
 
-    permission_count.short_description = "Permissions"
+    def has_add_permission(self, request, obj=None):
+        # Prevent addition via admin
+        return False
 
     def get_form(self, request, obj=None, **kwargs):
         """Customize the form to group permissions by app"""
@@ -397,9 +395,7 @@ class UserAdmin(DjangoUserAdmin):
         fieldsets = list(fieldsets)
         for name, section in fieldsets:
             section["fields"] = tuple(
-                field
-                for field in section["fields"]
-                if field not in [ "is_staff"]
+                field for field in section["fields"] if field not in ["is_staff"]
             )
 
         return fieldsets

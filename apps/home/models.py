@@ -1,7 +1,7 @@
 import logging
 
 from django.contrib.auth.models import AbstractUser, Permission
-from django.contrib.auth.models import Group as DjangoGroup
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
@@ -410,19 +410,15 @@ class PhysicalAddress(models.Model):
         return f"https://www.google.com/maps/search/?api=1&query={query}"
 
 
-class UserGroup(DjangoGroup):
+class UserRole(Group):
     """UserGroup with configurable role settings and permissions via admin panel"""
-
-    class Meta:
-        verbose_name = "User Role"
-        verbose_name_plural = "User Roles"
 
     # Add fields for role configuration
     display_name = models.CharField(
         max_length=100, blank=True, help_text="Human-readable name for this role"
     )
     is_staff_role = models.BooleanField(
-        default=False, help_text="Users with this role will have staff access"
+        default=False, help_text="Users with this role can log into this admin site."
     )
     is_default_role = models.BooleanField(
         default=False, help_text="New users will be assigned this role by default"
@@ -445,7 +441,7 @@ class UserGroup(DjangoGroup):
         super().clean()
         # Ensure only one default role exists
         if self.is_default_role:
-            existing_default = UserGroup.objects.filter(is_default_role=True).exclude(
+            existing_default = UserRole.objects.filter(is_default_role=True).exclude(
                 pk=self.pk
             )
 
@@ -603,8 +599,6 @@ class UserGroup(DjangoGroup):
 class User(AbstractUser):
     """User model with simplified role management and permission checking"""
 
-    # When I save I should also update staff status depending on group
-
     def __str__(self):
         return self.username
 
@@ -624,7 +618,7 @@ class User(AbstractUser):
         try:
             group = self.groups.select_related().filter(usergroup__isnull=False).first()
             if group:
-                return UserGroup.objects.get(pk=group.pk)
+                return UserRole.objects.get(pk=group.pk)
             return None
         except Exception as e:
             logger.error(f"Error getting role object for user {self.username}: {e}")
@@ -642,10 +636,10 @@ class User(AbstractUser):
         """Set user's role, ensuring only one role group"""
         try:
             # Get the role group
-            new_role = UserGroup.objects.get(name=role_name)
+            new_role = UserRole.objects.get(name=role_name)
 
             # Remove from all existing UserGroup instances
-            existing_user_groups = UserGroup.objects.filter(user=self)
+            existing_user_groups = UserRole.objects.filter(user=self)
             self.groups.remove(*existing_user_groups)
 
             # Add to new role group
@@ -661,7 +655,7 @@ class User(AbstractUser):
                         f"Updated staff status for user {self.username} to {self.is_staff}"
                     )
 
-        except UserGroup.DoesNotExist:
+        except UserRole.DoesNotExist:
             raise ValueError(f"Role '{role_name}' does not exist")
         except Exception as e:
             logger.error(f"Error setting role for user {self.username}: {e}")
@@ -792,7 +786,7 @@ class User(AbstractUser):
         """Assign default role to new user"""
         try:
             if not self.groups.filter(usergroup__isnull=False).exists():
-                default_role = UserGroup.get_default_role()
+                default_role = UserRole.get_default_role()
                 if default_role:
                     self.set_role(default_role.name)
                     logger.info(

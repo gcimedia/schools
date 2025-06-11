@@ -2,7 +2,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.db.models.signals import m2m_changed, post_delete, post_migrate, post_save
+from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
 from .admin_site import admin_site
@@ -10,25 +10,6 @@ from .models import BaseDetail, BaseImage
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
-
-@receiver(post_migrate)
-def setup_initial_roles(sender, **kwargs):
-    """Create initial roles after migrations - simplified version"""
-
-    # Only run for the home app
-    if sender.name != "apps.home":
-        return
-
-    try:
-        from django.core.management import call_command
-
-        # Call the management command
-        call_command("setup_roles", verbosity=0)
-        logger.info("Initial roles setup completed via management command")
-
-    except Exception as e:
-        logger.error(f"Failed to setup initial roles: {e}")
 
 
 @receiver(post_save, sender=BaseDetail)

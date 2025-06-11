@@ -1,8 +1,13 @@
+import json
+import logging
+
 from django.contrib.auth.models import Permission
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from apps.home.models import UserGroup
+from apps.home.models import UserRole
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -19,10 +24,18 @@ class Command(BaseCommand):
             action="store_true",
             help="Show what would be done without making changes",
         )
+        parser.add_argument(
+            "--permissions-data",
+            type=str,
+            help="JSON string of permissions data to set up. Overrides hardcoded permissions.",
+            required=False,
+        )
 
     def handle(self, *args, **options):
+        self.verbosity = options["verbosity"]
         self.dry_run = options["dry_run"]
         role_name = options.get("role")
+        self.permissions_data_json = options.get("permissions_data")
 
         if self.dry_run:
             self.stdout.write(
@@ -52,36 +65,30 @@ class Command(BaseCommand):
                 self.style.SUCCESS("Successfully set up role permissions!")
             )
 
+    def get_role_permissions_data(self):
+        """Get role permissions data from JSON argument or use hardcoded defaults"""
+        if self.permissions_data_json:
+            try:
+                role_permissions = json.loads(self.permissions_data_json)
+                self.stdout.write(
+                    self.style.SUCCESS("Using permissions data from argument.")
+                )
+                return role_permissions
+            except json.JSONDecodeError:
+                raise CommandError(
+                    "Invalid JSON provided for --permissions-data argument."
+                )
+        else:
+            # Hardcoded default permissions
+            role_permissions = {
+                # pass hardcoded permissions
+            }
+            self.stdout.write(self.style.WARNING("Using hardcoded permission sets."))
+            return role_permissions
+
     def setup_all_role_permissions(self):
         """Set up permissions for all roles"""
-        # Define permission sets for each role
-        role_permissions = {
-            "student": [
-                # Basic permissions students might need
-                "home.view_user",  # Can view their own profile
-            ],
-            "instructor": [
-                # Instructor permissions
-                "home.view_user",
-                "home.change_user",  # Can edit student profiles
-                # Add your app-specific permissions here
-                # 'courses.add_course',
-                # 'courses.change_course',
-                # 'assignments.add_assignment',
-            ],
-            "admin": [
-                # Admin gets broader permissions
-                "home.add_user",
-                "home.change_user",
-                "home.delete_user",
-                "home.view_user",
-                "home.add_usergroup",
-                "home.change_usergroup",
-                "home.delete_usergroup",
-                "home.view_usergroup",
-                # Add all other permissions admins should have
-            ],
-        }
+        role_permissions = self.get_role_permissions_data()
 
         for role_name, permissions in role_permissions.items():
             self.setup_role_permissions(role_name, permissions)
@@ -89,27 +96,35 @@ class Command(BaseCommand):
     def setup_role_permissions(self, role_name, permissions=None):
         """Set up permissions for a specific role"""
         try:
-            role = UserGroup.objects.get(name=role_name)
-        except UserGroup.DoesNotExist:
+            role = UserRole.objects.get(name=role_name)
+        except UserRole.DoesNotExist:
             self.stdout.write(self.style.ERROR(f'Role "{role_name}" does not exist'))
             return
 
         if permissions is None:
-            # If no permissions provided, use default set
-            permissions = self.get_default_permissions_for_role(role_name)
+            # If no permissions provided, get from data source
+            role_permissions = self.get_role_permissions_data()
+            permissions = role_permissions.get(role_name, [])
 
         self.stdout.write(f"Setting up permissions for role: {role_name}")
+
+        if not permissions:
+            self.stdout.write(
+                self.style.WARNING(f"No permissions defined for role: {role_name}")
+            )
+            return
 
         valid_permissions = []
         for perm in permissions:
             try:
                 if "." in perm:
-                    app_label, codename = perm.split(".")
+                    app_label, codename = perm.split(".", 1)  # Split only on first dot
                     permission_obj = Permission.objects.get(
                         content_type__app_label=app_label, codename=codename
                     )
                     valid_permissions.append(permission_obj)
-                    self.stdout.write(f"  ✓ {perm}")
+                    if self.verbosity >= 2:
+                        self.stdout.write(f"  ✓ {perm}")
                 else:
                     self.stdout.write(
                         self.style.WARNING(f"  ✗ Invalid permission format: {perm}")
@@ -131,19 +146,6 @@ class Command(BaseCommand):
         )
 
     def get_default_permissions_for_role(self, role_name):
-        """Get default permissions based on role name"""
-        defaults = {
-            "student": ["home.view_user"],
-            "instructor": ["home.view_user", "home.change_user"],
-            "admin": [
-                "home.add_user",
-                "home.change_user",
-                "home.delete_user",
-                "home.view_user",
-                "home.add_usergroup",
-                "home.change_usergroup",
-                "home.delete_usergroup",
-                "home.view_usergroup",
-            ],
-        }
-        return defaults.get(role_name, [])
+        """Get default permissions based on role name (kept for backward compatibility)"""
+        role_permissions = self.get_role_permissions_data()
+        return role_permissions.get(role_name, [])
