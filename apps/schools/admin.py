@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from apps.home.admin_site import portal_site
+from apps.core.admin_site import portal_site
 
 from .models import School, Unit
 

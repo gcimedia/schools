@@ -1,0 +1,182 @@
+[
+  {
+    "model": "core.basedetail",
+    "pk": 1,
+    "fields": {
+      "ordering": 1,
+      "created_at": "2025-06-02T18:50:04.127Z",
+      "updated_at": "2025-06-02T22:30:22.665Z",
+      "name": "base_name",
+      "value": "Example Base Name"
+    }
+  },
+  {
+    "model": "core.basedetail",
+    "pk": 2,
+    "fields": {
+      "ordering": 2,
+      "created_at": "2025-06-09T10:00:00Z",
+      "updated_at": "2025-06-09T10:00:00Z",
+      "name": "base_description",
+      "value": "This is a placeholder description for the base configuration of your site."
+    }
+  },
+  {
+    "model": "core.basedetail",
+    "pk": 3,
+    "fields": {
+      "ordering": 3,
+      "created_at": "2025-06-09T10:00:00Z",
+      "updated_at": "2025-06-09T10:00:00Z",
+      "name": "base_theme_color",
+      "value": "#EXAMPLE"
+    }
+  },
+  {
+    "model": "core.basedetail",
+    "pk": 4,
+    "fields": {
+      "ordering": 4,
+      "created_at": "2025-06-02T18:51:06.914Z",
+      "updated_at": "2025-06-02T18:51:06.914Z",
+      "name": "base_url",
+      "value": "https://www.example.com"
+    }
+  },
+  {
+    "model": "core.basedetail",
+    "pk": 5,
+    "fields": {
+      "ordering": 5,
+      "created_at": "2025-06-08T17:46:48.330Z",
+      "updated_at": "2025-06-08T17:46:48.330Z",
+      "name": "base_author",
+      "value": "Example Author"
+    }
+  },
+  {
+    "model": "core.basedetail",
+    "pk": 6,
+    "fields": {
+      "ordering": 6,
+      "created_at": "2025-06-08T17:47:08.033Z",
+      "updated_at": "2025-06-08T17:47:08.033Z",
+      "name": "base_author_url",
+      "value": "https://github.com/example-author/"
+    }
+  },
+  {
+    "model": "core.baseimage",
+    "pk": 1,
+    "fields": {
+      "ordering": 1,
+      "created_at": "2025-06-02T22:46:27.579Z",
+      "updated_at": "2025-06-02T22:48:28.390Z",
+      "name": "base_logo",
+      "image": "core/base/example/logo.png"
+    }
+  },
+  {
+    "model": "core.baseimage",
+    "pk": 2,
+    "fields": {
+      "ordering": 2,
+      "created_at": "2025-06-02T22:46:40.654Z",
+      "updated_at": "2025-06-02T22:48:28.388Z",
+      "name": "base_favicon",
+      "image": "core/base/example/favicon.ico"
+    }
+  },
+  {
+    "model": "core.baseimage",
+    "pk": 3,
+    "fields": {
+      "ordering": 3,
+      "created_at": "2025-06-02T22:46:48.646Z",
+      "updated_at": "2025-06-02T22:48:28.378Z",
+      "name": "base_apple_touch_icon",
+      "image": "core/base/example/apple-touch-icon.png"
+    }
+  },
+  {
+    "model": "core.baseimage",
+    "pk": 4,
+    "fields": {
+      "ordering": 4,
+      "created_at": "2025-06-05T15:08:17.610Z",
+      "updated_at": "2025-06-05T15:08:17.610Z",
+      "name": "base_hero_image",
+      "image": "core/base/example/hero.jpg"
+    }
+  },
+  {
+    "model": "core.socialmedialink",
+    "pk": 1,
+    "fields": {
+      "name": "facebook",
+      "icon": "bi bi-facebook",
+      "url": "https://www.facebook.com/example/",
+      "is_active": true,
+      "order": 0,
+      "created_at": "2025-06-02T06:44:37.799Z",
+      "updated_at": "2025-06-02T06:55:36.426Z"
+    }
+  },
+  {
+    "model": "core.phonenumber",
+    "pk": 1,
+    "fields": {
+      "number": "+11234567890",
+      "is_active": true,
+      "is_primary": true,
+      "use_for_whatsapp": true,
+      "order": 0,
+      "created_at": "2025-06-02T07:08:03.649Z",
+      "updated_at": "2025-06-02T07:08:48.576Z"
+    }
+  },
+  {
+    "model": "core.phonenumber",
+    "pk": 2,
+    "fields": {
+      "number": "+11234567891",
+      "is_active": true,
+      "is_primary": false,
+      "use_for_whatsapp": false,
+      "order": 1,
+      "created_at": "2025-06-02T07:08:18.232Z",
+      "updated_at": "2025-06-02T07:08:18.232Z"
+    }
+  },
+  {
+    "model": "core.emailaddress",
+    "pk": 1,
+    "fields": {
+      "email": "info@example.com",
+      "is_active": true,
+      "is_primary": true,
+      "order": 0,
+      "created_at": "2025-06-02T07:16:19.032Z",
+      "updated_at": "2025-06-02T07:16:22.701Z"
+    }
+  },
+  {
+    "model": "core.physicaladdress",
+    "pk": 1,
+    "fields": {
+      "label": "Example Main Office",
+      "building": "Example Building",
+      "street_address": "123 Example Street",
+      "city": "Example City",
+      "state_province": "Example State/Province",
+      "postal_code": "00000",
+      "country": "Example Country",
+      "map_embed_url": "https://maps.google.com/maps?q=example+location&output=embed",
+      "is_active": true,
+      "use_in_contact_form": true,
+      "order": 0,
+      "created_at": "2025-06-02T07:32:59.225Z",
+      "updated_at": "2025-06-09T15:38:12.702Z"
+    }
+  }
+]

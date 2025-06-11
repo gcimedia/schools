@@ -13,7 +13,7 @@ class SchoolsConfig(AppConfig):
     def ready(self):
         try:
             # Only configure non-role related auth settings
-            from apps.home.config.auth import auth_config
+            from apps.core.config.auth import auth_config
 
             # Configure page settings (no role management needed)
             auth_config.disable_page("signup")

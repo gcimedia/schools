@@ -31,15 +31,15 @@ class Command(BaseCommand):
         school_role_permissions = {
             "student": [
                 # Basic permissions students might need
-                "home.view_user",  # Can view their own profile
+                "core.view_user",  # Can view their own profile
                 # Add school-specific student permissions here
                 # "courses.view_course",
                 # "assignments.view_assignment",
             ],
             "instructor": [
                 # Instructor permissions
-                "home.view_user",
-                "home.change_user",  # Can edit student profiles
+                "core.view_user",
+                "core.change_user",  # Can edit student profiles
                 # Add school-specific instructor permissions here
                 # "courses.add_course",
                 # "courses.change_course",
@@ -52,14 +52,14 @@ class Command(BaseCommand):
             ],
             "admin": [
                 # Admin gets broader permissions
-                "home.add_user",
-                "home.change_user",
-                "home.delete_user",
-                "home.view_user",
-                "home.add_userrole",
-                "home.change_userrole",
-                "home.delete_userrole",
-                "home.view_userrole",
+                "core.add_user",
+                "core.change_user",
+                "core.delete_user",
+                "core.view_user",
+                "core.add_userrole",
+                "core.change_userrole",
+                "core.delete_userrole",
+                "core.view_userrole",
                 # Add school-specific admin permissions here
                 # "courses.add_course",
                 # "courses.change_course",

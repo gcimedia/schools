@@ -1,0 +1,50 @@
+{% load static %}
+{% load base %}
+{% load vendor %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    {% base_meta %}
+    {% base_icons %}
+    {% base_title %}
+    {% vendor_bootstrap %}
+    {% vendor_bootstrap_icons %}
+    {% vendor_aos %}
+
+    {% block vendor %}
+    {% endblock vendor %}
+
+    <link href="{% static 'core/index.css' %}" rel="stylesheet" />
+    <script defer src="{% static 'core/index.js' %}"></script>
+    {% include 'core/layout/header/static.html' %}
+    {% include 'core/layout/hero/static.html' %}
+    {% include 'core/layout/signin/styles.html' %}
+    {% include 'core/layout/signup/styles.html' %}
+
+    {% block assets %}
+    {% endblock assets %}
+
+    {% include 'core/layout/footer/static.html' %}
+    {% include 'core/overlay/back-to-top/static.html' %}
+    {% include 'core/overlay/whatsapp-call-us/static.html' %}
+    {% include 'core/overlay/preloader/static.html' %}
+  </head>
+  <body>
+    {% include 'core/layout/header/layout.html' %}
+    <main>
+      {% include 'core/layout/hero/layout.html' %}
+      {% include 'core/layout/signin/layout.html' %}
+      {% include 'core/layout/signup/layout.html' %}
+
+      {% block sections %}
+      {% endblock sections %}
+
+    </main>
+    {% include 'core/layout/footer/layout.html' %}
+    {% include 'core/overlay/back-to-top/overlay.html' %}
+    {% include 'core/overlay/whatsapp-call-us/overlay.html' %}
+    {% include 'core/overlay/preloader/overlay.html' %}
+    {% include 'core/overlay/login-signup-modal/overlay.html' %}
+  </body>
+</html>
