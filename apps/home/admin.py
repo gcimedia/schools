@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Permission
 from django.utils.html import format_html
 
-from .admin_site import admin_site
+from .admin_site import portal_site
 from .forms import BaseDetailForm, BaseImageForm, SocialMediaLinkForm, UserChangeForm
 from .models import (
     BaseDetail,
@@ -119,7 +119,7 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
         return super().changeform_view(request, object_id, form_url, extra_context)
 
 
-@admin.register(BaseDetail, site=admin_site)
+@admin.register(BaseDetail, site=portal_site)
 class BaseDetailAdmin(UniqueChoiceAdminMixin):
     """
     Admin interface for OrgDetail model, using UniqueChoiceAdminMixin to enforce unique
@@ -133,7 +133,7 @@ class BaseDetailAdmin(UniqueChoiceAdminMixin):
     superuser_only_choices = ["base_author", "base_author_url", "base_theme_color"]
 
 
-@admin.register(BaseImage, site=admin_site)
+@admin.register(BaseImage, site=portal_site)
 class BaseImageAdmin(UniqueChoiceAdminMixin):
     """
     Admin interface for OrgImage model, using UniqueChoiceAdminMixin to enforce unique
@@ -146,7 +146,7 @@ class BaseImageAdmin(UniqueChoiceAdminMixin):
     fieldsets = (("Site Graphic", {"fields": ("name", "image")}),)
 
 
-@admin.register(SocialMediaLink, site=admin_site)
+@admin.register(SocialMediaLink, site=portal_site)
 class SocialMediaLinkAdmin(admin.ModelAdmin):
     """
     Admin interface for SocialMediaLink model, supporting listing, filtering, searching,
@@ -181,7 +181,7 @@ class SocialMediaLinkAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhoneNumber, site=admin_site)
+@admin.register(PhoneNumber, site=portal_site)
 class PhoneNumberAdmin(admin.ModelAdmin):
     """
     Admin interface for PhoneNumber model with support for listing, filtering,
@@ -214,7 +214,7 @@ class PhoneNumberAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(EmailAddress, site=admin_site)
+@admin.register(EmailAddress, site=portal_site)
 class EmailAddressAdmin(admin.ModelAdmin):
     """
     Admin interface for EmailAddress model with support for listing, filtering,
@@ -244,7 +244,7 @@ class EmailAddressAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhysicalAddress, site=admin_site)
+@admin.register(PhysicalAddress, site=portal_site)
 class PhysicalAddressAdmin(admin.ModelAdmin):
     """
     Admin interface for PhysicalAddress model supporting listing, filtering,
@@ -284,7 +284,7 @@ class PhysicalAddressAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(UserRole, site=admin_site)
+@admin.register(UserRole, site=portal_site)
 class UserRoleAdmin(admin.ModelAdmin):
     list_display = [
         "name",
@@ -343,7 +343,7 @@ class UserRoleAdmin(admin.ModelAdmin):
         return form
 
 
-@admin.register(User, site=admin_site)
+@admin.register(User, site=portal_site)
 class UserAdmin(DjangoUserAdmin):
     form = UserChangeForm
     list_display = [

@@ -281,7 +281,7 @@ class UserChangeForm(DjangoUserChangeForm):
             auth_config.get_username_placeholder()
         )
 
-        # Filter groups to only show UserGroup instances in the admin
+        # Filter groups to only show UserRole instances in the admin
         if "groups" in self.fields:
             self.fields["groups"].queryset = UserRole.objects.all()
 

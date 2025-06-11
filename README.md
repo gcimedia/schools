@@ -50,8 +50,8 @@ ENVIRONMENT="production"
 SECRET_KEY="your-secure-key-here"
 ALLOWED_HOSTS="localhost,127.0.0.1,example.com,www.example.com"
 
-# Admin URL Path Configurarion (defaults to 'admin/')
-ADMIN_URL="admin/"
+# Portal URL Path Configurarion (defaults to 'portal/')
+PORTAL_URL="portal/"
 
 # Database Configuration (defaults to SQLite)
 DB_ENGINE="django.db.backends.postgresql"

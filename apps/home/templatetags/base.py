@@ -151,9 +151,9 @@ def base_credits():
 
 
 @register.simple_tag
-def base_admin_url():
+def base_portal_url():
     """
-    Return the normalized admin URL path using settings.ADMIN_URL.
-    Usage: {% base_admin_url %}
+    Return the normalized portal URL path using settings.PORTAL_URL.
+    Usage: {% base_portal_url %}
     """
-    return settings.ADMIN_URL.strip("/") + "/"
+    return settings.PORTAL_URL.strip("/") + "/"

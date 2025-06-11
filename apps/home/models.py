@@ -1,7 +1,6 @@
 import logging
 
-from django.contrib.auth.models import AbstractUser, Permission
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.core.exceptions import ValidationError
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
@@ -411,7 +410,7 @@ class PhysicalAddress(models.Model):
 
 
 class UserRole(Group):
-    """UserGroup with configurable role settings and permissions via admin panel"""
+    """UserRole with configurable role settings and permissions via admin panel"""
 
     # Add fields for role configuration
     display_name = models.CharField(
@@ -606,7 +605,7 @@ class User(AbstractUser):
         """Get the user's role from groups"""
         try:
             role_group = (
-                self.groups.select_related().filter(usergroup__isnull=False).first()
+                self.groups.select_related().filter(userrole__isnull=False).first()
             )
             return role_group.name if role_group else "No role assigned"
         except Exception as e:
@@ -614,9 +613,9 @@ class User(AbstractUser):
             return "No role assigned"
 
     def get_role_object(self):
-        """Get the UserGroup object for this user's role"""
+        """Get the UserRole object for this user's role"""
         try:
-            group = self.groups.select_related().filter(usergroup__isnull=False).first()
+            group = self.groups.select_related().filter(userrole__isnull=False).first()
             if group:
                 return UserRole.objects.get(pk=group.pk)
             return None
@@ -627,7 +626,7 @@ class User(AbstractUser):
     def has_role(self, role_name):
         """Check if user has a specific role"""
         try:
-            return self.groups.filter(name=role_name, usergroup__isnull=False).exists()
+            return self.groups.filter(name=role_name, userrole__isnull=False).exists()
         except Exception as e:
             logger.error(f"Error checking role for user {self.username}: {e}")
             return False
@@ -638,9 +637,9 @@ class User(AbstractUser):
             # Get the role group
             new_role = UserRole.objects.get(name=role_name)
 
-            # Remove from all existing UserGroup instances
-            existing_user_groups = UserRole.objects.filter(user=self)
-            self.groups.remove(*existing_user_groups)
+            # Remove from all existing UserGRole instances
+            existing_userroles = UserRole.objects.filter(user=self)
+            self.groups.remove(*existing_userroles)
 
             # Add to new role group
             self.groups.add(new_role)
@@ -698,13 +697,30 @@ class User(AbstractUser):
             for perm in permissions
         ]
 
+    def _assign_default_role(self):
+        """Assign default role to new user"""
+        try:
+            if not self.groups.filter(userrole__isnull=False).exists():
+                default_role = UserRole.get_default_role()
+                if default_role:
+                    self.set_role(default_role.name)
+                    logger.info(
+                        f"Assigned default role '{default_role.name}' to new user {self.username}"
+                    )
+                else:
+                    logger.warning(
+                        f"No default role found for new user {self.username}"
+                    )
+        except Exception as e:
+            logger.error(f"Failed to assign default role to user {self.username}: {e}")
+
     def clean(self):
         """Validate that user has at most one role"""
         super().clean()
 
         if self.pk:  # Only validate for existing users
             try:
-                user_roles = self.groups.filter(usergroup__isnull=False)
+                user_roles = self.groups.filter(userrole__isnull=False)
                 if user_roles.count() > 1:
                     role_names = [role.name for role in user_roles]
                     raise ValidationError(
@@ -739,10 +755,6 @@ class User(AbstractUser):
         if is_new:
             self._assign_default_role()
 
-        # Update staff status based on current group membership (for both new and existing users)
-        if not self.is_superuser:  # Don't modify superuser staff status
-            self._update_staff_status_from_groups()
-
         # Log staff status changes for existing users
         if (
             not is_new
@@ -752,49 +764,3 @@ class User(AbstractUser):
             logger.info(
                 f"Updated staff status for user {self.username} from {old_staff_status} to {self.is_staff}"
             )
-
-    def _update_staff_status_from_groups(self):
-        """Update staff status based on current group membership"""
-        try:
-            # Get the user's role group
-            role_obj = self.get_role_object()
-
-            if role_obj:
-                # Update staff status based on role
-                new_staff_status = role_obj.is_staff_role
-
-                if self.is_staff != new_staff_status:
-                    self.is_staff = new_staff_status
-                    # Use update_fields to avoid recursion
-                    User.objects.filter(pk=self.pk).update(is_staff=new_staff_status)
-                    logger.info(
-                        f"Updated staff status for user {self.username} to {new_staff_status} based on role '{role_obj.name}'"
-                    )
-            else:
-                # No role assigned, remove staff status unless they're a superuser
-                if self.is_staff and not self.is_superuser:
-                    self.is_staff = False
-                    User.objects.filter(pk=self.pk).update(is_staff=False)
-                    logger.info(
-                        f"Removed staff status for user {self.username} (no role assigned)"
-                    )
-
-        except Exception as e:
-            logger.error(f"Error updating staff status for user {self.username}: {e}")
-
-    def _assign_default_role(self):
-        """Assign default role to new user"""
-        try:
-            if not self.groups.filter(usergroup__isnull=False).exists():
-                default_role = UserRole.get_default_role()
-                if default_role:
-                    self.set_role(default_role.name)
-                    logger.info(
-                        f"Assigned default role '{default_role.name}' to new user {self.username}"
-                    )
-                else:
-                    logger.warning(
-                        f"No default role found for new user {self.username}"
-                    )
-        except Exception as e:
-            logger.error(f"Failed to assign default role to user {self.username}: {e}")

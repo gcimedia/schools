@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import path
 
-from .admin_site import admin_site
+from .admin_site import portal_site
 from .views import (
     SignUpView,
     landing,
@@ -9,10 +9,10 @@ from .views import (
     signout,
 )
 
-admin_url = settings.ADMIN_URL.strip("/") + "/"
+portal_url = settings.PORTAL_URL.strip("/") + "/"
 
 urlpatterns = [
-    path(admin_url, admin_site.urls, name="org-admin"),
+    path(portal_url, portal_site.urls, name="portal"),
     path("signup/", SignUpView.as_view(), name="signup"),
     path("signin/", signin, name="signin"),
     path("signout/", signout, name="signout"),

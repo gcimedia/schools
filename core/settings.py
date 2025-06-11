@@ -86,7 +86,7 @@ TEMPLATES = [
 
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
-ADMIN_URL = config("ADMIN_URL", default="admin/")
+PORTAL_URL = config("PORTAL_URL", default="portal/")
 
 
 # Database
