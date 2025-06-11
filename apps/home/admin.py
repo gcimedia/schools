@@ -395,7 +395,7 @@ class UserAdmin(DjangoUserAdmin):
         fieldsets = list(fieldsets)
         for name, section in fieldsets:
             section["fields"] = tuple(
-                field for field in section["fields"] if field not in ["is_staff"]
+                field for field in section["fields"] if field not in ["is_superuser"]
             )
 
         return fieldsets
