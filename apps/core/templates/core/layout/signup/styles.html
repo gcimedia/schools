@@ -1,7 +1,4 @@
 {% load static %}
-{% load auth %}
 
-{% if 'signup'|auth_enabled and show_auth == "signup" %}
-  {% include "core/widget/section-title/styles.html" %}
-  <link rel="stylesheet" href="{% static 'core/layout/auth/layout.css' %}">
-{% endif %}
+{% include "core/widget/section-title/styles.html" %}
+<link rel="stylesheet" href="{% static 'core/layout/auth/layout.css' %}">

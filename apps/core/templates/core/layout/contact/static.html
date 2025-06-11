@@ -1,0 +1,8 @@
+{% load static %}
+
+{% include 'core/widget/section-title/styles.html' %}
+<link rel="stylesheet" href="{% static 'core/layout/contact/layout.css' %}">
+
+{% if contact_form|default_if_none:True %}
+  {% include 'core/widget/contact-form/static.html' %}
+{% endif %}

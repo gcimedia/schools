@@ -1,7 +1,7 @@
 {% load static %}
 {% load base %}
 {% load vendor %}
-
+{% load auth %}
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
@@ -11,40 +11,68 @@
     {% vendor_bootstrap %}
     {% vendor_bootstrap_icons %}
     {% vendor_aos %}
-
-    {% block vendor %}
-    {% endblock vendor %}
-
-    <link href="{% static 'core/index.css' %}" rel="stylesheet" />
-    <script defer src="{% static 'core/index.js' %}"></script>
-    {% include 'core/layout/header/static.html' %}
-    {% include 'core/layout/hero/static.html' %}
-    {% include 'core/layout/signin/styles.html' %}
-    {% include 'core/layout/signup/styles.html' %}
-
-    {% block assets %}
-    {% endblock assets %}
-
-    {% include 'core/layout/footer/static.html' %}
-    {% include 'core/overlay/back-to-top/static.html' %}
-    {% include 'core/overlay/whatsapp-call-us/static.html' %}
-    {% include 'core/overlay/preloader/static.html' %}
+    {% if show_global|default_if_none:True %}
+      <link href="{% static 'core/global/styles.css' %}" rel="stylesheet" />
+      <script defer src="{% static 'core/global/main.js' %}"></script>
+    {% endif %}
+    {% if show_header|default_if_none:True %}
+      {% include 'core/layout/header/static.html' %}
+    {% endif %}
+    {% if show_hero|default_if_none:False %}
+      {% include 'core/layout/hero/static.html' %}
+    {% endif %}
+    {% if 'signin'|auth_enabled and show_auth == "signin" %}
+      {% include 'core/layout/signin/styles.html' %}
+    {% endif %}
+    {% if 'signup'|auth_enabled and show_auth == "signup" %}
+      {% include 'core/layout/signup/styles.html' %}
+    {% endif %}
+    {% if show_contact|default_if_none:False %}
+      {% include 'core/layout/contact/static.html' %}
+    {% endif %}
+    {% if show_footer|default_if_none:True %}
+      {% include 'core/layout/footer/static.html' %}
+    {% endif %}
+    {% if overlay_back_to_top|default_if_none:True %}
+      {% include 'core/overlay/back-to-top/static.html' %}
+    {% endif %}
+    {% if overlay_preloader|default_if_none:True %}
+      {% include 'core/overlay/preloader/static.html' %}
+    {% endif %}
+    {% if overlay_whatsapp_call_us|default_if_none:True %}
+      {% include 'core/overlay/whatsapp-call-us/static.html' %}
+    {% endif %}
+    {% block staticfiles %}{% endblock %}
   </head>
   <body>
-    {% include 'core/layout/header/layout.html' %}
-    <main>
+    {% if show_header|default_if_none:True %}
+      {% include 'core/layout/header/layout.html' %}
+    {% endif %}
+    {% if show_hero|default_if_none:False %}
       {% include 'core/layout/hero/layout.html' %}
+    {% endif %}
+    {% if 'signin'|auth_enabled and show_auth == "signin" %}
       {% include 'core/layout/signin/layout.html' %}
+    {% endif %}
+    {% if 'signup'|auth_enabled and show_auth == "signup" %}
       {% include 'core/layout/signup/layout.html' %}
-
-      {% block sections %}
-      {% endblock sections %}
-
-    </main>
-    {% include 'core/layout/footer/layout.html' %}
-    {% include 'core/overlay/back-to-top/overlay.html' %}
-    {% include 'core/overlay/whatsapp-call-us/overlay.html' %}
-    {% include 'core/overlay/preloader/overlay.html' %}
+    {% endif %}
+    {% block sections %}{% endblock %}
+    {% if show_contact|default_if_none:False %}
+      {% include 'core/layout/contact/layout.html' %}
+    {% endif %}
+    {% if show_footer|default_if_none:True %}
+      {% include 'core/layout/footer/layout.html' %}
+    {% endif %}
+    {% if overlay_back_to_top|default_if_none:True %}
+      {% include 'core/overlay/back-to-top/overlay.html' %}
+    {% endif %}
+    {% if overlay_whatsapp_call_us|default_if_none:True %}
+      {% include 'core/overlay/whatsapp-call-us/overlay.html' %}
+    {% endif %}
+    {% if overlay_preloader|default_if_none:True %}
+      {% include 'core/overlay/preloader/overlay.html' %}
+    {% endif %}
     {% include 'core/overlay/login-signup-modal/overlay.html' %}
   </body>
 </html>

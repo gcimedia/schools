@@ -1,7 +1,5 @@
 {% load static %}
 
-{% if show_hero|default_if_none:False %}
-  <link rel="stylesheet" href="{% static 'core/layout/hero/layout.css' %}">
-  {% include 'core/widget/hero-btn-1/static.html' %}
-  {% include 'core/widget/hero-btn-2/static.html' %}
-{% endif %}
+<link rel="stylesheet" href="{% static 'core/layout/hero/layout.css' %}">
+{% include 'core/widget/hero-btn-1/static.html' %}
+{% include 'core/widget/hero-btn-2/static.html' %}

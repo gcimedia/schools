@@ -1,24 +1,18 @@
 {% load static %}
-
 <section id="contact" class="contact">
   <div class="container">
-    <div class="section-title">
-      <h2 data-aos="fade-up">Contact</h2>
-      <p data-aos="fade-up">
-        If you have an inquiry, you can get in touch with us using the information below, or you can fill the form and we'll get back to you.
-      </p>
-    </div>
-    <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
-      <iframe style="border:0;
-                     width: 100%;
-                     height: 270px"
-              src="{{ org.map_url }}"
-              frameborder="0"
-              allowfullscreen=""
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
-    </div>
+    {% if contact_addressing|default_if_none:True and contact_form|default_if_none:True %}
+      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" section_title_paragraph="If you have an inquiry, you can get in touch with us using the information below, or you can fill the form and we'll get back to you." %}
+    {% elif contact_addressing|default_if_none:True and not contact_form|default_if_none:True %}
+      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" section_title_paragraph="If you have an inquiry, you can get in touch with us using the information below." %}
+    {% elif not contact_addressing|default_if_none:True and contact_form|default_if_none:True %}
+      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" section_title_paragraph="If you have an inquiry, you can fill the form and we'll get back to you." %}
+    {% else %}
+      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" %}
+    {% endif %}
+    {% if contact_map|default_if_none:True %}
+      <div class="mb-4" data-aos="fade-up" data-aos-delay="200">{% include 'core/widget/contact-map/widget.html' %}</div>
+    {% endif %}
     <div class="row justify-content-center">
       <div class="col-xl-3 col-lg-4 mt-4" data-aos="fade-up">
         <div class="info-box">
@@ -80,35 +74,12 @@
         </div>
       </div>
     </div>
-    <div class="row justify-content-center"
-         data-aos="fade-up"
-         data-aos-delay="300">
-      <div class="col-xl-9 col-lg-12 mt-4">
-        <form action="{% url 'base:home' %}#contact"
-              method="post"
-              role="form"
-              class="contact-form">
-          {% if messages %}
-            {% for message in messages %}
-              {% if message.tags == 'error' %}
-                <div class="alert alert-danger text-center">{{ message }}</div>
-              {% elif message.tags == 'success' %}
-                <div class="alert alert-success text-center">{{ message }}</div>
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-          {% csrf_token %}
-          <div class="row">
-            <div class="col-md-6 form-group">{{ contactform.name }}</div>
-            <div class="col-md-6 form-group mt-3 mt-md-0">{{ contactform.email }}</div>
-          </div>
-          <div class="form-group mt-3">{{ contactform.subject }}</div>
-          <div class="form-group mt-3">{{ contactform.message }}</div>
-          <div class="text-center">
-            <button type="submit">Send Message</button>
-          </div>
-        </form>
+    {% if contact_form|default_if_none:True %}
+      <div class="row justify-content-center"
+           data-aos="fade-up"
+           data-aos-delay="300">
+        <div class="col-xl-9 col-lg-12 mt-4">{% include 'core/widget/contact-form/widget.html' %}</div>
       </div>
-    </div>
+    {% endif %}
   </div>
 </section>
