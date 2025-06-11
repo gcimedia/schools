@@ -1,7 +1,6 @@
 import logging
 
 from django import template
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 from ..config.urls import get_landing_url, get_landing_url_name, landing_url_config
@@ -109,7 +108,7 @@ def is_landing_page(context):
 @register.simple_tag
 def portal_url():
     """
-    Return the normalized portal URL path using settings.PORTAL_URL.
+    Return the portal URL path.
     Usage: {% portal_url %}
     """
-    return f"core/{settings.PORTAL_URL.strip('/')}" + "/"
+    return "core/portal/"

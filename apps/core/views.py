@@ -1,7 +1,15 @@
+import json
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.core.mail import EmailMultiAlternatives
+from django.db import connection
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import CreateView
 
@@ -12,7 +20,96 @@ from .decorators import (
     redirect_authenticated_users,
     redirect_authenticated_users_class,
 )
-from .forms import SignInForm, SignUpForm
+from .forms import ContactForm, SignInForm, SignUpForm
+from .models import EmailAddress
+
+
+@csrf_exempt
+@require_POST
+def contact(request):
+    """Handle contact form submission via AJAX"""
+    try:
+        # Parse JSON data from request body
+        data = json.loads(request.body)
+
+        # Create form instance with the data
+        form = ContactForm(data)
+
+        if form.is_valid():
+            # Extract cleaned data
+            sender_name = form.cleaned_data["name"]
+            sender_email = form.cleaned_data["email"]
+            sender_subject = form.cleaned_data["subject"]
+            sender_message = form.cleaned_data["message"]
+
+            try:
+                recipient_email = (
+                    EmailAddress.objects.filter(is_primary=True).only("email")
+                    if EmailAddress._meta.db_table
+                    in connection.introspection.table_names()
+                    else None,
+                )
+
+                email_context = {
+                    "name": sender_name,
+                    "email": sender_email,
+                    "subject": sender_subject,
+                    "message": sender_message,
+                    "url": request.build_absolute_uri(reverse(get_landing_url_name())),
+                }
+
+                text_content = render_to_string("core/mail/contact.txt", email_context)
+                html_content = render_to_string("core/mail/contact.html", email_context)
+
+                msg = EmailMultiAlternatives(
+                    sender_subject,
+                    text_content,
+                    sender_email,
+                    [recipient_email],
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+
+                return JsonResponse(
+                    {
+                        "success": True,
+                        "message": "Thank you for your message! We will get back to you soon.",
+                    }
+                )
+
+            except Exception:
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "message": "There was an error sending your message. Please try again later.",
+                    },
+                    status=500,
+                )
+
+        else:
+            # Form is not valid, return errors
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": "Please correct the errors below.",
+                    "errors": form.errors,
+                },
+                status=400,
+            )
+
+    except json.JSONDecodeError:
+        return JsonResponse(
+            {"success": False, "message": "Invalid JSON data."}, status=400
+        )
+
+    except Exception:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": "An unexpected error occurred. Please try again.",
+            },
+            status=500,
+        )
 
 
 @auth_page_required("signin")
@@ -132,46 +229,3 @@ class SignUpView(CreateView):
             return redirect(next)
 
         return redirect("signin")
-
-
-# class ProfileUpdate(LoginRequiredMixin, UpdateView):
-#     """
-#     View for updating user profile details and credentials.
-#     Includes handling of password updates and post-submission feedback.
-#     """
-#     model = get_user_model()
-#     form_class = ProfileUpdateForm
-#     template_name = "core/index.html"
-#     success_url = reverse_lazy("profile_update")
-
-#     def get_object(self, queryset=None):
-#         return self.request.user
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["authentication_active"] = "active"
-#         context["profileupdate_active"] = "active"
-#         context["profileupdateinterface"] = "Update your credentials here"
-#         return context
-
-#     def form_invalid(self, form):
-#         messages.error(
-#             self.request,
-#             "There was an error with your submission. Please check the form.",
-#         )
-#         return super().form_invalid(form)
-
-#     def form_valid(self, form):
-#         user = form.save(commit=False)
-#         new_password = form.cleaned_data.get("new_password1")
-#         if new_password:
-#             user.set_password(new_password)
-#         user.save()
-#         messages.success(
-#             self.request, "Profile updated successfully! Kindly log in again."
-#         )
-#         return redirect(self.success_url)
-
-#     def post(self, request, *args, **kwargs):
-#         self.object = self.get_object()
-#         return super().post(request, *args, **kwargs)

@@ -2,16 +2,16 @@ from django.conf import settings
 from django.urls import include, path
 
 urlpatterns = [
+    # vendor
+    path("ckeditor5/", include("django_ckeditor_5.urls")),
     # do not change
     path("core/", include("apps.core.urls")),
-    path("", include("apps.home.urls")),
     # customize
+    path("", include("apps.home.urls")),
     path(
         settings.CUSTOM_APP_URL.strip("/") + "/",
         include(f"{settings.CUSTOM_APP_NAME}.urls"),
     ),
-    # vendor
-    path("ckeditor5/", include("django_ckeditor_5.urls")),
 ]
 
 if settings.DEBUG:

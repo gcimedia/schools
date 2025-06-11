@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/latest/ref/settings/
 from pathlib import Path
 
 from decouple import Csv, config
+from django.core.exceptions import ImproperlyConfigured
+from django.db.utils import OperationalError
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,13 +32,12 @@ DEBUG = config("ENVIRONMENT", default="development") == "development"
 ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     cast=Csv(),
-    default="localhost,127.0.0.1,dev.tawalabora.space,stage.tawalabora.space",
+    default="localhost,127.0.0.1,dev.tawalabora.space",
 )
 
 # Application definition
 
 CUSTOM_APP_NAME = config("CUSTOM_APP_NAME", default="apps.custom")
-
 CUSTOM_APP_URL = config("CUSTOM_APP_URL", default="dashboard/")
 
 INSTALLED_APPS = [
@@ -90,25 +91,34 @@ TEMPLATES = [
 ]
 
 ROOT_URLCONF = "conf.urls"
-
 WSGI_APPLICATION = "conf.wsgi.application"
 
-PORTAL_URL = config("PORTAL_URL", default="portal/")
 
-
-# Database
-# https://docs.djangoproject.com/en/latest/ref/settings/#databases
+# Database settings
+# https://docs.djangoproject.com/en/stable/ref/settings/#databases
+# https://docs.djangoproject.com/en/stable/ref/databases/
 
 DATABASES = {
     "default": {
-        "NAME": config("DB_NAME", default=f"{BASE_DIR / 'db.sqlite3'}"),
-        "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3"),
-        "USER": config("DB_USER", default=None),
-        "PASSWORD": config("DB_PASSWORD", default=None),
-        "HOST": config("DB_HOST", default=None),
-        "PORT": config("DB_PORT", default=None),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "lib" / config("DB_NAME", default="db.sqlite3"),
     }
 }
+
+# Only use PostgreSQL if explicitly configured
+if config("DB_POSTGRESQL", default=False, cast=bool):
+    try:
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.postgresql",
+                "OPTIONS": {
+                    "service": config("DB_SERVICE", default="my_service"),
+                    "passfile": config("DB_PASSFILE", default="~/.pgpass"),
+                },
+            }
+        }
+    except (ImproperlyConfigured, OperationalError, ModuleNotFoundError):
+        pass  # Falls back to SQLite
 
 
 # Authentication & Password Validation
@@ -143,11 +153,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/latest/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "Africa/Nairobi"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -155,7 +162,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/latest/howto/static-files/
 
 STATIC_URL = "lib/static/"
-
 STATIC_ROOT = BASE_DIR / "lib" / "static"
 
 
@@ -163,7 +169,6 @@ STATIC_ROOT = BASE_DIR / "lib" / "static"
 # https://docs.djangoproject.com/en/latest/ref/settings/#media-files
 
 MEDIA_URL = "lib/media/"
-
 MEDIA_ROOT = BASE_DIR / "lib" / "media"
 
 
@@ -180,15 +185,10 @@ EMAIL_BACKEND = config(
     "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
 EMAIL_USE_TLS = True
-
 EMAIL_USE_SSL = False
-
 EMAIL_PORT = "587"
-
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default=None)
-
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=None)
-
 EMAIL_HOST = config("EMAIL_HOST", default=None)
 
 

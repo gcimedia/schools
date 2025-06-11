@@ -274,7 +274,7 @@ class EmailAddress(models.Model):
     )
     is_primary = models.BooleanField(
         default=False,
-        help_text="Mark as primary email address. If is_active is False, this will be ignored.",
+        help_text="Mark as email address to be used in contact forms. If is_active is False, this will be ignored.",
     )
     order = models.PositiveIntegerField(
         default=0,

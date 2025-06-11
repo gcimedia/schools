@@ -65,10 +65,7 @@ def generate_model_form(model_class, choices_attr_name):
     return _ModelForm
 
 
-# Form for OrgDetail with filtered unique name choices
 BaseDetailForm = generate_model_form(BaseDetail, "CHOICES")
-
-# Form for OrgImage with filtered unique name choices
 BaseImageForm = generate_model_form(BaseImage, "CHOICES")
 
 
@@ -183,90 +180,6 @@ class SignUpForm(UserCreationForm):
         fields = ("username",)
 
 
-# class AuthProfileUpdateForm(UserChangeForm):
-#     current_password = forms.CharField(
-#         label="Current Password",
-#         strip=False,
-#         widget=forms.PasswordInput(
-#             attrs={
-#                 "class": "form-control",
-#                 "placeholder": "Current Password",
-#             },
-#         ),
-#     )
-#     new_password1 = forms.CharField(
-#         label="New Password",
-#         strip=False,
-#         widget=forms.PasswordInput(
-#             attrs={
-#                 "class": "form-control",
-#                 "placeholder": "New Password",
-#             },
-#         ),
-#     )
-#     new_password2 = forms.CharField(
-#         label="Confirm New Password",
-#         strip=False,
-#         widget=forms.PasswordInput(
-#             attrs={
-#                 "class": "form-control",
-#                 "placeholder": "New Password Confirmation",
-#             },
-#         ),
-#     )
-
-#     class Meta:
-#         model = User
-#         fields = ("username", "image", "first_name", "last_name")
-#         widgets = {
-#             "username": forms.TextInput(
-#                 attrs={
-#                     "class": "form-control",
-#                     "placeholder": "Phone number",
-#                 }
-#             ),
-#             "first_name": forms.TextInput(
-#                 attrs={
-#                     "class": "form-control",
-#                     "placeholder": "First name",
-#                 }
-#             ),
-#             "last_name": forms.TextInput(
-#                 attrs={
-#                     "class": "form-control",
-#                     "placeholder": "Last name",
-#                 }
-#             ),
-#             "image": forms.ClearableFileInput(
-#                 attrs={
-#                     "class": "form-control-file",  # Adjust class as needed
-#                 }
-#             ),
-#         }
-
-#     def clean_current_password(self):
-#         current_password = self.cleaned_data.get("current_password")
-#         if not self.instance.check_password(current_password):
-#             raise forms.ValidationError("Incorrect current password.")
-#         return current_password
-
-#     def clean_new_password2(self):
-#         new_password1 = self.cleaned_data.get("new_password1")
-#         new_password2 = self.cleaned_data.get("new_password2")
-#         if new_password1 and new_password2 and new_password1 != new_password2:
-#             raise forms.ValidationError("New passwords do not match.")
-#         return new_password2
-
-#     def save(self, commit=True):
-#         user = super().save(commit=False)
-#         new_password = self.cleaned_data.get("new_password1")
-#         if new_password:
-#             user.set_password(new_password)
-#         if commit:
-#             user.save()
-#         return user
-
-
 class UserChangeForm(DjangoUserChangeForm):
     class Meta:
         model = User
@@ -306,3 +219,32 @@ class UserChangeForm(DjangoUserChangeForm):
             )
 
         return groups
+
+
+class ContactForm(forms.Form):
+    name = forms.CharField(
+        label="Your Name",
+        max_length=100,
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Your Name"}
+        ),
+    )
+    email = forms.EmailField(
+        label="Your Email",
+        widget=forms.EmailInput(
+            attrs={"class": "form-control", "placeholder": "Your Email"}
+        ),
+    )
+    subject = forms.CharField(
+        label="Subject",
+        max_length=200,
+        widget=forms.TextInput(
+            attrs={"class": "form-control", "placeholder": "Subject"}
+        ),
+    )
+    message = forms.CharField(
+        label="Message",
+        widget=forms.Textarea(
+            attrs={"class": "form-control", "rows": "5", "placeholder": "Message"}
+        ),
+    )

@@ -41,34 +41,34 @@ These apply to **both** development and production setups:
      poetry install --only main
      ```
 
-### C. 🛠️ Environment Configuration (Production Only)
+### C. 🛠️ Environment Configuration
 
-Set up a `.env` file in your production environment:
+Set up a `.env` file in your production environment (You can also setup in your development environment, though not required as defaults will be used):
 
 ```bash
 
+# Environment (defaults to 'development')
 ENVIRONMENT="production"
+
+# Secret Key (defaults to 'Make sure to set your own secret key!')
 SECRET_KEY="your-secure-key-here"
+
+# Allowed Hosts (Defaults to 'localhost,127.0.0.1,dev.tawalabora.space')
 ALLOWED_HOSTS="localhost,127.0.0.1,example.com,www.example.com"
 
 # Custom App Name (defaults to 'apps.custom')
 CUSTOM_APP_NAME="apps.custom"
 
-# Portal URL Path Configurarion (defaults to 'dashboard/')
+# Custom App URL Path Configurarion (defaults to 'dashboard/')
 CUSTOM_APP_URL="dashboard/"
 
-# Portal URL Path Configurarion (defaults to 'portal/')
-PORTAL_URL="portal/"
+# Database Configuration (defaults to SQLite3 settings)
+DB_POSTGRESQL="True"
+DB_SERVICE=""
+DB_PASSFILE=""
 
-# Database Configuration (defaults to SQLite)
-DB_ENGINE="django.db.backends.postgresql"
-DB_NAME="mydb"
-DB_USER="myuser"
-DB_PASSWORD="mypassword"
-DB_HOST="localhost"
-DB_PORT="5432"
 
-# Email Configuration (defaults to console backend)
+# Email Configuration (defaults to console backend settings)
 EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST="smtp.gmail.com"
 EMAIL_HOST_USER="your-email@gmail.com"
