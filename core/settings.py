@@ -33,6 +33,8 @@ ALLOWED_HOSTS = config(
     default="localhost,127.0.0.1,dev.tawalabora.space,stage.tawalabora.space",
 )
 
+CUSTOM_APP_NAME = config("CUSTOM_APP_NAME", default="apps.custom")
+CUSTOM_APP_URL = config("CUSTOM_APP_URL", default="dashboard/")
 
 # Application definition
 INSTALLED_APPS = [
@@ -46,7 +48,7 @@ INSTALLED_APPS = [
     "django_recaptcha",
     "phonenumber_field",
     "apps.home",
-    "apps.schools",
+    CUSTOM_APP_NAME,
 ]
 
 # Add django_browser_reload only in DEBUG mode

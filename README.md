@@ -46,9 +46,16 @@ These apply to **both** development and production setups:
 Set up a `.env` file in your production environment:
 
 ```bash
+
 ENVIRONMENT="production"
 SECRET_KEY="your-secure-key-here"
 ALLOWED_HOSTS="localhost,127.0.0.1,example.com,www.example.com"
+
+# Custom App Name (defaults to 'apps.custom')
+CUSTOM_APP_NAME="apps.custom"
+
+# Portal URL Path Configurarion (defaults to 'dashboard/')
+CUSTOM_APP_URL="dashboard/"
 
 # Portal URL Path Configurarion (defaults to 'portal/')
 PORTAL_URL="portal/"
@@ -77,6 +84,8 @@ Same for both development and production:
    ```bash
    python manage.py makemigrations
    python manage.py migrate
+   python manage.py setup_roles
+   python manage.py setup_role_permissions
    ```
 
 2. (Optional) Load sample data:

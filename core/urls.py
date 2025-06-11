@@ -4,7 +4,10 @@ from django.urls import include, path
 urlpatterns = [
     path("ckeditor5/", include("django_ckeditor_5.urls")),
     path("", include("apps.home.urls")),
-    path("schools/", include("apps.schools.urls")),
+    path(
+        settings.CUSTOM_APP_URL.strip("/") + "/",
+        include(f"{settings.CUSTOM_APP_NAME}.urls"),
+    ),
 ]
 
 if settings.DEBUG:
