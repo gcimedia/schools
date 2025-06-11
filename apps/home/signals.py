@@ -5,27 +5,10 @@ from django.core.cache import cache
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 
-from .admin_site import admin_site
 from .models import BaseDetail, BaseImage
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
-
-
-@receiver(post_save, sender=BaseDetail)
-@receiver(post_delete, sender=BaseDetail)
-def update_admin_site_titles(sender, **kwargs):
-    """Update admin site titles when BaseDetail changes"""
-    try:
-        base_name = BaseDetail.objects.filter(name="base_name").first()
-        admin_site.site_title = (
-            base_name.value if base_name else "Organisation site admin"
-        )
-        admin_site.site_header = (
-            f"{base_name.value} Admin" if base_name else "Organisation Administration"
-        )
-    except Exception as e:
-        logger.error(f"Error updating admin site titles: {e}")
 
 
 @receiver(post_save, sender=BaseDetail)

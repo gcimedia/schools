@@ -19,7 +19,9 @@
         {% if request.user.is_authenticated %}
           {% if request.user.is_staff %}
             <li>
-              <a class="dropdown-item" href="{% base_admin_url %}">Admin Panel</a>
+              <a class="dropdown-item" href="{% base_portal_url %}">
+                <i class="bi bi-speedometer2 me-2"></i> Go to Management Portal
+              </a>
             </li>
           {% endif %}
 
@@ -27,7 +29,9 @@
             <li>
               <form method="post" action="{% auth_url 'logout' %}" class="d-inline">
                 {% csrf_token %}
-                <button type="submit" class="dropdown-item">Logout</button>
+                <button type="submit" class="dropdown-item">
+                  <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </button>
               </form>
             </li>
           {% endif %}
@@ -37,14 +41,18 @@
           {% if signin_enabled %}
             <li>
               <a class="dropdown-item"
-                 href="{% auth_url 'signin' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">Login</a>
+                 href="{% auth_url 'signin' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">
+                <i class="bi bi-box-arrow-in-right me-2"></i> Login
+              </a>
             </li>
           {% endif %}
 
           {% if signup_enabled %}
             <li>
               <a class="dropdown-item"
-                 href="{% auth_url 'signup' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">Sign up</a>
+                 href="{% auth_url 'signup' %}?next={{ request.path|urlencode }}&back={{ request.path|urlencode }}">
+                <i class="bi bi-person-plus me-2"></i> Sign up
+              </a>
             </li>
           {% endif %}
         {% endif %}
