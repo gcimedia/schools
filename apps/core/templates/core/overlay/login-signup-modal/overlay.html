@@ -1,5 +1,4 @@
 {% load auth %}
-
 <!-- Modal -->
 <div class="modal fade"
      id="loginSignupModal"
@@ -16,27 +15,23 @@
       </div>
       {% has_signin as signin_enabled %}
       {% has_signup as signup_enabled %}
-
       {% if signin_enabled or signup_enabled %}
         <!-- Only show modal if at least one auth page is available -->
         <div class="modal-body pt-2">
           <div class="text-center mb-4">
             <i class="bi bi-lock-fill text-primary" style="font-size: 3rem;"></i>
             <p class="mt-3 mb-0 fw-bold fs-5">
-
               {% if signin_enabled and signup_enabled %}
-                Sign in or create an account
+                Login or Sign up
               {% elif signin_enabled %}
-                Sign in to your account
+                Login
               {% elif signup_enabled %}
-                Create an account
+                Sign up
               {% else %}
                 Account access
               {% endif %}
-
             </p>
             <p class="text-muted small">
-
               {% if signin_enabled and signup_enabled %}
                 Please sign in to your account or create a new one.
               {% elif signin_enabled %}
@@ -46,12 +41,10 @@
               {% else %}
                 Account features are currently unavailable.
               {% endif %}
-
             </p>
           </div>
           <!-- Dynamic Login/Signup Options -->
           <div class="d-grid gap-2">
-
             {% if signin_enabled %}
               <a href="{% auth_url 'signin' %}?next=/&back={{ request.path|urlencode }}"
                  class="btn btn-primary btn-lg">
@@ -59,18 +52,14 @@
                 Sign In
               </a>
             {% endif %}
-
             {% if signup_enabled %}
-              <a href="{% auth_url 'signup' %}?next=/&back={{ request.path|urlencode }}" class="btn 
-                {% if signin_enabled %}btn-outline-primary{% else %}btn-primary{% endif %}
-                 btn-lg">
+              <a href="{% auth_url 'signup' %}?next=/&back={{ request.path|urlencode }}"
+                 class="btn {% if signin_enabled %}btn-outline-primary{% else %}btn-primary{% endif %} btn-lg">
                 <i class="bi bi-person-plus me-2"></i>
                 Create Account
               </a>
             {% endif %}
-
           </div>
-
           {% comment %}
             <!-- Optional: Social Login Buttons -->
             <div class="text-center my-3">
@@ -87,13 +76,11 @@
               </button>
             </div>
           {% endcomment %}
-
         </div>
       {% else %}
         <!-- Show alternative content or hide the trigger button -->
         <div>Authentication features are currently unavailable.</div>
       {% endif %}
-
       <div class="modal-footer border-0 pt-0">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="bi bi-x-circle me-1"></i>

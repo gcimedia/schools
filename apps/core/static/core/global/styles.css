@@ -78,7 +78,6 @@ body {
   background-color: var(--background-color);
   font-family: var(--default-font);
   letter-spacing: 0.01em;
-  /* Subtle spacing for readability */
 }
 
 a {
@@ -165,6 +164,17 @@ section,
 /*--------------------------------------------------------------
 # Global modal
 --------------------------------------------------------------*/
+.modal-open {
+  padding-right: 0 !important;
+}
+
+body.modal-open {
+  /* Prevent layout changes */
+  overflow-y: scroll !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
 .modal-content {
   border-radius: 12px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);

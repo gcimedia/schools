@@ -9,6 +9,8 @@ def landing(request):
         "page_title": "Welcome",
         "header_navigation": False,
         "show_hero": True,
+        "hero_btn_1_name": "Dashboard",
+        "hero_btn_1_login_required": True,
         "show_contact": True,
     }
 
