@@ -21,6 +21,10 @@ from .models import (
     UserRole,
 )
 
+# ============================================================================
+# BASE ADMIN
+# ============================================================================
+
 
 class UniqueChoiceAdminMixin(admin.ModelAdmin):
     """
@@ -149,6 +153,11 @@ class BaseImageAdmin(UniqueChoiceAdminMixin):
     list_display = ("name", "image")
     list_editable = ("image",)
     fieldsets = (("Site Graphic", {"fields": ("name", "image")}),)
+
+
+# ============================================================================
+# CONTACT ADMIN
+# ============================================================================
 
 
 @admin.register(ContactSocialLink, site=portal_site)
@@ -287,6 +296,11 @@ class ContactAddressAdmin(admin.ModelAdmin):
         ),
         ("Display Options", {"fields": ("is_active", "use_in_contact_form", "order")}),
     )
+
+
+# ============================================================================
+# USER ADMIN
+# ============================================================================
 
 
 @admin.register(UserRole, site=portal_site)

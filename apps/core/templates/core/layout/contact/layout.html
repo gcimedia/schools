@@ -27,43 +27,49 @@
             <p>
               {% contact_form_address as main_address %}
               {% if main_address %}
-                {% if main_address.building %}
-                  {{ main_address.building }}
-                  {% if main_address.street_address %},{% endif %}
+                {# Building and Street Address on first line #}
+                {% if main_address.building or main_address.street_address %}
+                  {% if main_address.building %}{{ main_address.building }}{% endif %}
+                  {% if main_address.building and main_address.street_address %},{% endif %}
+                  {% if main_address.street_address %}{{ main_address.street_address }}{% endif %}
+                  <br>
                 {% endif %}
-                {% if main_address.street_address %}{{ main_address.street_address }}{% endif %}
+                {# City and Postal Code on second line #}
                 {% if main_address.city or main_address.postal_code %}
-                  <br>
                   {% if main_address.city %}{{ main_address.city }}{% endif %}
-                  {% if main_address.postal_code %}
-                    {% if main_address.city %},{% endif %}
-                    {{ main_address.postal_code }}
-                  {% endif %}
-                {% endif %}
-                {% if main_address.state_province %}
+                  {% if main_address.city and main_address.postal_code %}{% endif %}
+                  {% if main_address.postal_code %}{{ main_address.postal_code }}{% endif %}
                   <br>
-                  {{ main_address.state_province }}
+                {% endif %}
+                {# State/Province and Country on third line #}
+                {% if main_address.state_province or main_address.country %}
+                  {% if main_address.state_province %}{{ main_address.state_province }}{% endif %}
+                  {% if main_address.state_province and main_address.country %},{% endif %}
+                  {% if main_address.country %}{{ main_address.country }}{% endif %}
                 {% endif %}
               {% else %}
                 {% get_physical_addresses as addresses %}
                 {% for address in addresses %}
                   {% if forloop.first %}
-                    {% if address.building %}
-                      {{ address.building }}
-                      {% if address.street_address %},{% endif %}
+                    {# Building and Street Address on first line #}
+                    {% if address.building or address.street_address %}
+                      {% if address.building %}{{ address.building }}{% endif %}
+                      {% if address.building and address.street_address %},{% endif %}
+                      {% if address.street_address %}{{ address.street_address }}{% endif %}
+                      <br>
                     {% endif %}
-                    {% if address.street_address %}{{ address.street_address }}{% endif %}
+                    {# City and Postal Code on second line #}
                     {% if address.city or address.postal_code %}
-                      <br>
                       {% if address.city %}{{ address.city }}{% endif %}
-                      {% if address.postal_code %}
-                        {% if address.city %},{% endif %}
-                        {{ address.postal_code }}
-                      {% endif %}
-                    {% endif %}
-                    {% if address.state_province %}
+                      {% if address.city and address.postal_code %}{% endif %}
+                      {% if address.postal_code %}{{ address.postal_code }}{% endif %}
                       <br>
-                      {{ address.state_province }}
+                    {% endif %}
+                    {# State/Province and Country on third line #}
+                    {% if address.state_province or address.country %}
+                      {% if address.state_province %}{{ address.state_province }}{% endif %}
+                      {% if address.state_province and address.country %},{% endif %}
+                      {% if address.country %}{{ address.country }}{% endif %}
                     {% endif %}
                   {% endif %}
                 {% empty %}

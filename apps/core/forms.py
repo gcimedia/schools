@@ -12,6 +12,10 @@ from django.contrib.auth.forms import (
 from .config.auth import auth_config
 from .models import BaseDetail, BaseImage, ContactSocialLink, User, UserRole
 
+# ============================================================================
+# BASE FORMS
+# ============================================================================
+
 
 class UniqueChoiceFormMixin:
     """
@@ -68,6 +72,10 @@ def generate_model_form(model_class, choices_attr_name):
 BaseDetailForm = generate_model_form(BaseDetail, "CHOICES")
 BaseImageForm = generate_model_form(BaseImage, "CHOICES")
 
+# ============================================================================
+# CONTACT FORMS
+# ============================================================================
+
 
 class ContactSocialLinkForm(UniqueChoiceFormMixin, forms.ModelForm):
     """
@@ -110,6 +118,11 @@ class ContactUsForm(forms.Form):
             attrs={"class": "form-control", "rows": "5", "placeholder": "Message"}
         ),
     )
+
+
+# ============================================================================
+# USER FORMS
+# ============================================================================
 
 
 class SignInForm(AuthenticationForm):

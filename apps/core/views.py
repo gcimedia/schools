@@ -23,6 +23,10 @@ from .decorators import (
 from .forms import ContactUsForm, SignInForm, SignUpForm
 from .models import ContactEmail
 
+# ============================================================================
+# CONTACT VIEWS
+# ============================================================================
+
 
 @csrf_exempt
 @require_POST
@@ -110,6 +114,11 @@ def contact(request):
             },
             status=500,
         )
+
+
+# ============================================================================
+# USER VIEWS
+# ============================================================================
 
 
 @auth_page_required("signin")

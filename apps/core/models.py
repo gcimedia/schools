@@ -7,6 +7,10 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 logger = logging.getLogger(__name__)
 
+# ============================================================================
+# BASE MODELS
+# ============================================================================
+
 
 class UniqueChoiceBaseModel(models.Model):
     """
@@ -87,6 +91,11 @@ class BaseImage(UniqueChoiceBaseModel):
         blank=True,
         help_text="Image file for logos, favicons, etc.",
     )
+
+
+# ============================================================================
+# CONTACT MODELS
+# ============================================================================
 
 
 class ContactSocialLink(models.Model):
@@ -262,7 +271,6 @@ class ContactEmail(models.Model):
 
     class Meta:
         ordering = ["order", "email"]
-        verbose_name_plural = "Email addresses"
 
     email = models.EmailField(
         help_text="Email address (e.g., user@example.com)",
@@ -315,7 +323,7 @@ class ContactAddress(models.Model):
 
     class Meta:
         ordering = ["order", "label", "city"]
-        verbose_name_plural = "Physical addresses"
+        verbose_name_plural = "Contact addresses"
 
     label = models.CharField(
         max_length=100,
@@ -407,6 +415,11 @@ class ContactAddress(models.Model):
 
         query = urllib.parse.quote_plus(self.full_address)
         return f"https://www.google.com/maps/search/?api=1&query={query}"
+
+
+# ============================================================================
+# USER MODELS
+# ============================================================================
 
 
 class UserRole(Group):
