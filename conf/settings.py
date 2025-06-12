@@ -37,7 +37,7 @@ ALLOWED_HOSTS = config(
 
 # Application definition
 
-CUSTOM_APP_NAME = config("CUSTOM_APP_NAME", default="apps.custom")
+CUSTOM_APP_NAME = config("CUSTOM_APP_NAME", default=None)
 CUSTOM_APP_URL = config("CUSTOM_APP_URL", default="dashboard/")
 
 INSTALLED_APPS = [
@@ -52,9 +52,12 @@ INSTALLED_APPS = [
     "phonenumber_field",
     "apps.core",
     "apps.home",
-    CUSTOM_APP_NAME,
     "apps.seed",
 ]
+
+# Add Custom app
+if CUSTOM_APP_NAME:
+    INSTALLED_APPS.append(CUSTOM_APP_NAME)
 
 # Add django_browser_reload only in DEBUG mode
 if DEBUG:

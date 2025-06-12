@@ -47,6 +47,12 @@ These apply to **both** development and production setups:
 Set up a `.env` file in your production environment (You can also setup in your development environment, though not required as defaults will be used):
 
 ```bash
+# Custom App Name (defaults to None)
+CUSTOM_APP_NAME="apps.schools"
+
+# Custom App URL Path Configuration (defaults to 'dashboard/')
+CUSTOM_APP_URL="dashboard/"
+
 # Environment (defaults to 'development')
 ENVIRONMENT="production"
 
@@ -55,12 +61,6 @@ SECRET_KEY="your-secure-key-here"
 
 # Allowed Hosts (Defaults to 'localhost,127.0.0.1,dev.tawalabora.space')
 ALLOWED_HOSTS="localhost,127.0.0.1,example.com,www.example.com"
-
-# Custom App Name (defaults to 'apps.custom')
-CUSTOM_APP_NAME="apps.schools"
-
-# Custom App URL Path Configuration (defaults to 'dashboard/')
-CUSTOM_APP_URL="dashboard/"
 
 # Database Configuration
 # SQLite (default - no configuration needed)
