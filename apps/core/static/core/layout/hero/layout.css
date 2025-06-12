@@ -9,6 +9,12 @@
   background-size: cover;
 }
 
+@media (min-width: 576px) {
+  .hero {
+    background-attachment: fixed;
+  }
+}
+
 .hero::before {
   content: "";
   position: absolute;
