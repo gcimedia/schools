@@ -42,6 +42,9 @@
     {% if overlay_whatsapp_call_us|default_if_none:True %}
       {% include 'core/overlay/whatsapp-call-us/static.html' %}
     {% endif %}
+    {# Overlay Login Signup Modal #}
+    {% include 'core/overlay/login-signup-modal/static.html' %}
+    {# Extend Staticfiles #}
     {% block staticfiles %}{% endblock %}
   </head>
   <body>
@@ -73,6 +76,7 @@
     {% if overlay_preloader|default_if_none:True %}
       {% include 'core/overlay/preloader/overlay.html' %}
     {% endif %}
+    {# Overlay Login Signup Modal #}
     {% include 'core/overlay/login-signup-modal/overlay.html' %}
   </body>
 </html>
