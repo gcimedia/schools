@@ -89,7 +89,7 @@ class BaseImage(UniqueChoiceBaseModel):
     )
 
 
-class SocialMediaLink(models.Model):
+class ContactSocialLink(models.Model):
     """
     Represents a social media link with associated Bootstrap icon class,
     display status, and display order.
@@ -166,7 +166,7 @@ class SocialMediaLink(models.Model):
         return f'<i class="{self.icon}"></i>' if self.icon else ""
 
 
-class PhoneNumber(models.Model):
+class ContacNumber(models.Model):
     """
     Stores phone numbers with metadata such as primary use, WhatsApp usage,
     display status, and order.
@@ -211,12 +211,12 @@ class PhoneNumber(models.Model):
             self.use_for_whatsapp = False
 
         if self.is_primary:
-            PhoneNumber.objects.filter(is_primary=True).exclude(pk=self.pk).update(
+            ContacNumber.objects.filter(is_primary=True).exclude(pk=self.pk).update(
                 is_primary=False
             )
 
         if self.use_for_whatsapp:
-            PhoneNumber.objects.filter(use_for_whatsapp=True).exclude(
+            ContacNumber.objects.filter(use_for_whatsapp=True).exclude(
                 pk=self.pk
             ).update(use_for_whatsapp=False)
 
@@ -254,7 +254,7 @@ class PhoneNumber(models.Model):
         return ""
 
 
-class EmailAddress(models.Model):
+class ContactEmail(models.Model):
     """
     Stores email addresses with metadata for display, priority,
     and ordering.
@@ -292,7 +292,7 @@ class EmailAddress(models.Model):
             self.is_primary = False
 
         if self.is_primary:
-            EmailAddress.objects.filter(is_primary=True).exclude(pk=self.pk).update(
+            ContactEmail.objects.filter(is_primary=True).exclude(pk=self.pk).update(
                 is_primary=False
             )
 
@@ -307,7 +307,7 @@ class EmailAddress(models.Model):
         return f"mailto:{self.email}"
 
 
-class PhysicalAddress(models.Model):
+class ContactAddress(models.Model):
     """
     Stores physical addresses, with optional Google Maps embed URLs,
     display order, and contact form preferences.
@@ -375,7 +375,7 @@ class PhysicalAddress(models.Model):
             self.use_in_contact_form = False
 
         if self.use_in_contact_form:
-            PhysicalAddress.objects.filter(use_in_contact_form=True).exclude(
+            ContactAddress.objects.filter(use_in_contact_form=True).exclude(
                 pk=self.pk
             ).update(use_in_contact_form=False)
 

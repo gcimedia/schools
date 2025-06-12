@@ -23,7 +23,7 @@ form.addEventListener('submit', async function (e) {
   };
 
   try {
-    const response = await fetch('/core/mail/contact/', {
+    const response = await fetch('/core/mail/contact-us/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

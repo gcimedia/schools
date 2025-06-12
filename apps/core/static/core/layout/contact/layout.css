@@ -1,7 +1,20 @@
+.contact .contact-addressing {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.contact .contact-addressing>[class*="col-"] {
+  display: flex;
+  flex-direction: column;
+}
+
 .contact .info-box {
   color: #313030;
   box-shadow: 0 0 30px rgba(214, 215, 216, 0.6);
   padding: 20px;
+  /* Make the info-box fill the full height of its container */
+  flex: 1;
+  display: flex;
 }
 
 .contact .info-box i {
@@ -10,19 +23,34 @@
   border-radius: 50%;
   padding: 8px;
   border: 2px dotted #ffded4;
-  float: left;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+}
+
+/* Create a content wrapper for the text */
+.contact .info-box .content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .contact .info-box h3 {
   font-size: 20px;
   color: #656262;
   font-weight: 700;
-  margin: 10px 0 10px 68px;
+  margin: 10px 0 10px 0;
 }
 
 .contact .info-box p {
   padding: 0;
   line-height: 24px;
   font-size: 14px;
-  margin: 0 0 0 68px;
+  margin: 0;
+  /* Allow the paragraph to grow and fill remaining space */
+  flex: 1;
 }

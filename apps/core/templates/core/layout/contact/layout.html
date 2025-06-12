@@ -1,6 +1,8 @@
 {% load static %}
+{% load contacts %}
 <section id="contact" class="contact">
   <div class="container">
+    {# Section Title #}
     {% if contact_addressing|default_if_none:True and contact_form|default_if_none:True %}
       {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" section_title_paragraph="If you have an inquiry, you can get in touch with us using the information below, or you can fill the form and we'll get back to you." %}
     {% elif contact_addressing|default_if_none:True and not contact_form|default_if_none:True %}
@@ -10,70 +12,110 @@
     {% else %}
       {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" %}
     {% endif %}
+    {# Contact Map #}
     {% if contact_map|default_if_none:True %}
       <div class="mb-4" data-aos="fade-up" data-aos-delay="200">{% include 'core/widget/contact-map/widget.html' %}</div>
     {% endif %}
-    <div class="row justify-content-center">
+    {# Contact Addressing #}
+    <div class="row contact-addressing justify-content-center">
+      {# Physical Address #}
       <div class="col-xl-3 col-lg-4 mt-4" data-aos="fade-up">
         <div class="info-box">
           <i class="bi bi-geo-alt"></i>
-          <h3>Our Address</h3>
-          <p>
-            {% if org.building or org.street %}
-              {{ org.building }}
-              {% if org.street %}, {{ org.street }}{% endif %}
-            {% endif %}
-            {% if org.city_name or org.PO_Box %}
-              <br>
-              {{ org.city_name }}
-              {% if org.PO_Box %}, {{ org.PO_Box }}{% endif %}
-            {% endif %}
-            {% if org.zip_code %}
-              <br>
-              {{ org.zip_code }}
-            {% endif %}
-          </p>
+          <div class="content">
+            <h3>Our Address</h3>
+            <p>
+              {% contact_form_address as main_address %}
+              {% if main_address %}
+                {% if main_address.building %}
+                  {{ main_address.building }}
+                  {% if main_address.street_address %},{% endif %}
+                {% endif %}
+                {% if main_address.street_address %}{{ main_address.street_address }}{% endif %}
+                {% if main_address.city or main_address.postal_code %}
+                  <br>
+                  {% if main_address.city %}{{ main_address.city }}{% endif %}
+                  {% if main_address.postal_code %}
+                    {% if main_address.city %},{% endif %}
+                    {{ main_address.postal_code }}
+                  {% endif %}
+                {% endif %}
+                {% if main_address.state_province %}
+                  <br>
+                  {{ main_address.state_province }}
+                {% endif %}
+              {% else %}
+                {% get_physical_addresses as addresses %}
+                {% for address in addresses %}
+                  {% if forloop.first %}
+                    {% if address.building %}
+                      {{ address.building }}
+                      {% if address.street_address %},{% endif %}
+                    {% endif %}
+                    {% if address.street_address %}{{ address.street_address }}{% endif %}
+                    {% if address.city or address.postal_code %}
+                      <br>
+                      {% if address.city %}{{ address.city }}{% endif %}
+                      {% if address.postal_code %}
+                        {% if address.city %},{% endif %}
+                        {{ address.postal_code }}
+                      {% endif %}
+                    {% endif %}
+                    {% if address.state_province %}
+                      <br>
+                      {{ address.state_province }}
+                    {% endif %}
+                  {% endif %}
+                {% empty %}
+                  No address available.
+                {% endfor %}
+              {% endif %}
+            </p>
+          </div>
         </div>
       </div>
+      {# Email Addresses #}
       <div class="col-xl-3 col-lg-4 mt-4"
            data-aos="fade-up"
            data-aos-delay="100">
         <div class="info-box">
           <i class="bi bi-envelope"></i>
-          <h3>Email Us</h3>
-          <p>
-            {{ org.primary_email }}
-            {% if org.secondary_email %}
-              <br>
-              {{ org.secondary_email }}
-            {% endif %}
-            {% if org.other_email %}
-              <br>
-              {{ org.other_email }}
-            {% endif %}
-          </p>
+          <div class="content">
+            <h3>Email Us</h3>
+            <p>
+              {% get_email_addresses as emails %}
+              {% for email in emails %}
+                <a href="{{ email.mailto_link }}" class="text-reset">{{ email.email }}</a>
+                {% if not forloop.last %}<br>{% endif %}
+              {% empty %}
+                No email addresses available.
+              {% endfor %}
+            </p>
+          </div>
         </div>
       </div>
+      {# Phone numbers #}
       <div class="col-xl-3 col-lg-4 mt-4"
            data-aos="fade-up"
            data-aos-delay="200">
         <div class="info-box">
           <i class="bi bi-telephone"></i>
-          <h3>Call Us</h3>
-          <p>
-            {{ org.primary_phone.as_international }}
-            {% if org.secondary_phone %}
-              <br>
-              {{ org.secondary_phone.as_international }}
-            {% endif %}
-            {% if org.other_phone %}
-              <br>
-              {{ org.other_phone.as_international }}
-            {% endif %}
-          </p>
+          <div class="content">
+            <h3>Call Us</h3>
+            <p>
+              {% get_phone_numbers as phones %}
+              {% for phone in phones %}
+                <a href="{{ phone.tel_link }}"  class="text-reset">{{ phone.international_format }}</a>
+                {% if not forloop.last %}<br>{% endif %}
+              {% empty %}
+                No phone numbers available.
+              {% endfor %}
+            </p>
+          </div>
         </div>
       </div>
     </div>
+    {# Contact Form #}
     {% if contact_form|default_if_none:True %}
       <div class="row justify-content-center"
            data-aos="fade-up"

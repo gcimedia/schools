@@ -20,8 +20,8 @@ from .decorators import (
     redirect_authenticated_users,
     redirect_authenticated_users_class,
 )
-from .forms import ContactForm, SignInForm, SignUpForm
-from .models import EmailAddress
+from .forms import ContactUsForm, SignInForm, SignUpForm
+from .models import ContactEmail
 
 
 @csrf_exempt
@@ -33,7 +33,7 @@ def contact(request):
         data = json.loads(request.body)
 
         # Create form instance with the data
-        form = ContactForm(data)
+        form = ContactUsForm(data)
 
         if form.is_valid():
             # Extract cleaned data
@@ -44,8 +44,8 @@ def contact(request):
 
             try:
                 recipient_email = (
-                    EmailAddress.objects.filter(is_primary=True).only("email")
-                    if EmailAddress._meta.db_table
+                    ContactEmail.objects.filter(is_primary=True).only("email")
+                    if ContactEmail._meta.db_table
                     in connection.introspection.table_names()
                     else None,
                 )

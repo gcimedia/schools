@@ -7,7 +7,7 @@
       "created_at": "2025-06-02T18:50:04.127Z",
       "updated_at": "2025-06-02T22:30:22.665Z",
       "name": "base_name",
-      "value": "Example Base Name"
+      "value": "Lorem Ipsum International Academy"
     }
   },
   {
@@ -18,7 +18,7 @@
       "created_at": "2025-06-09T10:00:00Z",
       "updated_at": "2025-06-09T10:00:00Z",
       "name": "base_description",
-      "value": "This is a placeholder description for the base configuration of your site."
+      "value": "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
     }
   },
   {
@@ -29,7 +29,7 @@
       "created_at": "2025-06-09T10:00:00Z",
       "updated_at": "2025-06-09T10:00:00Z",
       "name": "base_theme_color",
-      "value": "#EXAMPLE"
+      "value": "#123456"
     }
   },
   {
@@ -40,7 +40,7 @@
       "created_at": "2025-06-02T18:51:06.914Z",
       "updated_at": "2025-06-02T18:51:06.914Z",
       "name": "base_url",
-      "value": "https://www.example.com"
+      "value": "https://loremipsum.example.com"
     }
   },
   {
@@ -51,7 +51,7 @@
       "created_at": "2025-06-08T17:46:48.330Z",
       "updated_at": "2025-06-08T17:46:48.330Z",
       "name": "base_author",
-      "value": "Example Author"
+      "value": "Lorem Media Group"
     }
   },
   {
@@ -62,7 +62,7 @@
       "created_at": "2025-06-08T17:47:08.033Z",
       "updated_at": "2025-06-08T17:47:08.033Z",
       "name": "base_author_url",
-      "value": "https://github.com/example-author/"
+      "value": "https://github.com/lorem-author/"
     }
   },
   {
@@ -73,7 +73,7 @@
       "created_at": "2025-06-02T22:46:27.579Z",
       "updated_at": "2025-06-02T22:48:28.390Z",
       "name": "base_logo",
-      "image": "core/base/example/logo.png"
+      "image": "core/base/lorem/logo.png"
     }
   },
   {
@@ -84,7 +84,7 @@
       "created_at": "2025-06-02T22:46:40.654Z",
       "updated_at": "2025-06-02T22:48:28.388Z",
       "name": "base_favicon",
-      "image": "core/base/example/favicon.ico"
+      "image": "core/base/lorem/favicon.ico"
     }
   },
   {
@@ -95,7 +95,7 @@
       "created_at": "2025-06-02T22:46:48.646Z",
       "updated_at": "2025-06-02T22:48:28.378Z",
       "name": "base_apple_touch_icon",
-      "image": "core/base/example/apple-touch-icon.png"
+      "image": "core/base/lorem/apple-touch-icon.png"
     }
   },
   {
@@ -106,16 +106,16 @@
       "created_at": "2025-06-05T15:08:17.610Z",
       "updated_at": "2025-06-05T15:08:17.610Z",
       "name": "base_hero_image",
-      "image": "core/base/example/hero.jpg"
+      "image": "core/base/lorem/hero.jpg"
     }
   },
   {
-    "model": "core.socialmedialink",
+    "model": "core.contactsociallink",
     "pk": 1,
     "fields": {
       "name": "facebook",
       "icon": "bi bi-facebook",
-      "url": "https://www.facebook.com/example/",
+      "url": "https://facebook.com/loremipsumschool",
       "is_active": true,
       "order": 0,
       "created_at": "2025-06-02T06:44:37.799Z",
@@ -123,10 +123,10 @@
     }
   },
   {
-    "model": "core.phonenumber",
+    "model": "core.contacnumber",
     "pk": 1,
     "fields": {
-      "number": "+11234567890",
+      "number": "+12345678900",
       "is_active": true,
       "is_primary": true,
       "use_for_whatsapp": true,
@@ -136,10 +136,10 @@
     }
   },
   {
-    "model": "core.phonenumber",
+    "model": "core.contacnumber",
     "pk": 2,
     "fields": {
-      "number": "+11234567891",
+      "number": "+12345678901",
       "is_active": true,
       "is_primary": false,
       "use_for_whatsapp": false,
@@ -149,10 +149,10 @@
     }
   },
   {
-    "model": "core.emailaddress",
+    "model": "core.contactemail",
     "pk": 1,
     "fields": {
-      "email": "info@example.com",
+      "email": "info@loremipsum.com",
       "is_active": true,
       "is_primary": true,
       "order": 0,
@@ -161,22 +161,62 @@
     }
   },
   {
-    "model": "core.physicaladdress",
+    "model": "core.contactaddress",
     "pk": 1,
     "fields": {
-      "label": "Example Main Office",
-      "building": "Example Building",
-      "street_address": "123 Example Street",
-      "city": "Example City",
-      "state_province": "Example State/Province",
-      "postal_code": "00000",
-      "country": "Example Country",
-      "map_embed_url": "https://maps.google.com/maps?q=example+location&output=embed",
+      "label": "Main Campus",
+      "building": "Lorem Tower",
+      "street_address": "123 Ipsum Rd",
+      "city": "Dolor City",
+      "state_province": "Sit State",
+      "postal_code": "12345",
+      "country": "Placeholderland",
+      "map_embed_url": "https://maps.google.com/maps?q=lorem+ipsum&output=embed",
       "is_active": true,
       "use_in_contact_form": true,
       "order": 0,
       "created_at": "2025-06-02T07:32:59.225Z",
       "updated_at": "2025-06-09T15:38:12.702Z"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$ExampleSalt$ExampleHashValueForUser1",
+      "last_login": "2025-06-11T03:45:42.984Z",
+      "is_superuser": true,
+      "username": "adminuser",
+      "first_name": "Admin",
+      "last_name": "User",
+      "email": "admin@example.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-06-11T02:13:04Z",
+      "groups": [
+        1
+      ],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$1000000$ExampleSalt$ExampleHashValueForUser2",
+      "last_login": null,
+      "is_superuser": false,
+      "username": "johndoe",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "johndoe@example.com",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2025-06-11T03:02:29Z",
+      "groups": [
+        1
+      ],
+      "user_permissions": []
     }
   }
 ]

@@ -4,14 +4,19 @@ from django.contrib.auth.models import Permission
 from django.utils.html import format_html
 
 from .admin_site import portal_site
-from .forms import BaseDetailForm, BaseImageForm, SocialMediaLinkForm, UserChangeForm
+from .forms import (
+    BaseDetailForm,
+    BaseImageForm,
+    ContactSocialLinkForm,
+    UserChangeForm,
+)
 from .models import (
     BaseDetail,
     BaseImage,
-    EmailAddress,
-    PhoneNumber,
-    PhysicalAddress,
-    SocialMediaLink,
+    ContacNumber,
+    ContactAddress,
+    ContactEmail,
+    ContactSocialLink,
     User,
     UserRole,
 )
@@ -146,14 +151,14 @@ class BaseImageAdmin(UniqueChoiceAdminMixin):
     fieldsets = (("Site Graphic", {"fields": ("name", "image")}),)
 
 
-@admin.register(SocialMediaLink, site=portal_site)
-class SocialMediaLinkAdmin(admin.ModelAdmin):
+@admin.register(ContactSocialLink, site=portal_site)
+class ContactSocialLinkAdmin(admin.ModelAdmin):
     """
-    Admin interface for SocialMediaLink model, supporting listing, filtering, searching,
+    Admin interface for ContactSocialLink model, supporting listing, filtering, searching,
     and inline editing of URLs and order. Restricts the 'name' field to read-only on edit.
     """
 
-    form = SocialMediaLinkForm
+    form = ContactSocialLinkForm
     list_display = ("name", "url", "is_active", "order")
     list_editable = ("url", "order")
     list_filter = ("is_active",)
@@ -181,10 +186,10 @@ class SocialMediaLinkAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhoneNumber, site=portal_site)
-class PhoneNumberAdmin(admin.ModelAdmin):
+@admin.register(ContacNumber, site=portal_site)
+class ContactNumberAdmin(admin.ModelAdmin):
     """
-    Admin interface for PhoneNumber model with support for listing, filtering,
+    Admin interface for ContacNumber model with support for listing, filtering,
     searching, ordering, and inline editing of the 'order' field.
     The 'number' field is read-only when editing an existing object.
     """
@@ -214,10 +219,10 @@ class PhoneNumberAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(EmailAddress, site=portal_site)
-class EmailAddressAdmin(admin.ModelAdmin):
+@admin.register(ContactEmail, site=portal_site)
+class ContactEmailAdmin(admin.ModelAdmin):
     """
-    Admin interface for EmailAddress model with support for listing, filtering,
+    Admin interface for ContactEmail model with support for listing, filtering,
     searching, ordering, and inline editing of the 'order' field.
     The 'email' field is read-only when editing an existing object.
     """
@@ -244,10 +249,10 @@ class EmailAddressAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(PhysicalAddress, site=portal_site)
-class PhysicalAddressAdmin(admin.ModelAdmin):
+@admin.register(ContactAddress, site=portal_site)
+class ContactAddressAdmin(admin.ModelAdmin):
     """
-    Admin interface for PhysicalAddress model supporting listing, filtering,
+    Admin interface for ContactAddress model supporting listing, filtering,
     searching, ordering, and displaying detailed address fields.
     """
 

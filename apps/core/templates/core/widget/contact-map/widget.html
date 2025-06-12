@@ -1,9 +1,12 @@
-<iframe style="border:0;
-               width: 100%;
-               height: 270px"
-        src="{{ org.map_url }}"
-        frameborder="0"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-</iframe>
+{% load contacts %}
+{% contact_form_address as main_address %}
+{% if main_address %}
+    {% address_map_embed main_address "100%" "270" %}
+{% else %}
+    {% get_physical_addresses as addresses %}
+    {% for address in addresses %}
+        {% if forloop.first %}
+            {% address_map_embed address "100%" "270" %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
