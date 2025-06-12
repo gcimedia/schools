@@ -15,7 +15,7 @@ package-mode = false
 python-decouple = "^3.8"
 tzdata = "^2025.2"
 pillow = "^11.2.1"
-psycopg = "^3.2.9"
+psycopg = {extras = ["binary"], version = "^3.2.9"}
 django = "^5.2.2"
 django-ckeditor-5 = "^0.2.18"
 django-recaptcha = "^4.1.0"

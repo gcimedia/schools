@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.home",
     CUSTOM_APP_NAME,
+    "apps.seed",
 ]
 
 # Add django_browser_reload only in DEBUG mode
@@ -111,10 +112,11 @@ if config("DB_POSTGRESQL", default=False, cast=bool):
         DATABASES = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "OPTIONS": {
-                    "service": config("DB_SERVICE", default="my_service"),
-                    "passfile": config("DB_PASSFILE", default="~/.pgpass"),
-                },
+                "NAME": config("DB_NAME", default=None),
+                "USER": config("DB_USER", default=None),
+                "PASSWORD": config("DB_PASSWORD", default=None),
+                "HOST": config("DB_HOST", default="localhost"),
+                "PORT": config("DB_PORT", default="5432"),
             }
         }
     except (ImproperlyConfigured, OperationalError, ModuleNotFoundError):

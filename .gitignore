@@ -5,9 +5,7 @@ __pycache__/
 lib/
 
 # Seed data
-# Ignore all files in any fixtures/ directory in any subdirectory. But don't ignore seed_example.json in those fixtures/ directories
-**/fixtures/*
-!**/fixtures/seed_example.json
+/apps/seed/fixtures
 
 # Environments
 .env

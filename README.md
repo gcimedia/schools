@@ -12,6 +12,7 @@ These apply to **both** development and production setups:
 
 - 🐍 Python 3.13 or higher  
 - 📦 Poetry package manager
+- 🐘 PostgreSQL (optional - defaults to SQLite for development)
 
 ### B. ⚙️ Poetry Installation
 
@@ -46,7 +47,6 @@ These apply to **both** development and production setups:
 Set up a `.env` file in your production environment (You can also setup in your development environment, though not required as defaults will be used):
 
 ```bash
-
 # Environment (defaults to 'development')
 ENVIRONMENT="production"
 
@@ -57,18 +57,24 @@ SECRET_KEY="your-secure-key-here"
 ALLOWED_HOSTS="localhost,127.0.0.1,example.com,www.example.com"
 
 # Custom App Name (defaults to 'apps.custom')
-CUSTOM_APP_NAME="apps.custom"
+CUSTOM_APP_NAME="apps.schools"
 
-# Custom App URL Path Configurarion (defaults to 'dashboard/')
+# Custom App URL Path Configuration (defaults to 'dashboard/')
 CUSTOM_APP_URL="dashboard/"
 
-# Database Configuration (defaults to SQLite3 settings)
-DB_POSTGRESQL="True"
-DB_SERVICE=""
-DB_PASSFILE=""
+# Database Configuration
+# SQLite (default - no configuration needed)
+# For PostgreSQL, set all the following:
+DB_POSTGRESQL=True
+DB_NAME=your_database_name
+DB_USER=postgres
+DB_PASSWORD=your_postgres_password
+DB_HOST=localhost
+DB_PORT=5432
 
-
-# Email Configuration (defaults to console backend settings)
+# Email Configuration
+# Console email backend (default - no configuration needed)
+# For SMTP email backend, set all the following:
 EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST="smtp.gmail.com"
 EMAIL_HOST_USER="your-email@gmail.com"
@@ -77,7 +83,22 @@ EMAIL_HOST_PASSWORD="your-app-password"
 
 ### D. 🗄️ Database Setup
 
-Same for both development and production:
+#### SQLite (Default - Development)
+
+By default, the system uses SQLite which requires no additional setup.
+
+#### PostgreSQL (Optional - Production Recommended)
+
+If using PostgreSQL:
+
+1. **Install PostgreSQL** on your system
+2. **Create a database**:
+   ```sql
+   CREATE DATABASE your_database_name;
+   ```
+3. **Configure environment variables** in your `.env` file as shown above
+
+#### Database Migration (Both SQLite and PostgreSQL)
 
 1. Create database tables:
 
@@ -88,15 +109,15 @@ Same for both development and production:
 
 2. (Optional) Load sample data:
 
-   - 📄 Copy `seed_example.json` from any app's fixtures directory
-   - 📝 Create your own fixture file based on the example
+   - 📄 Create a new `fixtures` folder out of the `examples` folder in the `seed` app.
+   - 📝 Edit the json files in the created `fixtures` folder tailoring it to your needs.
    - 📤 Load fixtures using:
 
    ```bash
    python manage.py seed
    ```
 
-**Note**: Only `seed_example.json` files are tracked in Git. All other fixture files are gitignored.
+**Note**: The `fixtures` folder inside the `apps/seed` directory is gitignored.
 
 ### E. 📦 Static Files (Production Only)
 
@@ -108,9 +129,19 @@ If you're deploying to production and using a web server (like Nginx) to serve s
 
 ⚠️ This step is not needed in development, as Django serves static files automatically when `DEBUG=True`.
 
+## 🚀 Running the Application
+
+Start the development server:
+
+```bash
+python manage.py runserver
+```
+
+The application will be available at `http://localhost:8000`
+
 ## 📚 System Documentation
 
-- 🧭 [Overview](apps/schools/docs/overview.md)  
-- 🗺️ [System Context](apps/schools/docs/system_context.md)  
-- 🎯 [System Use Cases](apps/schools/docs/system_use_cases.md)  
-- 🗄️ [System Database Design](apps/schools/docs/system_database_design.md)
+- 🧭 [Overview](apps/schools/docs/system/overview.md)
+- 🗺️ [System Context](apps/schools/docs/system/context.md)
+- 🎯 [System Use Cases](apps/schools/docs/system/use_cases.md)
+- 🗄️ [System Database Design](apps/schools/docs/system/database_design.md)
