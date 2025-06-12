@@ -22,10 +22,10 @@
       {% include 'core/layout/hero/static.html' %}
     {% endif %}
     {% if 'signin'|auth_enabled and show_auth == "signin" %}
-      {% include 'core/layout/signin/styles.html' %}
+      {% include 'core/layout/signin/static.html' %}
     {% endif %}
     {% if 'signup'|auth_enabled and show_auth == "signup" %}
-      {% include 'core/layout/signup/styles.html' %}
+      {% include 'core/layout/signup/static.html' %}
     {% endif %}
     {% if show_contact|default_if_none:False %}
       {% include 'core/layout/contact/static.html' %}

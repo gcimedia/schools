@@ -84,8 +84,6 @@ Same for both development and production:
    ```bash
    python manage.py makemigrations
    python manage.py migrate
-   python manage.py setup_roles
-   python manage.py setup_role_permissions
    ```
 
 2. (Optional) Load sample data:

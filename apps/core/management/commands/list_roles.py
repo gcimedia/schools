@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from apps.core.models import UserRole
+from ...models import UserRole
 
 
 class Command(BaseCommand):

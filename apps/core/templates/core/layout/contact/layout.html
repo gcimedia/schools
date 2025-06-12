@@ -1,133 +1,13 @@
 {% load static %}
-{% load contacts %}
 <section id="contact" class="contact">
   <div class="container">
     {# Section Title #}
-    {% if contact_addressing|default_if_none:True and contact_form|default_if_none:True %}
-      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" section_title_paragraph="If you have an inquiry, you can get in touch with us using the information below, or you can fill the form and we'll get back to you." %}
-    {% elif contact_addressing|default_if_none:True and not contact_form|default_if_none:True %}
-      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" section_title_paragraph="If you have an inquiry, you can get in touch with us using the information below." %}
-    {% elif not contact_addressing|default_if_none:True and contact_form|default_if_none:True %}
-      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" section_title_paragraph="If you have an inquiry, you can fill the form and we'll get back to you." %}
-    {% else %}
-      {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" %}
-    {% endif %}
+    {% include "core/widget/section-title/widget.html" with section_title_heading="Contact" %}
     {# Contact Map #}
-    {% if contact_map|default_if_none:True %}
-      <div class="mb-4" data-aos="fade-up" data-aos-delay="200">{% include 'core/widget/contact-map/widget.html' %}</div>
-    {% endif %}
-    {# Contact Addressing #}
-    <div class="row contact-addressing justify-content-center">
-      {# Physical Address #}
-      <div class="col-xl-3 col-lg-4 mt-4" data-aos="fade-up">
-        <div class="info-box">
-          <i class="bi bi-geo-alt"></i>
-          <div class="content">
-            <h3>Our Address</h3>
-            <p>
-              {% contact_form_address as main_address %}
-              {% if main_address %}
-                {# Building and Street Address on first line #}
-                {% if main_address.building or main_address.street_address %}
-                  {% if main_address.building %}{{ main_address.building }}{% endif %}
-                  {% if main_address.building and main_address.street_address %},{% endif %}
-                  {% if main_address.street_address %}{{ main_address.street_address }}{% endif %}
-                  <br>
-                {% endif %}
-                {# City and Postal Code on second line #}
-                {% if main_address.city or main_address.postal_code %}
-                  {% if main_address.city %}{{ main_address.city }}{% endif %}
-                  {% if main_address.city and main_address.postal_code %}{% endif %}
-                  {% if main_address.postal_code %}{{ main_address.postal_code }}{% endif %}
-                  <br>
-                {% endif %}
-                {# State/Province and Country on third line #}
-                {% if main_address.state_province or main_address.country %}
-                  {% if main_address.state_province %}{{ main_address.state_province }}{% endif %}
-                  {% if main_address.state_province and main_address.country %},{% endif %}
-                  {% if main_address.country %}{{ main_address.country }}{% endif %}
-                {% endif %}
-              {% else %}
-                {% get_physical_addresses as addresses %}
-                {% for address in addresses %}
-                  {% if forloop.first %}
-                    {# Building and Street Address on first line #}
-                    {% if address.building or address.street_address %}
-                      {% if address.building %}{{ address.building }}{% endif %}
-                      {% if address.building and address.street_address %},{% endif %}
-                      {% if address.street_address %}{{ address.street_address }}{% endif %}
-                      <br>
-                    {% endif %}
-                    {# City and Postal Code on second line #}
-                    {% if address.city or address.postal_code %}
-                      {% if address.city %}{{ address.city }}{% endif %}
-                      {% if address.city and address.postal_code %}{% endif %}
-                      {% if address.postal_code %}{{ address.postal_code }}{% endif %}
-                      <br>
-                    {% endif %}
-                    {# State/Province and Country on third line #}
-                    {% if address.state_province or address.country %}
-                      {% if address.state_province %}{{ address.state_province }}{% endif %}
-                      {% if address.state_province and address.country %},{% endif %}
-                      {% if address.country %}{{ address.country }}{% endif %}
-                    {% endif %}
-                  {% endif %}
-                {% empty %}
-                  No address available.
-                {% endfor %}
-              {% endif %}
-            </p>
-          </div>
-        </div>
-      </div>
-      {# Email Addresses #}
-      <div class="col-xl-3 col-lg-4 mt-4"
-           data-aos="fade-up"
-           data-aos-delay="100">
-        <div class="info-box">
-          <i class="bi bi-envelope"></i>
-          <div class="content">
-            <h3>Email Us</h3>
-            <p>
-              {% get_email_addresses as emails %}
-              {% for email in emails %}
-                <a href="{{ email.mailto_link }}" class="text-reset">{{ email.email }}</a>
-                {% if not forloop.last %}<br>{% endif %}
-              {% empty %}
-                No email addresses available.
-              {% endfor %}
-            </p>
-          </div>
-        </div>
-      </div>
-      {# Phone numbers #}
-      <div class="col-xl-3 col-lg-4 mt-4"
-           data-aos="fade-up"
-           data-aos-delay="200">
-        <div class="info-box">
-          <i class="bi bi-telephone"></i>
-          <div class="content">
-            <h3>Call Us</h3>
-            <p>
-              {% get_phone_numbers as phones %}
-              {% for phone in phones %}
-                <a href="{{ phone.tel_link }}"  class="text-reset">{{ phone.international_format }}</a>
-                {% if not forloop.last %}<br>{% endif %}
-              {% empty %}
-                No phone numbers available.
-              {% endfor %}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include 'core/widget/contact-map/widget-v1.html' %}
+    {# Contact Info #}
+    {% include 'core/widget/contact-info/widget-v1.html' %}
     {# Contact Form #}
-    {% if contact_form|default_if_none:True %}
-      <div class="row justify-content-center"
-           data-aos="fade-up"
-           data-aos-delay="300">
-        <div class="col-xl-9 col-lg-12 mt-4">{% include 'core/widget/contact-form/widget.html' %}</div>
-      </div>
-    {% endif %}
+    {% include 'core/widget/contact-form/widget-v1.html' %}
   </div>
 </section>

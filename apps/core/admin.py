@@ -13,9 +13,9 @@ from .forms import (
 from .models import (
     BaseDetail,
     BaseImage,
-    ContacNumber,
     ContactAddress,
     ContactEmail,
+    ContactNumber,
     ContactSocialLink,
     User,
     UserRole,
@@ -131,7 +131,7 @@ class UniqueChoiceAdminMixin(admin.ModelAdmin):
 @admin.register(BaseDetail, site=portal_site)
 class BaseDetailAdmin(UniqueChoiceAdminMixin):
     """
-    Admin interface for OrgDetail model, using UniqueChoiceAdminMixin to enforce unique
+    Admin interface for BaseDetail model, using UniqueChoiceAdminMixin to enforce unique
     'name' choices and restrictions. Allows editing of the 'value' field inline.
     """
 
@@ -145,7 +145,7 @@ class BaseDetailAdmin(UniqueChoiceAdminMixin):
 @admin.register(BaseImage, site=portal_site)
 class BaseImageAdmin(UniqueChoiceAdminMixin):
     """
-    Admin interface for OrgImage model, using UniqueChoiceAdminMixin to enforce unique
+    Admin interface for BaseImage model, using UniqueChoiceAdminMixin to enforce unique
     'name' choices. Allows editing of the 'image' field inline.
     """
 
@@ -195,10 +195,10 @@ class ContactSocialLinkAdmin(admin.ModelAdmin):
         return ()
 
 
-@admin.register(ContacNumber, site=portal_site)
+@admin.register(ContactNumber, site=portal_site)
 class ContactNumberAdmin(admin.ModelAdmin):
     """
-    Admin interface for ContacNumber model with support for listing, filtering,
+    Admin interface for ContactNumber model with support for listing, filtering,
     searching, ordering, and inline editing of the 'order' field.
     The 'number' field is read-only when editing an existing object.
     """
@@ -414,7 +414,9 @@ class UserAdmin(DjangoUserAdmin):
         fieldsets = list(fieldsets)
         for name, section in fieldsets:
             section["fields"] = tuple(
-                field for field in section["fields"] if field not in ["is_superuser"]
+                field
+                for field in section["fields"]
+                if field not in ["is_staff", "is_superuser"]
             )
 
         return fieldsets

@@ -2,7 +2,7 @@ from django import template
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
-from ..models import ContacNumber, ContactAddress, ContactEmail, ContactSocialLink
+from ..models import ContactAddress, ContactEmail, ContactNumber, ContactSocialLink
 
 register = template.Library()
 
@@ -69,7 +69,7 @@ def get_phone_numbers():
 
     Usage: {% get_phone_numbers as phone_numbers %}
     """
-    return ContacNumber.objects.filter(is_active=True)
+    return ContactNumber.objects.filter(is_active=True)
 
 
 @register.simple_tag
@@ -80,8 +80,8 @@ def primary_phone():
     Usage: {% primary_phone as main_phone %}
     """
     try:
-        return ContacNumber.objects.get(is_primary=True, is_active=True)
-    except ContacNumber.DoesNotExist:
+        return ContactNumber.objects.get(is_primary=True, is_active=True)
+    except ContactNumber.DoesNotExist:
         return None
 
 
@@ -93,8 +93,8 @@ def whatsapp_phone():
     Usage: {% whatsapp_phone as whatsapp %}
     """
     try:
-        return ContacNumber.objects.get(use_for_whatsapp=True, is_active=True)
-    except ContacNumber.DoesNotExist:
+        return ContactNumber.objects.get(use_for_whatsapp=True, is_active=True)
+    except ContactNumber.DoesNotExist:
         return None
 
 
@@ -272,7 +272,7 @@ def get_contact_info():
     """
     return {
         "social_links": ContactSocialLink.objects.filter(is_active=True),
-        "phone_numbers": ContacNumber.objects.filter(is_active=True),
+        "phone_numbers": ContactNumber.objects.filter(is_active=True),
         "email_addresses": ContactEmail.objects.filter(is_active=True),
         "physical_addresses": ContactAddress.objects.filter(is_active=True),
         "primary_phone": primary_phone(),

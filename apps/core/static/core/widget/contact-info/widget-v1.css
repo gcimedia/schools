@@ -1,14 +1,14 @@
-.contact .contact-addressing {
+.contact-info-container {
   display: flex;
   flex-wrap: wrap;
 }
 
-.contact .contact-addressing>[class*="col-"] {
+.contact-info-container>[class*="col-"] {
   display: flex;
   flex-direction: column;
 }
 
-.contact .info-box {
+.contact-info-container .info-box {
   color: #313030;
   box-shadow: 0 0 30px rgba(214, 215, 216, 0.6);
   padding: 20px;
@@ -17,7 +17,7 @@
   display: flex;
 }
 
-.contact .info-box i {
+.contact-info-container .info-box i {
   font-size: 32px;
   color: var(--accent-color);
   border-radius: 50%;
@@ -33,20 +33,20 @@
 }
 
 /* Create a content wrapper for the text */
-.contact .info-box .content {
+.contact-info-container .info-box .content {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.contact .info-box h3 {
+.contact-info-container .info-box h3 {
   font-size: 20px;
   color: #656262;
   font-weight: 700;
   margin: 10px 0 10px 0;
 }
 
-.contact .info-box p {
+.contact-info-container .info-box p {
   padding: 0;
   line-height: 24px;
   font-size: 14px;

@@ -1,8 +1,8 @@
 {% load static %}
-
-{% include 'core/widget/section-title/styles.html' %}
-<link rel="stylesheet" href="{% static 'core/layout/contact/layout.css' %}">
-
-{% if contact_form|default_if_none:True %}
-  {% include 'core/widget/contact-form/static.html' %}
-{% endif %}
+{# Section Title #}
+{% include 'core/widget/section-title/static-v1.html' %}
+{# Contact Info #}
+{% include 'core/widget/contact-info/static-v1.html' %}
+{# Contact Form #}
+{% include 'core/widget/contact-form/static-v1.html' %}
+<script defer src="{% static 'core/layout/contact/layout.js' %}"></script>

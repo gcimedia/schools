@@ -175,7 +175,7 @@ class ContactSocialLink(models.Model):
         return f'<i class="{self.icon}"></i>' if self.icon else ""
 
 
-class ContacNumber(models.Model):
+class ContactNumber(models.Model):
     """
     Stores phone numbers with metadata such as primary use, WhatsApp usage,
     display status, and order.
@@ -220,12 +220,12 @@ class ContacNumber(models.Model):
             self.use_for_whatsapp = False
 
         if self.is_primary:
-            ContacNumber.objects.filter(is_primary=True).exclude(pk=self.pk).update(
+            ContactNumber.objects.filter(is_primary=True).exclude(pk=self.pk).update(
                 is_primary=False
             )
 
         if self.use_for_whatsapp:
-            ContacNumber.objects.filter(use_for_whatsapp=True).exclude(
+            ContactNumber.objects.filter(use_for_whatsapp=True).exclude(
                 pk=self.pk
             ).update(use_for_whatsapp=False)
 
@@ -430,7 +430,8 @@ class UserRole(Group):
         max_length=100, blank=True, help_text="Human-readable name for this role"
     )
     is_staff_role = models.BooleanField(
-        default=False, help_text="Users with this role can log into this admin site."
+        default=False,
+        help_text="Designates whether users with this role can log into this management portal.",
     )
     is_default_role = models.BooleanField(
         default=False, help_text="New users will be assigned this role by default"
