@@ -3,6 +3,7 @@ __pycache__/
 
 # SQLite Database files, Media files, and Static files from collectstatic
 lib/
+/apps/core/static/core/vendor
 
 # Seed data
 /apps/seed/fixtures

@@ -17,8 +17,8 @@ def vendor_bootstrap():
     else:
         # Use local files in development
         html = f"""
-        <link rel="stylesheet" href="{static("core/vendor/bootstrap-5.3.6/css/bootstrap.min.css")}"/>
-        <script defer src="{static("core/vendor/bootstrap-5.3.6/js/bootstrap.bundle.min.js")}"></script>
+        <link rel="stylesheet" href="{static("core/vendor/node_modules/bootstrap/dist/css/bootstrap.min.css")}"/>
+        <script defer src="{static("core/vendor/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")}"></script>
         """
 
     return mark_safe(html.strip())
@@ -34,7 +34,7 @@ def vendor_bootstrap_icons():
     else:
         # Use local files in development
         html = f"""
-        <link rel="stylesheet" href="{static("core/vendor/bootstrap-icons-1.13.1/bootstrap-icons.min.css")}"/>
+        <link rel="stylesheet" href="{static("core/vendor/node_modules/bootstrap-icons/font/bootstrap-icons.min.css")}"/>
         """
 
     return mark_safe(html.strip())
@@ -51,13 +51,13 @@ def vendor_aos():
     else:
         # Use local files in development
         html = f"""
-        <link rel="stylesheet" href="{static("core/vendor/aos/aos.css")}"/>
-        <script defer src="{static("core/vendor/aos/aos.js")}"></script>
+        <link rel="stylesheet" href="{static("core/vendor/node_modules/aos/dist/aos.css")}"/>
+        <script defer src="{static("core/vendor/node_modules/aos/dist/aos.js")}"></script>
         """
 
     html += f"""
-    <link rel="stylesheet" href="{static("core/vendor/aos/init.css")}"/>
-    <script defer src="{static("core/vendor/aos/init.js")}"></script>
+    <link rel="stylesheet" href="{static("core/init/aos/init.css")}"/>
+    <script defer src="{static("core/init/aos/init.js")}"></script>
     """
 
     return mark_safe(html.strip())

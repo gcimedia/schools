@@ -1,13 +1,26 @@
 # Generated migration file
 
+
+from django.core.management import call_command
 from django.db import migrations
 
 from ..models import BASE_DETAIL_CHOICES, BASE_IMAGE_CHOICES
 
 
+def setup_npm_packages(apps, schema_editor):
+    """
+    Setup npm packages by uninstalling all and then installing defaults.
+    """
+    # First, uninstall all existing packages
+    call_command("npm", "uninstall", "--all", verbosity=1)
+
+    # Then, install the default packages
+    call_command("npm", "install", verbosity=1)
+
+
 def create_choice_instances(apps, schema_editor):
     """
-    Forward migration: Create instances for all choices in BaseDetail and BaseImage
+    Forward migration: Create instances for all choices in BaseDetail and BaseImage.
     """
     BaseDetail = apps.get_model("core", "BaseDetail")
     BaseImage = apps.get_model("core", "BaseImage")
@@ -43,19 +56,46 @@ def create_choice_instances(apps, schema_editor):
         )
 
 
+def forward_migration(apps, schema_editor):
+    """
+    Combined forward migration: Setup npm packages and create choice instances.
+    """
+    # First, setup npm packages
+    setup_npm_packages(apps, schema_editor)
+    # Then, create choice instances
+    create_choice_instances(apps, schema_editor)
+
+
 def reverse_choice_instances(apps, schema_editor):
     """
-    Reverse migration: Remove all instances (optional - you might want to keep data)
+    Reverse migration: Remove all instances created by this migration.
     """
     BaseDetail = apps.get_model("core", "BaseDetail")
     BaseImage = apps.get_model("core", "BaseImage")
 
     # Delete only the specific choice instances, not all instances
-    choice_keys = [key for key, _ in BASE_DETAIL_CHOICES]
-    BaseDetail.objects.filter(name__in=choice_keys).delete()
+    choice_keys_detail = [key for key, _ in BASE_DETAIL_CHOICES]
+    BaseDetail.objects.filter(name__in=choice_keys_detail).delete()
 
-    choice_keys = [key for key, _ in BASE_IMAGE_CHOICES]
-    BaseImage.objects.filter(name__in=choice_keys).delete()
+    choice_keys_image = [key for key, _ in BASE_IMAGE_CHOICES]
+    BaseImage.objects.filter(name__in=choice_keys_image).delete()
+
+
+def cleanup_npm_packages(apps, schema_editor):
+    """
+    Reverse npm setup by removing all packages.
+    """
+    call_command("npm", "uninstall", "--all", verbosity=1)
+
+
+def reverse_migration(apps, schema_editor):
+    """
+    Combined reverse migration: Remove choice instances and cleanup npm packages.
+    """
+    # First, remove choice instances
+    reverse_choice_instances(apps, schema_editor)
+    # Then, cleanup npm packages
+    cleanup_npm_packages(apps, schema_editor)
 
 
 class Migration(migrations.Migration):
@@ -65,7 +105,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(
-            create_choice_instances,
-            reverse_choice_instances,
+            forward_migration,
+            reverse_migration,
         ),
     ]
