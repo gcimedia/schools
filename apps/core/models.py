@@ -99,6 +99,22 @@ class BaseImage(UniqueChoiceBaseModel):
             PNG format recommended for logos and icons to preserve transparency. JPG format recommended for hero.
         """,
     )
+    description = models.TextField(editable=False)
+
+    def save(self, *args, **kwargs):
+        # Set description based on the chosen 'name'
+        if self.name == "base_logo":
+            self.description = "The organization's main logo. Recommended size: 512x512 pixels. PNG format is recommended for transparency."
+        elif self.name == "base_favicon":
+            self.description = "The favicon displayed in browser tabs. Recommended size: 32x32 pixels. Should be a .ico file."
+        elif self.name == "base_apple_touch_icon":
+            self.description = "The icon used when users add the website to their home screen on Apple devices. Recommended size: 180x180 pixels."
+        elif self.name == "base_hero_image":
+            self.description = "The prominent hero or cover image for the website. Recommended sizes: 2560x1440 or 1920x1080 pixels. JPG format is recommended."
+        else:
+            self.description = "Custom image for the organization."
+
+        super().save(*args, **kwargs)
 
 
 # ============================================================================

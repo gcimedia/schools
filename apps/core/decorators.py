@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 
 from .config.auth import auth_config
-from .config.urls import get_landing_url_name
+from .config.urls import landing_url_config
 
 
 def auth_page_required(page_name):
@@ -42,7 +42,7 @@ def auth_page_required(page_name):
                     f"{page_name.title()} is currently unavailable.",
                     extra_tags="auth_page_required",
                 )
-                return redirect(get_landing_url_name())
+                return redirect(landing_url_config.get_landing_url_name())
 
             return view_func(request, *args, **kwargs)
 
@@ -80,7 +80,7 @@ def redirect_authenticated_users(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect(get_landing_url_name())
+            return redirect(landing_url_config.get_landing_url_name())
         return view_func(request, *args, **kwargs)
 
     return _wrapped_view

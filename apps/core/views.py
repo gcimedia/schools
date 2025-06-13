@@ -17,7 +17,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic.edit import CreateView
 from PIL import Image
 
-from .config.urls import get_landing_url_name
+from .config.urls import landing_url_config
 from .decorators import (
     auth_page_required,
     auth_page_required_class,
@@ -275,7 +275,9 @@ def contact(request):
                     "email": sender_email,
                     "subject": sender_subject,
                     "message": sender_message,
-                    "url": request.build_absolute_uri(reverse(get_landing_url_name())),
+                    "url": request.build_absolute_uri(
+                        reverse(landing_url_config.get_landing_url_name())
+                    ),
                 }
 
                 text_content = render_to_string("core/mail/contact.txt", email_context)
@@ -372,7 +374,7 @@ def signin(request):
                 next = request.POST.get("next", "")
                 if next:
                     return redirect(next)
-                return redirect(get_landing_url_name())
+                return redirect(landing_url_config.get_landing_url_name())
             else:
                 messages.error(
                     request, "Invalid username or password.", extra_tags="signin"
@@ -396,7 +398,7 @@ def signout(request):
     """
     logout(request)
     messages.success(request, "You have been successfully logged out.")
-    return redirect(get_landing_url_name())
+    return redirect(landing_url_config.get_landing_url_name())
 
 
 @auth_page_required_class("signup")

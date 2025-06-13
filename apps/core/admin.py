@@ -150,7 +150,7 @@ class BaseImageAdmin(UniqueChoiceAdminMixin):
     """
 
     form = BaseImageForm
-    list_display = ("name", "image")
+    list_display = ("name", "image", "description")
     list_editable = ("image",)
     fieldsets = (("Site Graphic", {"fields": ("name", "image")}),)
 

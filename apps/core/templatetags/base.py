@@ -21,22 +21,18 @@ def load_base_config():
     return config
 
 
-def get_base_config():
+@register.simple_tag
+def base_data(name, default=""):
     """Return base config, using cache in production, always fresh in DEBUG."""
     if settings.DEBUG:
-        return load_base_config()
+        return load_base_config().get(name, default)
 
     base_config = cache.get("base_config")
     if base_config is None:
         base_config = load_base_config()
         cache.set("base_config", base_config, 3600)
 
-    return base_config
-
-
-def get_base_detail(name, default=""):
-    config = get_base_config()
-    return config.get(name, default)
+    return base_config.get(name, default)
 
 
 @register.simple_tag
@@ -48,24 +44,24 @@ def base_meta():
     html = f"""
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <meta name="theme-color" content="{get_base_detail("base_theme_color", "#000")}" />
-    <meta name="author" content="{get_base_detail("base_author")}" />
-    <meta name="description" content="{get_base_detail("base_description")}" />
-    <meta name="keywords" content="{get_base_detail("base_name")}" />
+    <meta name="theme-color" content="{base_data("base_theme_color", "#000")}" />
+    <meta name="author" content="{base_data("base_author")}" />
+    <meta name="description" content="{base_data("base_description")}" />
+    <meta name="keywords" content="{base_data("base_name")}" />
     
     <!-- Twitter -->
-    <meta name="twitter:card" content="{get_base_detail("base_description")}" />
-    <meta name="twitter:site" content="{get_base_detail("base_url")}" />
-    <meta name="twitter:title" content="{get_base_detail("base_name")}" />
-    <meta name="twitter:description" content="{get_base_detail("base_description")}" />
-    <meta name="twitter:image" content="{get_base_detail("base_logo")}" />
-    <meta name="twitter:image:alt" content="{get_base_detail("base_name")}" />
+    <meta name="twitter:card" content="{base_data("base_description")}" />
+    <meta name="twitter:site" content="{base_data("base_url")}" />
+    <meta name="twitter:title" content="{base_data("base_name")}" />
+    <meta name="twitter:description" content="{base_data("base_description")}" />
+    <meta name="twitter:image" content="{base_data("base_logo")}" />
+    <meta name="twitter:image:alt" content="{base_data("base_name")}" />
     
     <!-- Open Graph -->
-    <meta property="og:url" content="{get_base_detail("base_url")}" />
-    <meta property="og:site_name" content="{get_base_detail("base_name")}" />
-    <meta property="og:title" content="{get_base_detail("base_name")}" />
-    <meta property="og:image" content="{get_base_detail("base_logo")}" />
+    <meta property="og:url" content="{base_data("base_url")}" />
+    <meta property="og:site_name" content="{base_data("base_name")}" />
+    <meta property="og:title" content="{base_data("base_name")}" />
+    <meta property="og:image" content="{base_data("base_logo")}" />
     <meta property="og:locale" content="en_GB" />
     """
 
@@ -82,7 +78,7 @@ def base_title(context, title=None, separator=" | "):
       - {% base_title "Custom" " - " %}    ← uses custom separator
     """
 
-    base_name = get_base_detail("base_name")
+    base_name = base_data("base_name")
 
     if title is None:
         title = context.get("page_title")
@@ -102,8 +98,8 @@ def base_icons():
     Usage: {% base_icons %}
     """
 
-    favicon = get_base_detail("base_favicon")
-    apple_icon = get_base_detail("base_apple_touch_icon")
+    favicon = base_data("base_favicon")
+    apple_icon = base_data("base_apple_touch_icon")
 
     html = f"""
     <link rel="icon" type="image/x-icon" href="{favicon}">
@@ -116,36 +112,37 @@ def base_icons():
 @register.simple_tag
 def base_name():
     """Get org name specifically"""
-    return get_base_detail("base_name")
+    return base_data("base_name")
+
 
 @register.simple_tag
 def base_short_name():
     """Get org name specifically"""
-    return get_base_detail("base_short_name")
+    return base_data("base_short_name")
 
 
 @register.simple_tag
 def base_description():
     """Get org description specifically"""
-    return get_base_detail("base_description")
+    return base_data("base_description")
 
 
 @register.simple_tag
 def base_logo():
     """Get org logo URL"""
-    return get_base_detail("base_logo")
+    return base_data("base_logo")
 
 
 @register.simple_tag
 def base_hero_image():
     """Get org logo URL"""
-    return get_base_detail("base_hero_image")
+    return base_data("base_hero_image")
 
 
 @register.simple_tag
 def base_credits():
-    author = get_base_detail("base_author")
-    author_url = get_base_detail("base_author_url")
+    author = base_data("base_author")
+    author_url = base_data("base_author_url")
 
     class_name = "pe-none" if not author_url or author_url == "#" else ""
 
@@ -153,4 +150,3 @@ def base_credits():
         f'Designed by <a href="{author_url}" class="{class_name}"><em>{author}</em></a>'
     )
     return mark_safe(html.strip())
-
