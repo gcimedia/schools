@@ -98,7 +98,7 @@ ROOT_URLCONF = "conf.urls"
 WSGI_APPLICATION = "conf.wsgi.application"
 
 
-# Database settings
+# Database
 # https://docs.djangoproject.com/en/stable/ref/settings/#databases
 # https://docs.djangoproject.com/en/stable/ref/databases/
 
@@ -196,6 +196,20 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default=None)
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=None)
 EMAIL_HOST = config("EMAIL_HOST", default=None)
 
+
+# Cache
+# https://docs.djangoproject.com/en/stable/topics/cache/
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": config("CACHE_LOCATION", default="django_cache"),
+        "TIMEOUT": 300,  # Optional: Default cache timeout in seconds (e.g., 5 minutes)
+        "OPTIONS": {
+            "MAX_ENTRIES": 1000  # Optional: Max number of entries in the cache table
+        },
+    }
+}
 
 # ckeditor 5
 # https://pypi.org/project/django-ckeditor-5/

@@ -1,21 +1,19 @@
-import io
 import json
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.db import connection
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views import View
-from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import CreateView
-from PIL import Image
 
 from .config.urls import landing_url_config
 from .decorators import (
@@ -38,16 +36,18 @@ class ManifestView(View):
     Cached for performance but always up-to-date.
     """
 
-    def dispatch(self, request, *args, **kwargs):
-        # Apply caching only in production (when DEBUG is False)
-        if not settings.DEBUG:  # Production
-            cached_dispatch = cache_page(60 * 15)(super().dispatch)
-            return cached_dispatch(request, *args, **kwargs)
-        else:  # Development - no caching
-            return super().dispatch(request, *args, **kwargs)
-
     def get(self, request):
-        manifest_data = self.generate_manifest_data()
+        # Check cache first in production
+        manifest_data = None
+        if not settings.DEBUG:
+            manifest_data = cache.get("manifest_data")
+
+        if manifest_data is None:
+            manifest_data = self.generate_manifest_data()
+
+            # Cache in production only
+            if not settings.DEBUG:
+                cache.set("manifest_data", manifest_data, 60 * 15)  # 15 minutes
 
         response = JsonResponse(
             manifest_data, json_dumps_params={"indent": 2, "ensure_ascii": False}
@@ -61,7 +61,9 @@ class ManifestView(View):
         name_value = self._get_detail_value("base_name", "")
         short_name_value = self._get_detail_value("base_short_name", "")
         description = self._get_detail_value("base_description", "A Django application")
-        theme_color = self._get_detail_value("base_theme_color", "#000000")
+
+        # Get theme_color without a default. If not found or empty, it will be None.
+        theme_color = self._get_detail_value("base_theme_color", None)
 
         # short_name falls back to name in both cases
         name = short_name_value or name_value or "My App"
@@ -70,14 +72,13 @@ class ManifestView(View):
         # Get icons
         icons = self._generate_icons()
 
-        return {
+        manifest_data = {
             "name": name,
             "short_name": short_name,
             "description": description,
             "start_url": "/",
             "display": "standalone",
-            "background_color": "#ffffff",
-            "theme_color": theme_color,
+            # "background_color" is completely removed from here
             "icons": icons,
             "categories": ["productivity", "utilities"],
             "orientation": "portrait-primary",
@@ -85,10 +86,23 @@ class ManifestView(View):
             "lang": "en",
         }
 
+        # ONLY add theme_color if a value was retrieved from the database
+        if (
+            theme_color
+        ):  # This checks if theme_color is not None and not an empty string
+            manifest_data["theme_color"] = theme_color
+
+        # The conditional addition for background_color is also removed.
+
+        return manifest_data
+
     def _get_detail_value(self, name, default=""):
         """Get value from BaseDetail or return default"""
         try:
             detail = BaseDetail.objects.get(name=name)
+            # This logic means if detail.value is an empty string,
+            # it will fall back to `default`. If `default` is `None`,
+            # then it will return `None` for empty strings.
             return detail.value or default
         except BaseDetail.DoesNotExist:
             return default
@@ -108,11 +122,11 @@ class ManifestView(View):
             try:
                 image_obj = BaseImage.objects.get(name=model_name)
                 if image_obj.image:
-                    # Get resized image URL
-                    resized_url = self._get_resized_image_url(image_obj, model_name)
+                    # Directly use the image's URL
+                    image_url = image_obj.image.url
                     icons.append(
                         {
-                            "src": resized_url,
+                            "src": image_url,
                             "sizes": sizes,
                             "type": icon_type,
                             "purpose": purpose,
@@ -122,121 +136,6 @@ class ManifestView(View):
                 continue
 
         return icons
-
-    def _get_resized_image_url(self, image_obj, image_type):
-        """Return URL for resized image"""
-        request = self.request
-        resize_url = f"/core/resize-image/{image_obj.pk}/?type={image_type}"
-        return request.build_absolute_uri(resize_url)
-
-
-class BaseImageResizeView(View):
-    """
-    Dynamically resize and serve images with compression.
-    Preserves transparency and original background colors.
-    """
-
-    # Size mappings for different image types (removed hero image)
-    SIZE_MAPPING = {
-        "base_logo": (512, 512),
-        "base_favicon": (32, 32),
-        "base_apple_touch_icon": (180, 180),
-    }
-
-    def get(self, request, image_id):
-        try:
-            image_obj = BaseImage.objects.get(pk=image_id)
-            image_type = request.GET.get("type", image_obj.name)
-
-            if not image_obj.image:
-                return HttpResponse("Image not found", status=404)
-
-            # Get target size
-            target_size = self.SIZE_MAPPING.get(image_type, (512, 512))
-
-            # Process the image
-            processed_image = self._resize_and_compress_image(
-                image_obj.image, target_size, image_type
-            )
-
-            # All images are PNG now (no more JPEG hero)
-            content_type = "image/png"
-
-            # Create response
-            response = HttpResponse(processed_image, content_type=content_type)
-            response["Cache-Control"] = "public, max-age=86400"  # Cache for 24 hours
-
-            return response
-
-        except BaseImage.DoesNotExist:
-            return HttpResponse("Image not found", status=404)
-        except Exception as e:
-            return HttpResponse(f"Error processing image: {str(e)}", status=500)
-
-    def _resize_and_compress_image(self, image_field, target_size, image_type):
-        """
-        Resize and compress image while preserving transparency and background colors.
-        """
-        # Open the image
-        img = Image.open(image_field)
-
-        # All remaining image types should preserve transparency
-        preserve_transparency = True
-
-        # Convert palette images to RGBA if they have transparency
-        if img.mode == "P" and "transparency" in img.info:
-            img = img.convert("RGBA")
-        elif img.mode == "P":
-            img = img.convert("RGB")
-
-        # Calculate resize ratio maintaining aspect ratio
-        img_ratio = img.width / img.height
-        target_ratio = target_size[0] / target_size[1]
-
-        if img_ratio > target_ratio:
-            # Image is wider than target ratio
-            new_width = target_size[0]
-            new_height = int(target_size[0] / img_ratio)
-        else:
-            # Image is taller than target ratio
-            new_height = target_size[1]
-            new_width = int(target_size[1] * img_ratio)
-
-        # Resize the image
-        img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
-
-        # Center the image if it's smaller than target size
-        if new_width < target_size[0] or new_height < target_size[1]:
-            # Create new image with appropriate mode
-            if preserve_transparency and img.mode == "RGBA":
-                padded_img = Image.new("RGBA", target_size, (0, 0, 0, 0))  # Transparent
-            else:
-                # Use white background for non-transparent images
-                padded_img = Image.new("RGB", target_size, (255, 255, 255))
-
-            # Paste the resized image in the center
-            paste_x = (target_size[0] - new_width) // 2
-            paste_y = (target_size[1] - new_height) // 2
-
-            if img.mode == "RGBA":
-                padded_img.paste(img, (paste_x, paste_y), img)
-            else:
-                padded_img.paste(img, (paste_x, paste_y))
-
-            img = padded_img
-
-        # Save to BytesIO as PNG (simplified - no more JPEG logic)
-        output = io.BytesIO()
-
-        if img.mode in ("RGBA", "LA"):
-            # Save as PNG to preserve transparency
-            img.save(output, format="PNG", optimize=True, compress_level=6)
-        else:
-            # Save as PNG for all other image types
-            img.save(output, format="PNG", optimize=True, compress_level=6)
-
-        output.seek(0)
-        return output.getvalue()
 
 
 # ============================================================================

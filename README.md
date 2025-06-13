@@ -102,20 +102,26 @@ If using PostgreSQL:
 
 1. Create database tables:
 
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-   ```
+    ```bash
+    python manage.py makemigrations
+    python manage.py migrate
+    ```
 
-2. (Optional) Load sample data:
+2. Create the cache table (required for DatabaseCache):
 
-   - 📄 Create a new `fixtures` folder out of the `examples` folder in the `seed` app.
-   - 📝 Edit the json files in the created `fixtures` folder tailoring it to your needs.
-   - 📤 Load fixtures using:
+    ```bash
+    python manage.py createcachetable
+    ```
 
-   ```bash
-   python manage.py seed
-   ```
+3. (Optional) Load sample data:
+
+    - 📄 Create a new `fixtures` folder out of the `examples` folder in the `seed` app.
+    - 📝 Edit the json files in the created `fixtures` folder tailoring it to your needs.
+    - 📤 Load fixtures using:
+
+    ```bash
+    python manage.py seed
+    ```
 
 **Note**: The `fixtures` folder inside the `apps/seed` directory is gitignored.
 
