@@ -133,7 +133,7 @@ If using PostgreSQL:
 If you're deploying to production and using a web server (like Nginx) to serve static files, collect them into a single location using:
 
    ```bash
-   python manage.py collectstatic --noinput
+   python manage.py buildstatic
    ```
 
 ⚠️ This step is not needed in development, as Django serves static files automatically when `DEBUG=True`.
