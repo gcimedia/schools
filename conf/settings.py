@@ -174,6 +174,8 @@ STATICFILES_FINDERS = [
 STATIC_URL = "lib/static/"
 STATIC_ROOT = BASE_DIR / "lib" / "static"
 
+SASS_PRECISION = 8
+
 
 # Media files
 # https://docs.djangoproject.com/en/latest/ref/settings/#media-files
