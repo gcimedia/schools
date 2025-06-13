@@ -2,7 +2,6 @@ from django.conf import settings
 from django.urls import include, path
 
 urlpatterns = [
-    path("ckeditor5/", include("django_ckeditor_5.urls")),
     path("core/", include("apps.core.urls")),
     path("", include("apps.home.urls")),
 ]

@@ -17,11 +17,11 @@ tzdata = "^2025.2"
 pillow = "^11.2.1"
 psycopg = {extras = ["binary"], version = "^3.2.9"}
 django = "^5.2.2"
-django-ckeditor-5 = "^0.2.18"
-django-recaptcha = "^4.1.0"
 django-phonenumber-field = { extras = ["phonenumberslite"], version = "^8.1.0" }
 gunicorn = "^23.0.0"
 termcolor = "^3.1.0"
+libsass = "^0.23.0"
+django-sass-processor = "^1.4.1"
 
 [tool.poetry.group.dev.dependencies]
 django-browser-reload = "^1.18.0"

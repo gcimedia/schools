@@ -10,11 +10,12 @@ This guide walks you through setting up the project for both **development** and
 
 These apply to **both** development and production setups:
 
-- 🐍 Python 3.13 or higher  
-- 📦 Poetry package manager
+- 🐍 Python 3.13 or higher
+- 📦 Poetry package manager (Python)
+- 📦 NPM package manager (Nodejs)
 - 🐘 PostgreSQL (optional - defaults to SQLite for development)
 
-### B. ⚙️ Poetry Installation
+### B. ⚙️ Poetry and NPM Installation
 
 1. Install Poetry using pip:
 
@@ -28,7 +29,9 @@ These apply to **both** development and production setups:
    poetry config.virtualenvs.in-project true
    ```
 
-3. Install dependencies:
+3. Install NPM (`npm` comes with **NodeJs** by default when you install it)
+
+4. Install dependencies:
 
    - For **development** (includes dev tools and test libs):
 

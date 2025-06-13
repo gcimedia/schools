@@ -12,10 +12,6 @@
     {% vendor_bootstrap %}
     {% vendor_bootstrap_icons %}
     {% vendor_aos %}
-    {% if show_global|default_if_none:True %}
-      <link href="{% static 'core/global/styles.css' %}" rel="stylesheet" />
-      <script defer src="{% static 'core/global/main.js' %}"></script>
-    {% endif %}
     {% if show_header|default_if_none:True %}
       {% include 'core/layout/header/static.html' %}
     {% endif %}

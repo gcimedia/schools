@@ -6,22 +6,25 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 
-@register.simple_tag
+@register.inclusion_tag("core/inclusiontags/vendor_bootstrap.html")
 def vendor_bootstrap():
     if not settings.DEBUG:
         # Use CDN in production
-        html = """
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-        """
+        context = {
+            "use_cdn": True,
+            "js_url": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js",
+            "js_integrity": "sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO",
+        }
     else:
         # Use local files in development
-        html = f"""
-        <link rel="stylesheet" href="{static("core/vendor/node_modules/bootstrap/dist/css/bootstrap.min.css")}"/>
-        <script defer src="{static("core/vendor/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")}"></script>
-        """
+        context = {
+            "use_cdn": False,
+            "js_url": static(
+                "core/vendor/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ),
+        }
 
-    return mark_safe(html.strip())
+    return context
 
 
 @register.simple_tag
