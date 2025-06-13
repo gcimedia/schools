@@ -11,6 +11,23 @@ logger = logging.getLogger(__name__)
 # BASE MODELS
 # ============================================================================
 
+BASE_DETAIL_CHOICES = [
+    ("base_name", "Full Name"),
+    ("base_short_name", "Short Name"),
+    ("base_description", "Motto / Description"),
+    ("base_theme_color", "Theme Color"),
+    ("base_url", "Website URL"),
+    ("base_author", "Author's Name"),
+    ("base_author_url", "Author's Website URL"),
+]
+
+BASE_IMAGE_CHOICES = [
+    ("base_logo", "Logo"),
+    ("base_favicon", "Favicon"),
+    ("base_apple_touch_icon", "Apple touch icon"),
+    ("base_hero_image", "Hero / cover image"),
+]
+
 
 class UniqueChoiceBaseModel(models.Model):
     """
@@ -54,14 +71,7 @@ class BaseDetail(UniqueChoiceBaseModel):
     theme color, or URLs.
     """
 
-    CHOICES = [
-        ("base_name", "Name"),
-        ("base_description", "Motto / Description"),
-        ("base_theme_color", "Theme Color"),
-        ("base_url", "Website URL"),
-        ("base_author", "Author's Name"),
-        ("base_author_url", "Author's Website URL"),
-    ]
+    CHOICES = BASE_DETAIL_CHOICES
     ORDER_MAPPING = {key: i + 1 for i, (key, _) in enumerate(CHOICES)}
 
     name = models.CharField(max_length=25, choices=CHOICES, unique=True)
@@ -76,12 +86,7 @@ class BaseImage(UniqueChoiceBaseModel):
     and hero images.
     """
 
-    CHOICES = [
-        ("base_logo", "Logo"),
-        ("base_favicon", "Favicon"),
-        ("base_apple_touch_icon", "Apple touch icon"),
-        ("base_hero_image", "Hero / cover image"),
-    ]
+    CHOICES = BASE_IMAGE_CHOICES
     ORDER_MAPPING = {key: i + 1 for i, (key, _) in enumerate(CHOICES)}
 
     name = models.CharField(max_length=25, choices=CHOICES, unique=True)
@@ -89,7 +94,10 @@ class BaseImage(UniqueChoiceBaseModel):
         upload_to="core/base",
         null=True,
         blank=True,
-        help_text="Image file for logos, favicons, etc.",
+        help_text="""
+            Upload images in recommended sizes: Logo (512x512), Favicon (32x32), Apple Touch Icon (180x180), Hero Image (2560x1440 or 1920x1080).
+            PNG format recommended for logos and icons to preserve transparency. JPG format recommended for hero.
+        """,
     )
 
 

@@ -118,6 +118,11 @@ def base_name():
     """Get org name specifically"""
     return get_base_detail("base_name")
 
+@register.simple_tag
+def base_short_name():
+    """Get org name specifically"""
+    return get_base_detail("base_short_name")
+
 
 @register.simple_tag
 def base_description():

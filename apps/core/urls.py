@@ -1,9 +1,22 @@
 from django.urls import path
 
 from .admin_site import portal_site
-from .views import SignUpView, contact, signin, signout
+from .views import (
+    BaseImageResizeView,
+    ManifestView,
+    SignUpView,
+    contact,
+    signin,
+    signout,
+)
 
 urlpatterns = [
+    path("manifest.json", ManifestView.as_view(), name="webmanifest"),
+    path(
+        "resize-image/<int:image_id>/",
+        BaseImageResizeView.as_view(),
+        name="resize_image",
+    ),
     path("portal/", portal_site.urls, name="portal"),
     path("mail/contact-us/", contact, name="contact"),
     path("auth/signup/", SignUpView.as_view(), name="signup"),
